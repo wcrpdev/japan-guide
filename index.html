@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F4E79">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ไกด์ญี่ปุ่น">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>ไกด์ญี่ปุ่นใกล้ฉัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Noto+Sans+JP:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky location bar + tabs on top, a radar of what's near, then a single column of place cards sorted by distance */
+:root{
+  --bg:#F3F4F1; --surface:#FFFFFF; --ink:#1B1F27; --muted:#636A75; --line:#DFE2DE;
+  --accent:#1F4E79; --accent-soft:#E3ECF5; --torii:#C2402B;
+  --ok:#2E7D4F; --warn:#B26A00;
+  --font-body:"IBM Plex Sans Thai","Sukhumvit Set","Thonburi","Noto Sans Thai",system-ui,sans-serif;
+  --font-jp:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151B; --surface:#1B2029; --ink:#E9ECF1; --muted:#9AA3B0; --line:#2C333F;
+  --accent:#8DB8E6; --accent-soft:#1F2C3D; --torii:#F07A62; --ok:#6CC895; --warn:#E8B04B; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#12151B; --surface:#1B2029; --ink:#E9ECF1; --muted:#9AA3B0; --line:#2C333F;
+  --accent:#8DB8E6; --accent-soft:#1F2C3D; --torii:#F07A62; --ok:#6CC895; --warn:#E8B04B; color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 48px}
+header.top{padding-top:env(safe-area-inset-top);position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-inner{max-width:720px;margin:0 auto;padding:12px 16px 10px;display:grid;gap:10px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand h1{margin:0;font-size:1.2rem;font-weight:700;text-wrap:balance;display:flex;align-items:center;gap:8px}
+.brand h1 .mark{width:22px;height:22px;flex:none}
+.net{font-size:.78rem;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.net.on{color:var(--ok);border-color:currentColor}
+.net.off{color:var(--warn);border-color:currentColor}
+.loc{display:flex;gap:8px;align-items:stretch}
+.loc-info{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.loc-info .l1{font-weight:600;font-size:.95rem;overflow-wrap:anywhere}
+.loc-info .l2{font-size:.8rem;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;font-size:.88rem;font-weight:500}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+
+
+
+.chips{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:.86rem;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip .n{opacity:.6;margin-left:4px;font-variant-numeric:tabular-nums}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 4px;flex-wrap:wrap}
+.row label{font-size:.85rem;color:var(--muted)}
+select{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 10px;font-size:.88rem}
+.radar-box{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:10px;display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center}
+.radar-box svg{width:150px;height:150px;display:block}
+.radar-sum .big{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.radar-sum .sub{color:var(--muted);font-size:.85rem}
+.radar-sum .near{margin-top:8px;font-size:.88rem}
+.radar-sum .near b{font-weight:600}
+@media (max-width:420px){.radar-box{grid-template-columns:120px 1fr}.radar-box svg{width:120px;height:120px}}
+.notice{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:.88rem;margin-top:10px}
+.notice b{font-weight:600}
+.list{display:grid;gap:10px;margin-top:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:6px;scroll-margin-top:120px}
+.card.flash{outline:2px solid var(--torii)}
+.c-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.c-name{font-weight:600;font-size:1.02rem;line-height:1.35}
+.c-jp{font-family:var(--font-jp);font-size:.82rem;color:var(--muted);font-weight:500}
+.dist{text-align:right;flex:none;font-variant-numeric:tabular-nums}
+.dist .km{font-weight:700;font-size:1rem}
+.dist .walk{font-size:.76rem;color:var(--muted);white-space:nowrap}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.78rem}
+.tag{padding:2px 8px;border-radius:6px;font-weight:600;border:1px solid currentColor}
+.area{color:var(--muted)}
+.price{color:var(--muted);letter-spacing:1px}
+.c-desc{font-size:.92rem}
+.c-tip{font-size:.84rem;color:var(--muted);border-left:3px solid var(--torii);padding-left:8px}
+.c-act{display:flex;gap:8px;margin-top:2px;flex-wrap:wrap}
+.c-act a,.c-act button{font-size:.84rem;text-decoration:none;border:1px solid var(--line);background:transparent;border-radius:9px;padding:5px 10px;color:var(--ink)}
+.c-act a.go{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.c-act button[aria-pressed="true"]{color:var(--torii);border-color:var(--torii)}
+.empty{color:var(--muted);text-align:center;padding:28px 8px;font-size:.92rem}
+.more{width:100%;margin-top:10px}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:0;width:min(520px,calc(100% - 32px));max-height:85vh}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{padding:16px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;overflow-y:auto;overflow-x:hidden;max-height:85vh}
+dialog{overflow:hidden}
+.dlg h2{margin:0;font-size:1.05rem}
+.dlg h3{margin:6px 0 0;font-size:.85rem;color:var(--muted);font-weight:600}
+.grid-c{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.grid-c button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-size:.88rem}
+.grid-c button small{display:block;color:var(--muted);font-size:.74rem}
+.inline{display:flex;gap:8px}
+.inline input{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px}
+.err{color:var(--torii);font-size:.84rem}
+.err:empty{display:none}
+.field{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px}
+.howto{margin:0;padding-left:20px;font-size:.82rem;color:var(--muted);display:grid;gap:2px}
+#findRes:empty{display:none}
+.howto-box summary{cursor:pointer;font-size:.84rem;color:var(--accent);font-weight:500}
+.howto-box .howto{margin-top:6px}
+.howto-box p.howto{display:block;padding-left:0}
+.pres{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:6px;font-size:.88rem;background:var(--bg)}
+.pres.ok{border-color:var(--ok)}
+.pres.warn{border-color:var(--warn)}
+.pres .t{font-weight:600}
+.pres .s{color:var(--muted);font-size:.8rem;font-variant-numeric:tabular-nums}
+.pres .btn{justify-self:start}
+.search{position:relative;margin-top:12px}
+.search input{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 38px 10px 38px;font-size:.95rem}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
+.search button{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--muted);font-size:1.1rem;padding:4px 8px}
+.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.filters label{display:grid;gap:2px;font-size:.74rem;color:var(--muted)}
+.filters select{width:100%;padding:6px 6px}
+@media (max-width:520px){.filters{grid-template-columns:repeat(2,1fr)}}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:.85rem;color:var(--muted);flex-wrap:wrap}
+.bar .btn{padding:6px 12px}
+.bar .btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.linkbtn{border:0;background:none;color:var(--accent);font-size:.82rem;padding:2px 0;text-decoration:underline}
+.card.selectable{cursor:pointer;grid-template-columns:28px 1fr;column-gap:10px}
+.card.selectable>*{grid-column:2}
+.card.selectable>.cbx{grid-column:1;grid-row:1 / span 6;align-self:start;margin-top:2px}
+.cbx{width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center;color:var(--bg);font-size:.8rem;font-weight:700}
+.card.sel{border-color:var(--accent);background:var(--accent-soft)}
+.card.sel .cbx{background:var(--accent);border-color:var(--accent)}
+.selbar{position:sticky;bottom:0;z-index:6;margin:12px -16px 0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);display:grid;gap:8px;box-shadow:0 -6px 18px rgba(0,0,0,.08)}
+.selbar[hidden]{display:none}
+.selbar .cnt{font-weight:600;font-size:.92rem;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.selbar .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.selbar .acts .btn{padding:8px 4px;font-size:.84rem}
+.selbar .btn:disabled{opacity:.45}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:99px;font-size:.86rem;z-index:20;max-width:calc(100% - 32px)}
+.toast[hidden]{display:none}
+.rt-mini{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;border:1px dashed var(--line);background:var(--bg);border-radius:10px;padding:6px 10px;text-align:left;font-size:.8rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+.rt-mini .rec{font-weight:700;color:var(--ok)}
+.rt-mini .all{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.rt-mini .off{opacity:.45}
+.rt-inline{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.c-act button.go{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.rt-foot a{color:var(--accent)}
+.rt-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.rt-tabs button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 2px;display:grid;gap:1px;text-align:center;font-variant-numeric:tabular-nums}
+.rt-tabs button[aria-selected="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.rt-tabs button[data-rt="rec"]{border-color:var(--ok)}
+.rt-tabs button.dis{opacity:.5}
+.rt-l{font-size:.74rem;font-weight:600}
+.rt-t{font-size:.86rem;font-weight:700}
+.rt-c{font-size:.68rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rt-sum{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.rt-sum .big{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.rt-why{font-size:.84rem;color:var(--ok)}
+.rt-why.muted{color:var(--muted)}
+.rt-steps{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.rt-steps li{display:grid;grid-template-columns:32px 1fr;gap:8px;padding:8px 0;border-left:2px dashed var(--line);margin-left:15px;padding-left:0;position:relative}
+.rt-steps li .ic{width:30px;height:30px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;margin-left:-16px;font-size:.95rem}
+.rt-steps .h{font-weight:600;font-size:.9rem}
+.rt-steps .d{font-size:.82rem;color:var(--muted)}
+.rt-steps .d small{font-size:.74rem}
+.rt-gm{text-align:center;text-decoration:none}
+.rt-foot{font-size:.74rem;color:var(--muted);margin:0}
+@media (max-width:380px){.rt-l{font-size:.68rem}.rt-t{font-size:.78rem}}
+/* ---- app shell ---- */
+:root{--bnav:62px}
+body{padding-bottom:calc(var(--bnav) + env(safe-area-inset-bottom))}
+.btn .sm{font-size:.78rem;margin-left:2px}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
+.bnav button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:7px 0 6px;font-size:.74rem;color:var(--muted);position:relative;min-height:var(--bnav)}
+.bnav .i{font-size:1.25rem;line-height:1.2;filter:grayscale(1);opacity:.7}
+.bnav button[aria-current="page"]{color:var(--accent);font-weight:700}
+.bnav button[aria-current="page"] .i{filter:none;opacity:1}
+.bnav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+.badge{position:absolute;top:4px;left:56%;background:var(--torii);color:#fff;font-size:.66rem;border-radius:99px;padding:0 5px;min-width:16px;line-height:16px}
+.selbar{bottom:calc(var(--bnav) + env(safe-area-inset-bottom))!important}
+.toast{bottom:calc(var(--bnav) + 24px)!important}
+body[data-view="map"] .listview{display:none}
+body[data-view="list"] #mapView{display:none}
+.fbox{margin-top:8px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.fbox summary{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;cursor:pointer;font-size:.86rem;font-weight:600;list-style:none}
+.fbox summary::-webkit-details-marker{display:none}
+.fbox summary #fsum{font-weight:400;color:var(--muted);font-size:.8rem;text-align:right}
+.fbox .filters{padding:0 12px 12px}
+.thumb{width:64px;height:64px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:1.7rem;background:var(--accent-soft) center/cover no-repeat;position:relative;overflow:hidden}
+.thumb.has{font-size:0}
+.c-head{display:flex;gap:12px;align-items:flex-start;min-width:0}
+.c-head>div{min-width:0}
+.c-act .nav-go{background:var(--torii);border-color:var(--torii);color:#fff;font-weight:700}
+.credit{font-size:.66rem;color:var(--muted)}
+#mapView{display:grid;gap:8px;margin-top:10px}
+.map-wrap{position:relative}
+#map{height:calc(100vh - 290px);min-height:320px;border-radius:14px;border:1px solid var(--line);background:var(--accent-soft)}
+.map-me{position:absolute;right:10px;bottom:10px;z-index:500;font-size:1.2rem;padding:6px 12px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+#mapCard:empty{display:none}
+#mapView .radar-box{grid-template-columns:1fr;justify-items:center;text-align:center}
+#mapView .radar-box svg{width:min(100%,340px);height:auto}
+#mapCard .card{margin-top:2px}
+dialog.full{width:100%;max-width:640px;height:100%;max-height:100%;margin:0 auto;border-radius:0;border:0;padding:0;overflow:hidden}
+.nav-body{height:100%;overflow-y:auto;padding:12px 16px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.nav-body>*{flex-shrink:0}
+.nav-top{display:flex;gap:10px;align-items:center;position:sticky;top:-12px;background:var(--surface);padding:12px 0 8px;margin-top:-12px;z-index:2}
+.nav-title{min-width:0}
+.nav-photo{height:170px;border-radius:14px;background:center/cover no-repeat var(--accent-soft);position:relative}
+.credit-on{position:absolute;right:6px;bottom:6px;font-size:.62rem;background:rgba(0,0,0,.55);color:#fff;padding:1px 6px;border-radius:6px}
+.compass-box{display:grid;grid-template-columns:minmax(150px,200px) 1fr;gap:16px;align-items:center}
+#compass{width:100%;height:auto}
+#cRing,#cArrow{transition:transform .25s ease-out;transform-origin:0 0}
+.nav-dist .big{font-size:2.2rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.nav-dist .muted,.muted{color:var(--muted);font-size:.86rem}
+.nav-hint{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:.9rem}
+.nav-hint.arrived{background:var(--ok);color:#fff;font-weight:700;font-size:1.05rem;text-align:center}
+#navMap{height:220px;border-radius:14px;border:1px solid var(--line)}
+.nav-sec h3{margin:0 0 6px;font-size:.92rem}
+.ask{border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px}
+.ask-jp{font-family:var(--font-jp);font-size:1.9rem;font-weight:700;line-height:1.3}
+.ask-phrase{display:grid;font-family:var(--font-jp);font-size:1.1rem}
+.ask-phrase small{font-family:var(--font-body);font-size:.78rem;color:var(--muted)}
+.ask .c-act a{font-size:.84rem;color:var(--accent);align-self:center}
+@media (max-width:380px){.compass-box{grid-template-columns:140px 1fr}.nav-dist .big{font-size:1.8rem}}
+footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <h1><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5.5h20M4 9h16M7 5.5V21M17 5.5V21" stroke="var(--torii)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>ไกด์ญี่ปุ่นใกล้ฉัน</h1>
+      <span id="net" class="net">ออนไลน์</span>
+    </div>
+    <div class="loc">
+      <div class="loc-info" aria-live="polite">
+        <div class="l1" id="locL1">กำลังหาตำแหน่ง…</div>
+        <div class="l2" id="locL2">ขออนุญาตใช้ตำแหน่งจากเบราว์เซอร์</div>
+      </div>
+      <button class="btn primary" id="btnGps" type="button" aria-label="ใช้ตำแหน่งปัจจุบัน">📍<span class="sm">GPS</span></button>
+      <button class="btn" id="btnPick" type="button">เลือกจุด</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="notice"></div>
+  <div class="listview">
+  <div class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="q" type="search" placeholder="ค้นหา: ราเมง, กิออน, ใบไม้แดง, 寿司…" autocomplete="off" aria-label="ค้นหา">
+    <button type="button" id="qClear" aria-label="ล้างคำค้น" hidden>✕</button>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="ประเภท (เลือกได้หลายอัน)"></div>
+  <details class="fbox" id="fbox">
+    <summary><span>⚙︎ ตัวกรอง</span><span id="fsum"></span></summary>
+  <div class="filters">
+    <label for="radius">ระยะ
+      <select id="radius">
+        <option value="1">1 กม.</option>
+        <option value="3">3 กม.</option>
+        <option value="10" selected>10 กม.</option>
+        <option value="40">40 กม.</option>
+        <option value="99999">ทั้งญี่ปุ่น</option>
+      </select></label>
+    <label for="city">เมือง
+      <select id="city"><option value="all">ทุกเมือง</option></select></label>
+    <label for="price">ราคา
+      <select id="price">
+        <option value="0">ทุกระดับ</option>
+        <option value="1">¥ ประหยัด</option>
+        <option value="2">ไม่เกิน ¥¥</option>
+        <option value="3">ไม่เกิน ¥¥¥</option>
+      </select></label>
+    <label for="sort">เรียง
+      <select id="sort">
+        <option value="near">ใกล้สุด</option>
+        <option value="cheap">ถูกสุด</option>
+        <option value="name">ชื่อ ก-ฮ</option>
+      </select></label>
+  </div>
+  </details>
+  <div class="bar">
+    <span id="resInfo"></span>
+    <span style="display:flex;gap:10px;align-items:center"><button type="button" class="linkbtn" id="resetF" hidden>ล้างตัวกรอง</button>
+    <button type="button" class="btn" id="selToggle" aria-pressed="false">☑ เลือกหลายรายการ</button></span>
+  </div>
+  <div class="list" id="list"></div>
+  <button class="btn more" id="more" type="button" hidden>แสดงเพิ่ม</button>
+  <div class="selbar" id="selBar" hidden>
+    <div class="cnt"><span id="selCnt">เลือก 0 รายการ</span><span style="display:flex;gap:14px;align-items:center"><button type="button" class="linkbtn" id="selAll">เลือกทั้งหมด</button><button type="button" class="btn" id="selDone">เสร็จ</button></span></div>
+    <div class="acts">
+      <button type="button" class="btn primary" id="selSave">★ บันทึก</button>
+      <button type="button" class="btn" id="selRemove">เอาออก</button>
+      <button type="button" class="btn" id="selCopy">คัดลอกรายการ</button>
+    </div>
+  </div>
+  </div>
+  <section id="mapView" aria-label="แผนที่">
+    <div class="chips" id="mapChips" role="group" aria-label="แสดงบนแผนที่">
+      <button type="button" class="chip" data-mf="f" aria-pressed="true">🍜 ร้านอาหาร</button>
+      <button type="button" class="chip" data-mf="s" aria-pressed="true">⛩️ ที่เที่ยว</button>
+      <button type="button" class="chip" data-mf="fav" aria-pressed="false">★ เฉพาะที่บันทึก</button>
+    </div>
+    <div class="map-wrap">
+      <div id="map" role="application" aria-label="แผนที่ร้านและที่เที่ยว"></div>
+      <button type="button" class="btn map-me" id="mapMe" aria-label="กลับมาที่ตำแหน่งฉัน">◎</button>
+    </div>
+    <div id="mapFallback" hidden>
+      <div class="notice" id="mapMsg"></div>
+      <section class="radar-box" aria-label="เรดาร์สิ่งที่อยู่ใกล้">
+        <svg id="radar" viewBox="-100 -100 200 200" role="img" aria-label="เรดาร์ตำแหน่งสถานที่รอบตัว"></svg>
+        <div class="radar-sum" id="radarSum"></div>
+      </section>
+    </div>
+    <div id="mapCard"></div>
+  </section>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <footer>ข้อมูลและวิธีเดินทางคำนวณในหน้านี้ ใช้ได้แม้ไม่มีเน็ต เวลาและราคาเป็นค่าประมาณ · ลิงก์ "เทียบกับ Google Maps" ต้องใช้เน็ต<br>ทางออกสถานีดูจากป้ายสีเหลือง 出口 (Exit) ในสถานี · ค่าแท็กซี่: โตเกียว ¥500 กม.แรก แล้ว ¥100 ทุก 232 ม. · เกียวโต ¥500 900 ม.แรก แล้ว ¥100 ทุก 255 ม. · 22:00–05:00 บวก 20%<br>เวลาเปิด-ปิดและวันหยุดร้านเปลี่ยนได้ ควรเช็กก่อนไป<br>ภาพสถานที่จาก Wikipedia / Wikimedia Commons · แผนที่ © OpenStreetMap contributors</footer>
+</main>
+<nav class="bnav" aria-label="เมนูหลัก">
+  <button type="button" data-tab="f" aria-current="page"><span class="i">🍜</span><span>ร้านอาหาร</span></button>
+  <button type="button" data-tab="s"><span class="i">⛩️</span><span>ที่เที่ยว</span></button>
+  <button type="button" data-tab="map"><span class="i">🗺️</span><span>แผนที่</span></button>
+  <button type="button" data-tab="fav"><span class="i">★</span><span>บันทึกไว้</span><b class="badge" id="favBadge" hidden></b></button>
+</nav>
+<dialog id="nav" class="full" aria-labelledby="navName">
+  <div class="nav-body">
+    <div class="nav-top">
+      <button type="button" class="btn" id="navClose">← กลับ</button>
+      <div class="nav-title"><div class="c-name" id="navName"></div><div class="c-jp" id="navJp" lang="ja"></div></div>
+    </div>
+    <div class="nav-photo" id="navPhoto" hidden><span class="credit-on">ภาพ: Wikipedia / Wikimedia Commons</span></div>
+    <div class="compass-box">
+      <svg id="compass" viewBox="-110 -110 220 220" role="img" aria-label="ลูกศรชี้ทาง">
+        <g id="cRing"><circle r="100" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+          <text y="-80" text-anchor="middle" font-size="18" font-weight="700" fill="var(--torii)">N</text>
+          <text x="84" y="6" text-anchor="middle" font-size="13" fill="var(--muted)">E</text>
+          <text y="92" text-anchor="middle" font-size="13" fill="var(--muted)">S</text>
+          <text x="-84" y="6" text-anchor="middle" font-size="13" fill="var(--muted)">W</text></g>
+        <g id="cArrow"><path d="M0,-72 L26,18 L0,4 L-26,18 Z" fill="var(--accent)"/><circle r="6" fill="var(--accent)"/></g>
+      </svg>
+      <div class="nav-dist"><div class="big" id="navKm"></div><div id="navEta"></div><div id="navDir" class="muted"></div></div>
+    </div>
+    <div class="nav-hint" id="navHint"></div>
+    <button type="button" class="btn primary" id="navCompassBtn">🧭 เปิดเข็มทิศ (ลูกศรหมุนตามมือถือ)</button>
+    <div id="navMap" hidden></div>
+    <section class="nav-sec"><h3>วิธีเดินทาง</h3><div id="navRoute" class="rt-inline"></div></section>
+    <section class="nav-sec ask">
+      <h3>ถามทางคนญี่ปุ่น · ยื่นจอให้ดู</h3>
+      <div class="ask-jp" id="askJp" lang="ja"></div>
+      <div class="ask-phrase"><span lang="ja">すみません、ここに行きたいです。</span><small>Sumimasen, koko ni ikitai desu · ขอโทษครับ/ค่ะ อยากไปที่นี่</small></div>
+      <div class="ask-phrase"><span lang="ja">駅はどこですか？</span><small>Eki wa doko desu ka · สถานีรถไฟอยู่ที่ไหน</small></div>
+      <div class="c-act"><button type="button" id="askCopy">คัดลอกชื่อญี่ปุ่น</button><a id="navGm" target="_blank" rel="noopener">เทียบกับ Google Maps</a></div>
+    </section>
+  </div>
+</dialog>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <div class="dlg">
+    <h2 id="dlgT">ตอนนี้อยู่ที่ไหน</h2>
+    <div class="err" id="coordErr"></div>
+    <h3><label for="coordIn">1 · วางลิงก์ Google Maps, พิกัด หรือ Plus Code</label></h3>
+    <div class="inline">
+      <input id="coordIn" type="text" placeholder="ลิงก์, พิกัด หรือ Plus Code เช่น GQWH+R72 โอตะ" autocomplete="off" enterkeyhint="go">
+      <button class="btn primary" id="coordGo" type="button">หาจุด</button>
+    </div>
+    <div id="pasteRes"></div>
+    <details class="howto-box">
+      <summary>วิธีคัดลอกจาก Google Maps</summary>
+      <ol class="howto">
+        <li><b>ตำแหน่งตัวเอง:</b> ในแอป Google Maps แตะจุดสีฟ้าค้างไว้จนมีหมุดแดง ตัวเลขพิกัดจะขึ้นในช่องค้นหา แตะค้างที่ตัวเลขแล้วคัดลอก</li>
+        <li><b>สถานที่:</b> เปิดสถานที่นั้น กด แชร์ แล้วเลือก คัดลอก (ได้ชื่อ ที่อยู่ และลิงก์) วางมาทั้งหมดได้เลย</li>
+        <li><b>Plus Code:</b> ในหน้าสถานที่ของ Google Maps มีรหัสแบบ GQWH+R72 โอตะ โตเกียว แตะเพื่อคัดลอกแล้ววางได้เลย ใช้ได้แม้ไม่มีเน็ต</li>
+        <li><b>บนเว็บ:</b> คัดลอก URL ยาวจากแถบที่อยู่ (google.com/maps/…) มาวาง จะได้จุดแม่นที่สุด</li>
+      </ol>
+      <p class="howto">ลิงก์สั้น maps.app.goo.gl ไม่มีพิกัดอยู่ในลิงก์ ต้องใช้เน็ตแปลง ระบบจะเดาจากชื่อและที่อยู่ที่แชร์มาด้วยแทน</p>
+    </details>
+    <h3><label for="findIn">2 · พิมพ์ชื่อที่ที่อยู่ใกล้ (ไทย ญี่ปุ่น หรือชื่อย่าน)</label></h3>
+    <input id="findIn" class="field" type="search" placeholder="เช่น คิโยมิสึ, ชิบุยะ, 浅草寺" autocomplete="off">
+    <div class="grid-c" id="findRes"></div>
+    <h3>3 · หรือเลือกย่าน</h3>
+    <div id="cityGrid"></div>
+    <button class="btn" id="dlgClose" type="button">ปิด</button>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+/* ---------- categories ---------- */
+const CATS = {
+  f: [
+    ["ramen","ราเมง","#C2402B"],["sushi","ซูชิ/ซีฟู้ด","#1F6FA8"],["beef","เนื้อ/ยากินิกุ","#8A3B2E"],
+    ["fried","ทงคัตสึ/เทมปุระ","#B26A00"],["local","อาหารท้องถิ่น","#5B6B2E"],["market","ตลาด/สตรีทฟู้ด","#2E7D4F"],
+    ["sweet","คาเฟ่/ของหวาน","#A0457A"],["izakaya","อิซากายะ/ซอยดื่ม","#6A4FA3"]
+  ],
+  s: [
+    ["temple","วัด/ศาลเจ้า","#C2402B"],["view","จุดชมวิว","#1F6FA8"],["photo","จุดถ่ายรูป","#A0457A"],
+    ["shop","ช้อปปิ้ง","#B26A00"],["sight","สถานที่ท่องเที่ยว","#2E7D4F"]
+  ]
+};
+const CAT = {}; for (const t in CATS) for (const [k,l,c] of CATS[t]) CAT[k]={l,c,t};
+
+/* ---------- data: [type, cat, name, japanese, lat, lng, area, description, tip, price] ---------- */
+const RAW = [
+/* Tokyo – food */
+["f","ramen","Ichiran ชิบุยะ","一蘭 渋谷店",35.6609,139.7005,"ชิบุยะ, โตเกียว","ราเมงทงคตสึสไตล์ฟุกุโอกะ นั่งคอกส่วนตัว สั่งผ่านกระดาษ","เปิดดึก คิวน้อยช่วงหลังสี่ทุ่ม","¥¥"],
+["f","ramen","AFURI เอบิสึ","AFURI 恵比寿",35.6470,139.7101,"เอบิสึ, โตเกียว","ราเมงซุปเกลือหอมยูซุ น้ำซุปใส ไม่เลี่ยน","สั่งผ่านตู้ตั๋วหน้าร้าน","¥¥"],
+["f","ramen","Fuunji ชินจูกุ","風雲児",35.6869,139.6960,"ชินจูกุใต้, โตเกียว","สึเคเมงน้ำซุปไก่+ปลาข้นมาก เส้นเหนียว","คิวยาวช่วงเที่ยง ไปก่อนเปิด","¥¥"],
+["f","ramen","Ginza Kagari","銀座 篝",35.6717,139.7640,"กินซ่า, โตเกียว","ราเมงซุปไก่ขาวข้นแบบครีม (โทริไพตัน)","ร้านเล็กในซอย คิว 30-60 นาที","¥¥"],
+["f","ramen","Rokurinsha (Tokyo Ramen Street)","六厘舎 東京ラーメンストリート",35.6800,139.7680,"สถานีโตเกียว","สึเคเมงชื่อดัง ในชั้นใต้ดินสถานีโตเกียว","เปิดเช้า มีเมนูอาซะ-สึเคเมง","¥¥"],
+["f","sushi","Sushi Dai โทโยสุ","寿司大 豊洲市場",35.6457,139.7853,"ตลาดโทโยสุ, โตเกียว","ซูชิโอมากาเสะสดจากตลาดปลา","คิวเริ่มตั้งแต่ตี 5 วันพุธ/อาทิตย์ตลาดมักปิด","¥¥¥"],
+["f","sushi","Sushi Zanmai สาขาหลัก","すしざんまい 本店",35.6654,139.7710,"สึกิจิ, โตเกียว","ซูชิราคาจับต้องได้ เปิด 24 ชม.","เหมาะเป็นมื้อดึก","¥¥"],
+["f","sushi","Uobei ชิบุยะ","魚べい 渋谷道玄坂店",35.6597,139.6986,"ชิบุยะ, โตเกียว","ซูชิสายพานสั่งผ่านจอ ส่งด้วยรางด่วน","ราคาประหยัด เด็กชอบ","¥"],
+["f","market","ตลาดนอกสึกิจิ","築地場外市場",35.6655,139.7707,"สึกิจิ, โตเกียว","ไข่หวานทามาโกะยากิ หอยย่าง ดงบุริ เดินกินได้ทั้งเช้า","ไปก่อน 10 โมง ร้านปิดเร็วช่วงบ่าย","¥¥"],
+["f","market","อาเมโยโกะ","アメ横商店街",35.7101,139.7745,"อุเอโนะ, โตเกียว","ตลาดยาวใต้ทางรถไฟ ผลไม้เสียบไม้ ซีฟู้ด อิซากายะยืน","บรรยากาศดีช่วงเย็น","¥"],
+["f","fried","Tonkatsu Maisen อาโอยามะ","とんかつ まい泉 青山本店",35.6680,139.7108,"โอโมเตะซันโด, โตเกียว","ทงคัตสึหมูคุโรบุตะนุ่ม ในอาคารโรงอาบน้ำเก่า","แซนด์วิชคัตสึซื้อกลับได้","¥¥"],
+["f","fried","Tempura Tsunahachi","つな八 新宿本店",35.6913,139.7036,"ชินจูกุ, โตเกียว","เทมปุระร้านเก่าแก่ตั้งแต่ปี 1924 ราคามิตรภาพ","นั่งเคาน์เตอร์เพื่อกินร้อนๆ","¥¥"],
+["f","beef","Gyukatsu Motomura ชิบุยะ","牛かつ もと村 渋谷店",35.6595,139.7016,"ชิบุยะ, โตเกียว","เนื้อชุบทอดสุกนอกแดงใน ย่างต่อบนหินร้อนเอง","คิวยาว ไปช่วงบ่ายสาม","¥¥"],
+["f","beef","Asakusa Imahan","浅草今半 本店",35.7123,139.7924,"อาซากุสะ, โตเกียว","สุกี้ยากี้เนื้อวากิวร้านดังตั้งแต่ยุคเมจิ","มื้อกลางวันคุ้มกว่ามื้อเย็น","¥¥¥¥"],
+["f","beef","Yakiniku Champion เอบิสึ","焼肉チャンピオン 恵比寿本店",35.6469,139.7099,"เอบิสึ, โตเกียว","ยากินิกุวากิวเกรดดี เลือกส่วนได้ละเอียด","ควรจองล่วงหน้า","¥¥¥"],
+["f","local","ถนนมนจะ สึกิชิมะ","月島もんじゃストリート",35.6627,139.7835,"สึกิชิมะ, โตเกียว","มนจะยากิแป้งเหลวผัดบนเตา อาหารประจำโตเกียว","พนักงานช่วยทำให้ได้ถ้าขอ","¥¥"],
+["f","izakaya","ซอยโอโมอิเดะ โยโกโจ","思い出横丁",35.6930,139.6993,"ชินจูกุตะวันตก","ซอยไก่ย่างยากิโทริ ร้านเล็กเรียงกัน ควันหอม","บางร้านคิดค่าที่นั่ง","¥¥"],
+["f","izakaya","ชินจูกุ โกลเดนไก","新宿ゴールデン街",35.6940,139.7046,"คาบุกิโจ, โตเกียว","บาร์จิ๋วกว่า 200 ร้าน แต่ละร้านธีมไม่ซ้ำ","ดูป้ายค่าเข้า (cover charge) ก่อนเข้า","¥¥"],
+["f","izakaya","Gonpachi นิชิอาซาบุ","権八 西麻布",35.6591,139.7240,"รปปงงิ, โตเกียว","อิซากายะบรรยากาศโรงเตี๊ยมเก่า โซบะ+ยากิโทริ","ฉากต่อสู้ในหนัง Kill Bill ได้แรงบันดาลใจจากที่นี่","¥¥¥"],
+["f","sweet","เครปถนนทาเคชิตะ","竹下通り クレープ",35.6716,139.7030,"ฮาราจุกุ, โตเกียว","เครปไส้ครีม ผลไม้ ไอศกรีม ของคู่ฮาราจุกุ","ร้าน Marion และ Santa Monica ต้นตำรับ","¥"],
+["f","sweet","Asakusa Kagetsudo","浅草花月堂 本店",35.7139,139.7963,"อาซากุสะ, โตเกียว","เมลอนปังจัมโบ้อบใหม่ กรอบนอกนุ่มใน","ซื้อแล้วเดินไปวัดเซ็นโซจิได้เลย","¥"],
+/* Tokyo – spots */
+["s","temple","วัดเซ็นโซจิ","浅草寺",35.7148,139.7967,"อาซากุสะ, โตเกียว","วัดเก่าแก่ที่สุดของโตเกียว ประตูโคมแดงคามินาริมง","ไปเช้าก่อน 8 โมงหรือหลังมืด คนน้อยและไฟสวย",""],
+["s","temple","ศาลเจ้าเมจิ","明治神宮",35.6764,139.6993,"ฮาราจุกุ, โตเกียว","ศาลเจ้ากลางป่าใหญ่ ประตูโทริอิไม้สูง 12 เมตร","เดินจากสถานีฮาราจุกุ 10 นาที",""],
+["s","temple","ศาลเจ้าเนซึ","根津神社",35.7203,139.7610,"ยานากะ, โตเกียว","อุโมงค์โทริอิแดงเล็กๆ คนน้อยกว่าฟุชิมิอินาริ","ต่อด้วยเดินย่านเก่ายานากะ",""],
+["s","temple","วัดโกโตคุจิ","豪徳寺",35.6487,139.6474,"เซตางายะ, โตเกียว","วัดแมวกวัก มีตุ๊กตามาเนกิเนโกะนับพันตัว","ซื้อแมวกวักถวายได้ที่วัด",""],
+["s","view","Shibuya Sky","渋谷スカイ",35.6585,139.7024,"ชิบุยะ, โตเกียว","ดาดฟ้าเปิดโล่ง 229 ม. เห็นสี่แยกชิบุยะและฟูจิ","จองรอบพระอาทิตย์ตกล่วงหน้า",""],
+["s","view","ตึกรัฐบาลกรุงโตเกียว","東京都庁 展望室",35.6896,139.6921,"ชินจูกุตะวันตก","จุดชมวิวฟรีชั้น 45 วันฟ้าใสเห็นฟูจิ","มีโปรเจกชันแมปปิ้งบนตึกตอนค่ำ",""],
+["s","view","โตเกียวสกายทรี","東京スカイツリー",35.7101,139.8107,"โอชิอาเกะ, โตเกียว","หอคอยสูง 634 ม. ชั้นชมวิว 350 และ 450 ม.","ด้านล่างมีห้าง Solamachi",""],
+["s","view","โตเกียวทาวเวอร์","東京タワー",35.6586,139.7454,"ชิบะ, โตเกียว","หอคอยสีแดงขาวสัญลักษณ์โตเกียว","ถ่ายจากวัดโซโจจิด้านล่างได้มุมคลาสสิก",""],
+["s","photo","สี่แยกชิบุยะ","渋谷スクランブル交差点",35.6595,139.7005,"ชิบุยะ, โตเกียว","ทางม้าลายที่คนข้ามพร้อมกันมากที่สุดในโลก","ถ่ายจากชั้นบน Shibuya Scramble Square หรือ Mag's Park",""],
+["s","photo","สถานีโตเกียว ฝั่งมารุโนะอุจิ","東京駅 丸の内駅舎",35.6812,139.7671,"มารุโนะอุจิ, โตเกียว","อาคารอิฐแดงสไตล์ยุโรปปี 1914","ถ่ายจากดาดฟ้า KITTE ฟรี",""],
+["s","photo","กันดั้มยักษ์ โอไดบะ","ユニコーンガンダム立像",35.6250,139.7756,"โอไดบะ, โตเกียว","หุ่นยูนิคอร์นกันดั้มขนาดจริง แปลงร่างตามรอบ","ดูตารางแปลงร่างหน้า DiverCity",""],
+["s","sight","ทีมแล็บ แพลนเน็ตส์","チームラボプラネッツ",35.6491,139.7898,"โทโยสุ, โตเกียว","มิวเซียมดิจิทัลอาร์ต เดินลุยน้ำในงานศิลป์","ใส่กางเกงพับขาได้ จองตั๋วออนไลน์",""],
+["s","sight","สวนชินจูกุเกียวเอ็น","新宿御苑",35.6852,139.7100,"ชินจูกุ, โตเกียว","สวนใหญ่ผสมญี่ปุ่น อังกฤษ ฝรั่งเศส ใบไม้แดงปลายพ.ย.","ห้ามนำแอลกอฮอล์เข้า",""],
+["s","sight","สวนพระราชวังฝั่งตะวันออก","皇居東御苑",35.6852,139.7528,"มารุโนะอุจิ, โตเกียว","ซากปราสาทเอโดะและสวนญี่ปุ่น เข้าฟรี","ปิดวันจันทร์และวันศุกร์",""],
+["s","sight","สวนอุเอโนะ","上野恩賜公園",35.7156,139.7745,"อุเอโนะ, โตเกียว","สวนสาธารณะ พิพิธภัณฑ์แห่งชาติ สวนสัตว์","รวมพิพิธภัณฑ์หลายแห่งในที่เดียว",""],
+["s","shop","ถนนนากามิเซะ","仲見世通り",35.7117,139.7964,"อาซากุสะ, โตเกียว","ร้านของฝากและขนมสองข้างทางเข้าวัดเซ็นโซจิ","ห้ามเดินกินบนถนน ให้ยืนกินหน้าร้าน",""],
+["s","shop","ถนนทาเคชิตะ","竹下通り",35.6715,139.7031,"ฮาราจุกุ, โตเกียว","แฟชั่นวัยรุ่น ของคาวาอี้ ร้าน 100 เยน","วันหยุดคนแน่นมาก",""],
+["s","shop","กินซ่า","銀座",35.6717,139.7650,"กินซ่า, โตเกียว","ห้างหรู Uniqlo/Muji สาขาใหญ่ Itoya เครื่องเขียน","เสาร์-อาทิตย์ปิดถนนเป็นถนนคนเดิน",""],
+["s","shop","อากิฮาบาระ","秋葉原電気街",35.6984,139.7731,"อากิฮาบาระ, โตเกียว","เครื่องใช้ไฟฟ้า อนิเมะ ฟิกเกอร์ เกมมือสอง","Yodobashi Akiba ชั้นบนมีร้านอาหาร",""],
+["s","shop","MEGA ดองกี้ ชิบุยะ","MEGAドン・キホーテ 渋谷本店",35.6610,139.6970,"ชิบุยะ, โตเกียว","ขนม ยา เครื่องสำอาง ของฝากครบ เปิด 24 ชม.","ยอดเกิน 5,000 เยนขอคืนภาษีได้ ใช้พาสปอร์ต",""],
+["s","shop","Shibuya 109","渋谷109",35.6596,139.6988,"ชิบุยะ, โตเกียว","ห้างแฟชั่นวัยรุ่นสาวญี่ปุ่น","",""],
+["s","shop","ชิโมคิตะซาวะ","下北沢",35.6613,139.6680,"เซตางายะ, โตเกียว","ร้านเสื้อผ้าวินเทจ คาเฟ่ แผ่นเสียง","ย่าน Reload และ Bonus Track เดินสบาย",""],
+/* Yokohama / Kamakura */
+["f","local","ไชน่าทาวน์โยโกฮามะ","横浜中華街",35.4437,139.6460,"โยโกฮามะ","ไชน่าทาวน์ใหญ่ที่สุดในญี่ปุ่น ซาลาเปา เสี่ยวหลงเปา","เดินกินจากซุ้มประตูเข้าไป","¥¥"],
+["s","view","ท่าเรือโอซัมบาชิ","大さん橋",35.4512,139.6470,"โยโกฮามะ","ดาดฟ้าไม้ชมวิวมินาโตะมิไรยามค่ำ","สวยสุดช่วงหลังพระอาทิตย์ตก",""],
+["s","shop","โกดังอิฐแดง","横浜赤レンガ倉庫",35.4528,139.6425,"โยโกฮามะ","โกดังเก่าแปลงเป็นร้านค้าและร้านอาหาร","ปลายพ.ย.เริ่มมีตลาดคริสต์มาส",""],
+["s","sight","พิพิธภัณฑ์ Cup Noodles","カップヌードルミュージアム 横浜",35.4555,139.6385,"โยโกฮามะ","ทำบะหมี่ถ้วยสูตรตัวเองได้","จองรอบ Chicken Ramen Factory ล่วงหน้า",""],
+["s","temple","พระใหญ่คามาคุระ","鎌倉大仏 (高徳院)",35.3167,139.5358,"คามาคุระ","พระพุทธรูปสำริดกลางแจ้งสูง 11 ม.","เข้าไปดูในองค์พระได้",""],
+["s","temple","ศาลเจ้าสึรุงะโอกะ ฮาจิมังงู","鶴岡八幡宮",35.3260,139.5563,"คามาคุระ","ศาลเจ้าหลักของคามาคุระ บันไดสูงเห็นถนนตรงยาว","",""],
+["s","photo","ทางข้ามรถไฟคามาคุระโคโคมาเอะ","鎌倉高校前踏切",35.3066,139.5007,"คามาคุระ","จุดถ่ายรถไฟเอโนเด็นตัดทะเล ฉากอนิเมะดัง","อย่ายืนบนถนน ระวังรถ",""],
+["s","shop","ถนนโคมาจิ","小町通り",35.3205,139.5530,"คามาคุระ","ถนนช้อปปิ้งและของกินจากสถานีคามาคุระ","",""],
+/* Fuji / Hakone / Nikko */
+["s","photo","เจดีย์ชูเรโตะ","新倉山浅間公園 忠霊塔",35.5013,138.8013,"ฟูจิโยชิดะ","เจดีย์แดง 5 ชั้นคู่ฟูจิ ภาพในตำนาน","บันได 398 ขั้น ไปเช้าฟ้าใสกว่า",""],
+["s","view","สวนโออิชิ ทะเลสาบคาวากุจิ","大石公園",35.5180,138.7510,"คาวากุจิโกะ","ฟูจิข้ามทะเลสาบ ฤดูใบไม้ร่วงมีพุ่มโคเคียสีแดง","",""],
+["s","photo","ลอว์สันฟูจิ","ローソン 河口湖駅前店",35.5000,138.7686,"คาวากุจิโกะ","ภาพฟูจิหลังร้านสะดวกซื้อ","มีกฎห้ามข้ามถนนจุดเดียว ถ่ายจากทางเท้า",""],
+["f","local","Hoto Fudou","ほうとう不動 東恋路店",35.5085,138.7670,"คาวากุจิโกะ","โฮโตะ เส้นแบนต้มมิโซะกับฟักทองในหม้อเหล็ก","อาคารรูปเมฆสีขาว","¥¥"],
+["s","temple","ศาลเจ้าฮาโกเนะ","箱根神社",35.2047,139.0254,"ฮาโกเนะ","โทริอิแดงตั้งในทะเลสาบอาชิ","คิวถ่ายรูปหน้าโทริอิยาว ไปเช้า",""],
+["s","view","โอวาคุดานิ","大涌谷",35.2440,139.0196,"ฮาโกเนะ","หุบเขาไอกำมะถัน ไข่ดำต้มบ่อร้อน","ปิดเมื่อก๊าซภูเขาไฟสูง เช็กก่อนไป",""],
+["s","sight","พิพิธภัณฑ์กลางแจ้งฮาโกเนะ","箱根彫刻の森美術館",35.2446,139.0507,"ฮาโกเนะ","ประติมากรรมกลางแจ้ง มีอ่างแช่เท้าฟรี","",""],
+["s","temple","ศาลเจ้านิกโกโทโชงู","日光東照宮",36.7580,139.5986,"นิกโก","ศาลเจ้าแกะสลักวิจิตร ลิงสามตัวปิดหูตาปาก","ใบไม้แดงนิกโกพีคกลางต.ค.-ต้นพ.ย.",""],
+["s","view","น้ำตกเคงอน","華厳の滝",36.7381,139.5019,"นิกโก","น้ำตกสูง 97 ม. มีลิฟต์ลงจุดชม","หนาวมากช่วงปลายพ.ย.",""],
+/* Kyoto – food */
+["f","market","ตลาดนิชิกิ","錦市場",35.0050,135.7648,"ใจกลางเกียวโต","ตลาดในร่ม 400 ม. ไข่หวาน ผักดอง ปลาหมึกยัดไข่","ห้ามเดินกิน ยืนกินหน้าร้าน","¥¥"],
+["f","ramen","Honke Daiichi Asahi","本家 第一旭 たかばし本店",34.9853,135.7610,"สถานีเกียวโต","ราเมงโชยุสไตล์เกียวโต ชาชูเยอะ","เปิดเช้า คิวเร็ว","¥"],
+["f","ramen","Menya Gogyo","麺屋 五行",35.0070,135.7610,"ใจกลางเกียวโต","ราเมงมิโซะไหม้ (โคกาชิ) น้ำซุปสีดำ","","¥¥"],
+["f","local","Omen กินคาคุจิ","おめん 銀閣寺本店",35.0255,135.7930,"กินคาคุจิ, เกียวโต","อุด้งจุ่มน้ำซุปร้อนกับผักสด 7 ชนิด","อยู่ต้นทางเดินนักปรัชญา","¥¥"],
+["f","local","Okutan นันเซ็นจิ","南禅寺 奥丹",35.0119,135.7930,"นันเซ็นจิ, เกียวโต","ยุโดฟุ เต้าหู้ต้มในบ้านไม้กับสวนญี่ปุ่น","เหมาะคนกินมังสวิรัติ","¥¥¥"],
+["f","sushi","Izuju","いづ重",35.0036,135.7787,"กิออน, เกียวโต","ซาบะซูชิและอินาริซูชิสไตล์เกียวโต","อยู่ตรงข้ามศาลเจ้ายาซากะ","¥¥"],
+["f","beef","Hafuu","肉専科 はふう 本店",35.0115,135.7595,"ใจกลางเกียวโต","สเต๊กวากิวและบีฟคัตสึชื่อดัง","ควรจอง","¥¥¥"],
+["f","fried","Katsukura ซันโจ","名代とんかつ かつくら 三条本店",35.0090,135.7680,"ซันโจ, เกียวโต","ทงคัตสึ ข้าว กะหล่ำ ซุป เติมฟรี","","¥¥"],
+["f","sweet","Gion Tsujiri","祇園辻利 本店",35.0036,135.7744,"กิออน, เกียวโต","ของหวานมัทฉะ พาร์เฟต์ ไอศกรีม","ร้านคาเฟ่ Saryo Tsujiri อยู่ชั้นบน","¥¥"],
+["f","sweet","% Arabica ฮิงาชิยามะ","% ARABICA 京都 東山",35.0010,135.7795,"ฮิงาชิยามะ, เกียวโต","กาแฟลาเต้ดัง บนทางขึ้นวัดคิโยมิสึ","","¥"],
+["f","izakaya","ซอยพนโตะโจ","先斗町",35.0058,135.7710,"พนโตะโจ, เกียวโต","ซอยแคบริมแม่น้ำคาโมะ ร้านอาหารและบาร์","บางร้านไม่รับลูกค้าที่ไม่จอง","¥¥¥"],
+/* Kyoto – spots */
+["s","temple","ฟุชิมิ อินาริ","伏見稲荷大社",34.9671,135.7727,"ฟุชิมิ, เกียวโต","อุโมงค์โทริอิแดงนับพันต้นขึ้นเขาอินาริ","เดินขึ้นเลยจุดยตสึจิไปจะคนน้อยลงมาก",""],
+["s","temple","วัดคิโยมิสึเดระ","清水寺",34.9949,135.7850,"ฮิงาชิยามะ, เกียวโต","ระเบียงไม้บนหน้าผา มองเห็นเมืองเกียวโต","ปลายพ.ย.มีเปิดไลต์อัปใบไม้แดงตอนค่ำ",""],
+["s","temple","วัดคินคะคุจิ","金閣寺",35.0394,135.7292,"คิตะ, เกียวโต","ศาลาทองสะท้อนบ่อน้ำ","ไปตอนเปิด 9 โมงแสงสวยคนน้อย",""],
+["s","temple","วัดกินคะคุจิ","銀閣寺",35.0270,135.7982,"ฮิงาชิยามะ, เกียวโต","ศาลาเงินกับสวนทรายและมอส","ต่อด้วยทางเดินนักปรัชญา",""],
+["s","temple","วัดโทฟุคุจิ","東福寺",34.9767,135.7739,"ฮิงาชิยามะใต้, เกียวโต","สะพานสึเท็นเคียวกลางทะเลใบไม้แดง","ช่วงพีคใบไม้แดง (ปลายพ.ย.) ห้ามถ่ายรูปบนสะพาน",""],
+["s","temple","วัดเอคันโด","永観堂 禅林寺",35.0144,135.7946,"ซาเคียว, เกียวโต","ได้ชื่อว่าใบไม้แดงสวยที่สุดในเกียวโต","มีรอบไลต์อัปกลางคืนช่วงฤดูใบไม้ร่วง",""],
+["s","temple","วัดเท็นริวจิ","天龍寺",35.0157,135.6738,"อาราชิยามะ, เกียวโต","สวนบ่อน้ำมรดกโลก ออกประตูหลังไปป่าไผ่ได้","",""],
+["s","temple","ศาลเจ้ายาซากะ","八坂神社",35.0037,135.7785,"กิออน, เกียวโต","ศาลเจ้าประจำย่านกิออน โคมไฟสวยตอนค่ำ","เปิด 24 ชม.",""],
+["s","photo","ป่าไผ่อาราชิยามะ","嵐山 竹林の小径",35.0170,135.6719,"อาราชิยามะ, เกียวโต","ทางเดินกลางไผ่สูง","ไปก่อน 7:30 จะได้ภาพไม่มีคน",""],
+["s","photo","ซันเนนซากะ นิเนนซากะ","三年坂・二年坂",34.9960,135.7810,"ฮิงาชิยามะ, เกียวโต","ถนนหินเก่า บ้านไม้ ใส่กิโมโนถ่ายรูปได้","มี Starbucks ในบ้านไม้เก่า",""],
+["s","photo","เจดีย์ยาซากะ (ฮกคันจิ)","八坂の塔 (法観寺)",34.9985,135.7792,"ฮิงาชิยามะ, เกียวโต","เจดีย์ 5 ชั้นกลางตรอก มุมภาพปกเกียวโต","ถ่ายจากถนนยาซากะโดริด้านล่าง",""],
+["s","photo","ฮานามิโคจิ กิออน","祇園 花見小路",35.0025,135.7752,"กิออน, เกียวโต","ถนนโรงน้ำชาเก่า อาจพบเกโกะ/ไมโกะ","ห้ามถ่ายในซอยส่วนตัว มีค่าปรับ",""],
+["s","view","ศาลาเซริวเด็น โชกุนซึกะ","将軍塚青龍殿",35.0040,135.7880,"ฮิงาชิยามะ, เกียวโต","ระเบียงไม้บนเขาเห็นเกียวโตทั้งเมือง คนน้อย","นั่งแท็กซี่ขึ้นสะดวกสุด",""],
+["s","view","เกียวโตทาวเวอร์","京都タワー",34.9875,135.7593,"สถานีเกียวโต","จุดชมวิว 100 ม. ตรงข้ามสถานี","",""],
+["s","sight","ทางเดินนักปรัชญา","哲学の道",35.0200,135.7945,"ซาเคียว, เกียวโต","ทางเดินริมคลอง 2 กม. ระหว่างกินคะคุจิกับนันเซ็นจิ","",""],
+["s","sight","ปราสาทนิโจ","二条城",35.0142,135.7481,"นากาเกียว, เกียวโต","ปราสาทโชกุน พื้นไม้ร้องเหมือนนกไนติงเกล","",""],
+["s","shop","เทรามาจิ & ชินเคียวโงกุ","寺町・新京極商店街",35.0058,135.7678,"ใจกลางเกียวโต","ถนนช้อปปิ้งมีหลังคา ของฝาก เสื้อผ้า ร้าน 100 เยน","ต่อกับตลาดนิชิกิ",""],
+["s","shop","อิเซตัน สถานีเกียวโต","ジェイアール京都伊勢丹",34.9858,135.7588,"สถานีเกียวโต","ห้างในสถานี ชั้นใต้ดินขนมเกียวโตครบ","ซื้อยัตสึฮาชิเป็นของฝาก",""],
+/* Nara */
+["s","temple","วัดโทไดจิ","東大寺",34.6890,135.8398,"นารา","พระใหญ่ในอาคารไม้ใหญ่ที่สุดแห่งหนึ่งของโลก","มุดรูเสาเชื่อว่าโชคดี",""],
+["s","temple","ศาลเจ้าคาสุงะไทฉะ","春日大社",34.6813,135.8484,"นารา","ทางเดินโคมหินนับพันในป่า","",""],
+["s","sight","สวนนารา (กวาง)","奈良公園",34.6851,135.8430,"นารา","กวางเดินอิสระนับพันตัว ขายข้าวเกรียบให้กวาง","กวางกัดได้ ซ่อนกระดาษแผนที่",""],
+["s","view","ภูเขาวากากุสะ","若草山",34.6880,135.8520,"นารา","เขาหญ้าเห็นเมืองนาราทั้งเมือง","ปิดช่วงฤดูหนาว เช็กก่อนไป",""],
+["f","sweet","Nakatanidou","中谷堂",34.6820,135.8290,"นารา","โมจิตำสดโชว์ความเร็ว ไส้ถั่วแดง","","¥"],
+/* Osaka – food */
+["f","market","โดทงโบริ","道頓堀",34.6687,135.5013,"นัมบะ, โอซาก้า","ถนนของกินขึ้นชื่อ ทาโกะยากิ คุชิคัตสึ ราเมง","สวยตอนค่ำ ป้ายไฟเต็มคลอง","¥¥"],
+["f","market","ตลาดคุโรมง","黒門市場",34.6655,135.5065,"นิปปมบาชิ, โอซาก้า","ซีฟู้ดย่าง หอยเม่น เนื้อวากิวเสียบไม้","ราคาสูงกว่าตลาดทั่วไป ดูป้ายก่อนซื้อ","¥¥¥"],
+["f","market","Takoyaki Wanaka","たこ焼道楽 わなか 千日前本店",34.6650,135.5030,"นัมบะ, โอซาก้า","ทาโกะยากิกรอบนอกเยิ้มใน ร้านดังของคนโอซาก้า","ร้อนจัด เป่าก่อนเข้าปาก","¥"],
+["f","local","Mizuno","美津の",34.6685,135.5017,"โดทงโบริ, โอซาก้า","โอโคโนมิยากิเก่าแก่ตั้งแต่ปี 1945","คิวยาว ไปก่อนเปิด","¥¥"],
+["f","local","Kushikatsu Daruma ชินเซไค","串カツだるま 新世界総本店",34.6520,135.5060,"ชินเซไค, โอซาก้า","คุชิคัตสึต้นตำรับ ห้ามจิ้มซอสซ้ำ","","¥¥"],
+["f","ramen","Kinryu Ramen","金龍ラーメン 道頓堀店",34.6688,135.5020,"โดทงโบริ, โอซาก้า","ราเมงหน้ามังกรยักษ์ กิมจิเติมฟรี เปิด 24 ชม.","","¥"],
+["f","sushi","Endo Sushi","ゑんどう寿司 京橋店",34.6858,135.4775,"ตลาดกลางโอซาก้า","ซูชิในตลาดปลา เปิดตั้งแต่เช้ามืด","ปิดวันอาทิตย์","¥¥"],
+["f","sushi","Harukoma","春駒 本店",34.7020,135.5125,"เท็นมะ, โอซาก้า","ซูชิชิ้นใหญ่ราคาดีในถนนเท็นจินบาชิ","","¥¥"],
+["f","beef","Matsusakagyu Yakiniku M","松阪牛焼肉M 法善寺横丁店",34.6680,135.5025,"นัมบะ, โอซาก้า","ยากินิกุเนื้อมัตสึซากะ","ควรจอง","¥¥¥¥"],
+["f","sweet","Rikuro Ojisan","りくろーおじさんの店 なんば本店",34.6655,135.5010,"นัมบะ, โอซาก้า","ชีสเค้กญี่ปุ่นนุ่มเด้ง อบใหม่ตลอด","กดกริ่งเมื่อชีสเค้กออกจากเตา","¥"],
+["f","izakaya","อุระนัมบะ","裏なんば",34.6640,135.5055,"นัมบะ, โอซาก้า","ซอยอิซากายะเล็กๆ บรรยากาศคนท้องถิ่น","","¥¥"],
+/* Osaka – spots */
+["s","sight","ปราสาทโอซาก้า","大阪城",34.6873,135.5262,"ชูโอ, โอซาก้า","ปราสาทกลางสวนใหญ่ ใบไม้เหลืองแปะก๊วยปลายพ.ย.","",""],
+["s","view","Umeda Sky Building","梅田スカイビル 空中庭園",34.7053,135.4906,"อุเมดะ, โอซาก้า","ดาดฟ้าวงแหวนลอยฟ้า 173 ม.","",""],
+["s","view","Abeno Harukas 300","あべのハルカス 展望台",34.6460,135.5133,"เทนโนจิ, โอซาก้า","จุดชมวิว 300 ม. สูงสุดในโอซาก้า","",""],
+["s","view","ชิงช้าสวรรค์ HEP FIVE","HEP FIVE 観覧車",34.7038,135.5005,"อุเมดะ, โอซาก้า","ชิงช้าสวรรค์สีแดงบนห้าง","",""],
+["s","photo","ป้ายกูลิโกะ","グリコサイン",34.6688,135.5010,"โดทงโบริ, โอซาก้า","ป้ายนักวิ่งสัญลักษณ์โอซาก้า","ถ่ายจากสะพานเอบิสึบาชิ",""],
+["s","photo","ชินเซไค & สึเตนคาคุ","新世界 通天閣",34.6525,135.5063,"ชินเซไค, โอซาก้า","ย่านย้อนยุค ป้ายไฟจัดจ้าน หอคอยสึเตนคาคุ","",""],
+["s","photo","ศาลเจ้านัมบะยาซากะ","難波八阪神社",34.6609,135.4972,"นัมบะ, โอซาก้า","อาคารหัวสิงโตยักษ์อ้าปาก","",""],
+["s","temple","วัดชิเทนโนจิ","四天王寺",34.6536,135.5164,"เทนโนจิ, โอซาก้า","วัดพุทธเก่าแก่ที่สุดในญี่ปุ่น (ค.ศ. 593)","",""],
+["s","temple","ศาลเจ้าสุมิโยชิไทฉะ","住吉大社",34.6125,135.4930,"สุมิโยชิ, โอซาก้า","สะพานโค้งแดงสูงชัน สถาปัตยกรรมศาลเจ้าโบราณ","",""],
+["s","shop","ชินไซบาชิสึจิ","心斎橋筋商店街",34.6740,135.5015,"ชินไซบาชิ, โอซาก้า","ถนนช้อปปิ้งมีหลังคา 600 ม. ร้านยา เสื้อผ้า","",""],
+["s","shop","เด็นเด็นทาวน์","でんでんタウン",34.6600,135.5060,"นิปปมบาชิ, โอซาก้า","อากิฮาบาระแห่งโอซาก้า อนิเมะ เกม","",""],
+["s","sight","ยูนิเวอร์แซล สตูดิโอ เจแปน","ユニバーサル・スタジオ・ジャパン",34.6654,135.4323,"เบย์แอเรีย, โอซาก้า","สวนสนุกธีมภาพยนตร์ โซนซูเปอร์นินเทนโดเวิลด์","ซื้อ Express Pass ล่วงหน้า",""],
+/* Kobe */
+["f","beef","Steak Land โกเบ","ステーキランド 神戸館",34.6935,135.1940,"ซันโนมิยะ, โกเบ","สเต๊กเนื้อโกเบบนเทปปันยากิ ราคาเข้าถึงได้","ชุดกลางวันคุ้มที่สุด","¥¥¥"],
+["s","photo","คิตาโนะ อิจินคัง","北野異人館街",34.7010,135.1910,"คิตาโนะ, โกเบ","บ้านชาวต่างชาติยุคเมจิบนเนิน","",""],
+/* Hiroshima / Miyajima */
+["s","sight","สวนอนุสรณ์สันติภาพฮิโรชิมะ","平和記念公園",34.3955,132.4536,"ฮิโรชิมะ","โดมระเบิดปรมาณูและพิพิธภัณฑ์สันติภาพ","",""],
+["f","local","Okonomimura","お好み村",34.3920,132.4620,"ฮิโรชิมะ","อาคารรวมร้านโอโคโนมิยากิสไตล์ฮิโรชิมะใส่เส้น","","¥¥"],
+["s","photo","โทริอิกลางทะเล มิยาจิมะ","厳島神社 大鳥居",34.2959,132.3199,"มิยาจิมะ","โทริอิแดงลอยน้ำ ศาลเจ้าอิตสึกุชิมะ","น้ำลงเดินถึงโทริอิได้ เช็กตารางน้ำ",""],
+["s","view","ภูเขามิเซ็น","弥山",34.2793,132.3195,"มิยาจิมะ","กระเช้าขึ้นเขาเห็นทะเลเซโตะใน","",""],
+["f","sushi","Kakiya มิยาจิมะ","牡蠣屋",34.2990,132.3220,"มิยาจิมะ","หอยนางรมย่างและทอด ของขึ้นชื่อมิยาจิมะ","","¥¥"],
+/* Kanazawa */
+["s","sight","สวนเคนโรคุเอ็น","兼六園",36.5621,136.6627,"คานาซาวะ","หนึ่งในสามสวนที่งามที่สุดของญี่ปุ่น ยุกิซึริผูกเชือกกันหิมะ","",""],
+["s","photo","ย่านโรงน้ำชาฮิงาชิ","ひがし茶屋街",36.5724,136.6665,"คานาซาวะ","บ้านไม้เก่าเรียงราย ไอศกรีมทองคำเปลว","",""],
+["s","photo","ประตูสึซึมิ สถานีคานาซาวะ","鼓門",36.5781,136.6480,"คานาซาวะ","ประตูไม้รูปกลองญี่ปุ่นหน้าสถานี","",""],
+["f","market","ตลาดโอมิโจ","近江町市場",36.5715,136.6564,"คานาซาวะ","ข้าวหน้าซีฟู้ด ปูหิมะฤดูหนาว","ฤดูปูเริ่ม พ.ย.","¥¥¥"],
+["s","sight","พิพิธภัณฑ์ศตวรรษที่ 21","金沢21世紀美術館",36.5609,136.6582,"คานาซาวะ","ศิลปะร่วมสมัย สระว่ายน้ำลวงตา","",""],
+/* Nagoya */
+["s","temple","ศาลเจ้าอัตสึตะ","熱田神宮",35.1283,136.9087,"นาโกย่า","ศาลเจ้าเก็บดาบศักดิ์สิทธิ์คุซานางิ","",""],
+["s","sight","ปราสาทนาโกย่า","名古屋城",35.1856,136.8991,"นาโกย่า","ปราสาทหลังคาปลาทองคำ ตำหนักฮนมารุ","",""],
+["f","local","Atsuta Horaiken","あつた蓬莱軒 本店",35.1260,136.9070,"นาโกย่า","ฮิตสึมาบุชิ ข้าวหน้าปลาไหลกิน 3 แบบ","คิวยาว รับบัตรคิวก่อน","¥¥¥"],
+["f","fried","Yabaton","矢場とん 矢場町本店",35.1640,136.9070,"ซาคาเอะ, นาโกย่า","มิโซะคัตสึ ทงคัตสึราดซอสมิโซะแดง","","¥¥"],
+["s","shop","ย่านโอสึ","大須商店街",35.1590,136.9010,"นาโกย่า","ถนนช้อปปิ้งมีหลังคา ของมือสอง สตรีทฟู้ด","",""],
+/* Hokkaido */
+["f","market","ตลาดนิโจ","二条市場",43.0580,141.3580,"ซัปโปโร","ข้าวหน้าซีฟู้ด ปูขน หอยเชลล์","มาเช้าเพื่อกินข้าวหน้าไข่ปลา","¥¥¥"],
+["f","ramen","ซอยราเมงซัปโปโร","元祖さっぽろラーメン横丁",43.0545,141.3540,"ซุซุกิโนะ, ซัปโปโร","ซอยร้านราเมงมิโซะ 17 ร้าน","","¥¥"],
+["f","ramen","Sumire นากาโนะชิมะ","すみれ 札幌本店",43.0310,141.3640,"ซัปโปโร","ราเมงมิโซะสไตล์ซัปโปโรต้นตำรับ ซุปร้อนจัด","","¥¥"],
+["f","beef","Daruma เจงกิสข่าน","成吉思汗だるま 本店",43.0545,141.3530,"ซุซุกิโนะ, ซัปโปโร","เนื้อแกะย่างกระทะโดม อาหารประจำฮอกไกโด","คิวช่วงค่ำ เสื้อติดกลิ่น","¥¥"],
+["f","sweet","LeTAO โอตารุ","小樽洋菓子舗ルタオ 本店",43.1890,141.0090,"โอตารุ","ชีสเค้ก Double Fromage","ชั้นบนมีหอชมวิว","¥¥"],
+["f","market","ตลาดเช้าฮาโกดาเตะ","函館朝市",41.7740,140.7260,"ฮาโกดาเตะ","ตกปลาหมึกแล้วทำซาชิมิสด ข้าวหน้าซีฟู้ด","","¥¥"],
+["s","view","ภูเขาโมอิวะ","藻岩山",43.0225,141.3220,"ซัปโปโร","วิวกลางคืนซัปโปโร 1 ใน 3 วิวกลางคืนใหม่ของญี่ปุ่น","",""],
+["s","view","ซัปโปโรทีวีทาวเวอร์","さっぽろテレビ塔",43.0610,141.3567,"โอโดริ, ซัปโปโร","มองสวนโอโดริทอดยาว","ปลายพ.ย.เริ่มงานไฟประดับ White Illumination",""],
+["s","view","ภูเขาฮาโกดาเตะ","函館山",41.7590,140.7040,"ฮาโกดาเตะ","วิวกลางคืนเมืองคอดสองฝั่งทะเล","",""],
+["s","temple","ศาลเจ้าฮอกไกโด","北海道神宮",43.0540,141.3080,"ซัปโปโร","ศาลเจ้าหลักของฮอกไกโดในสวนมารุยามะ","",""],
+["s","photo","คลองโอตารุ","小樽運河",43.1990,141.0020,"โอตารุ","คลองโกดังหินกับตะเกียงแก๊ส","สวยสุดตอนเปิดไฟค่ำ",""],
+["s","sight","พิพิธภัณฑ์เบียร์ซัปโปโร","サッポロビール博物館",43.0715,141.3690,"ซัปโปโร","อาคารอิฐแดง ชิมเบียร์ 3 แบบ","",""],
+["s","shop","ทานุกิโคจิ","狸小路商店街",43.0575,141.3530,"ซัปโปโร","ถนนช้อปปิ้งมีหลังคา 900 ม. ร้านยา ดองกี้","",""],
+/* Fukuoka */
+["f","market","แผงลอยยาไตนากาสุ","中洲屋台",33.5910,130.4060,"นากาสุ, ฟุกุโอกะ","รถเข็นยาไตริมแม่น้ำ ราเมง โอเด้ง ยากิโทริ","เปิดหลัง 6 โมงเย็น ฝนตกบางร้านไม่ออก","¥¥"],
+["f","ramen","Ichiran สาขาแรก","一蘭 本社総本店",33.5920,130.4065,"นากาสุ, ฟุกุโอกะ","ราเมงทงคตสึ สาขาต้นตำรับเปิด 24 ชม.","","¥¥"],
+["f","ramen","ShinShin เท็นจิน","博多らーめん ShinShin 天神本店",33.5880,130.3960,"เท็นจิน, ฟุกุโอกะ","ราเมงฮากาตะเส้นเล็กซุปกระดูกหมู","สั่งเพิ่มเส้น (คาเอดามะ) ได้","¥"],
+["f","local","โมทสึนาเบะ Rakutenchi","もつ鍋 楽天地",33.5900,130.4100,"ฮากาตะ, ฟุกุโอกะ","หม้อไฟเครื่องในวัวกับกะหล่ำและกระเทียม","ปิดท้ายด้วยเส้นชัมปง","¥¥"],
+["s","temple","ศาลเจ้าดาไซฟุเท็มมังงู","太宰府天満宮",33.5215,130.5349,"ดาไซฟุ","ศาลเจ้าเทพแห่งการเรียน ถนนขนมอุเมงาเอะโมจิ","",""],
+["s","temple","วัดนันโซอิน","南蔵院",33.6240,130.5650,"ซาซากุริ, ฟุกุโอกะ","พระนอนสำริดใหญ่ที่สุดในโลก","",""],
+["s","view","ฟุกุโอกะทาวเวอร์","福岡タワー",33.5933,130.3515,"โมโมจิ, ฟุกุโอกะ","หอคอยกระจกริมทะเล","",""],
+["s","sight","สวนโอโฮริ","大濠公園",33.5860,130.3770,"ฟุกุโอกะ","สวนบึงใหญ่ใจกลางเมือง เดิน-วิ่งรอบบึง","",""],
+["s","shop","Canal City ฮากาตะ","キャナルシティ博多",33.5898,130.4110,"ฮากาตะ, ฟุกุโอกะ","ห้างมีคลองและน้ำพุโชว์","",""],
+["s","shop","เท็นจินใต้ดิน","天神地下街",33.5900,130.3990,"เท็นจิน, ฟุกุโอกะ","ถนนช้อปปิ้งใต้ดินสไตล์ยุโรป","",""],
+/* Okinawa */
+["s","sight","ปราสาทชูริ","首里城",26.2170,127.7195,"นาฮะ, โอกินาว่า","ปราสาทอาณาจักรริวกิว กำลังบูรณะหลังไฟไหม้ ชมงานบูรณะได้","",""],
+["s","shop","ถนนโคคุไซ","国際通り",26.2150,127.6860,"นาฮะ, โอกินาว่า","ถนนช้อปปิ้งหลักของนาฮะ 1.6 กม.","",""],
+["f","market","ตลาดมากิชิ","第一牧志公設市場",26.2140,127.6890,"นาฮะ, โอกินาว่า","ซื้อซีฟู้ดชั้นล่างให้ร้านชั้นบนปรุงให้","","¥¥"],
+["f","local","Shuri Soba","首里そば",26.2180,127.7160,"ชูริ, โอกินาว่า","โอกินาว่าโซบะเส้นหนึบ ซุปใส","มักหมดก่อนบ่าย","¥"],
+["s","sight","อควาเรียมชูราอุมิ","沖縄美ら海水族館",26.6944,127.8779,"โมโตบุ, โอกินาว่า","ตู้ปลายักษ์ ฉลามวาฬ","",""],
+["s","view","สะพานโคริ","古宇利大橋",26.6950,128.0200,"นาคิจิน, โอกินาว่า","สะพานข้ามทะเลสีฟ้าใส 2 กม.","",""]
+];
+const PLACES = RAW.map((r,i)=>({id:i,t:r[0],c:r[1],n:r[2],j:r[3],la:r[4],lo:r[5],a:r[6],d:r[7],tip:r[8],p:r[9]}));
+const PRICE_ORDER={"":9,"¥":1,"¥¥":2,"¥¥¥":3,"¥¥¥¥":4};
+
+/* Cities / preset points for "suppose I'm at…" */
+const CITIES = [
+  ["โตเกียว",[["ชินจูกุ",35.6900,139.7003],["ชิบุยะ",35.6580,139.7016],["อาซากุสะ",35.7110,139.7964],["กินซ่า",35.6717,139.7650],["สถานีโตเกียว",35.6812,139.7671],["อุเอโนะ",35.7138,139.7773]]],
+  ["เกียวโต",[["สถานีเกียวโต",34.9858,135.7588],["กิออน",35.0037,135.7750],["อาราชิยามะ",35.0094,135.6670]]],
+  ["โอซาก้า",[["นัมบะ",34.6660,135.5010],["อุเมดะ",34.7025,135.4959],["เทนโนจิ",34.6466,135.5130]]],
+  ["สนามบิน",[["ฮาเนดะ (HND)",35.5494,139.7798],["นาริตะ (NRT)",35.7720,140.3929],["คันไซ (KIX)",34.4320,135.2304],["ชิโตเสะ (CTS)",42.7752,141.6923],["ฟุกุโอกะ (FUK)",33.5859,130.4507],["นาฮะ (OKA)",26.2058,127.6466],["ชูบุ (NGO)",34.8584,136.8054]]],
+  ["ใกล้โตเกียว",[["โยโกฮามะ",35.4500,139.6420],["คามาคุระ",35.3190,139.5500],["คาวากุจิโกะ (ฟูจิ)",35.4980,138.7680],["ฮาโกเนะยูโมโตะ",35.2324,139.1050],["นิกโก",36.7500,139.6000]]],
+  ["คันไซ/อื่นๆ",[["นารา",34.6840,135.8250],["โกเบ",34.6930,135.1950],["ฮิโรชิมะ",34.3970,132.4750],["คานาซาวะ",36.5780,136.6480],["นาโกย่า",35.1700,136.8820]]],
+  ["เหนือ-ใต้",[["ซัปโปโร",43.0610,141.3540],["ฮาโกดาเตะ",41.7740,140.7260],["ฟุกุโอกะ",33.5900,130.4050],["นาฮะ (โอกินาว่า)",26.2125,127.6810]]]
+];
+
+/* city label for each place: big three by group, others by nearest preset point */
+const BIG=["โตเกียว","เกียวโต","โอซาก้า"];
+const CITY_ORDER=[];
+CITIES.forEach(([g,pts])=>{if(BIG.includes(g))CITY_ORDER.push(g);else pts.forEach(([n])=>CITY_ORDER.push(n));});
+PLACES.forEach(x=>{let best=null,bd=1e9;for(const[g,pts]of CITIES)for(const[n,a,b]of pts){const d=Math.hypot(x.la-a,(x.lo-b)*Math.cos(a*Math.PI/180));if(d<bd){bd=d;best=BIG.includes(g)?g:n;}}x.city=best;
+  x.s=(x.n+" "+x.j+" "+x.a+" "+x.d+" "+x.tip+" "+best).toLowerCase();});
+
+/* ---------- helpers ---------- */
+const $ = s=>document.querySelector(s);
+const store = {
+  get(k,d){try{const v=localStorage.getItem("jpg_"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("jpg_"+k,JSON.stringify(v))}catch(e){}}
+};
+function dist(a,b,c,d){const R=6371,r=Math.PI/180,dl=(c-a)*r,dg=(d-b)*r;
+  const x=Math.sin(dl/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(x));}
+function bearing(a,b,c,d){const r=Math.PI/180,y=Math.sin((d-b)*r)*Math.cos(c*r),
+  x=Math.cos(a*r)*Math.sin(c*r)-Math.sin(a*r)*Math.cos(c*r)*Math.cos((d-b)*r);return (Math.atan2(y,x)/r+360)%360;}
+const DIRS=["เหนือ","ตะวันออกเฉียงเหนือ","ตะวันออก","ตะวันออกเฉียงใต้","ใต้","ตะวันตกเฉียงใต้","ตะวันตก","ตะวันตกเฉียงเหนือ"];
+const ARR=["↑","↗","→","↘","↓","↙","←","↖"];
+function fmtKm(k){return k<1?Math.round(k*1000)+" ม.":k<10?k.toFixed(1)+" กม.":Math.round(k).toLocaleString()+" กม.";}
+function travel(k){if(k<=2.5){return "เดิน ~"+Math.max(1,Math.round(k*1.25/4.8*60))+" นาที";}
+  if(k<=40) return "รถไฟ/แท็กซี่ ~"+Math.round(k/22*60+10)+" นาที"; if(k<=600) return "ชินคันเซ็น/รถไฟ"; return "ควรบิน";}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function nearestArea(la,lo){let best=null,bd=1e9;for(const[city,pts]of CITIES)for(const[n,a,b]of pts){const d=dist(la,lo,a,b);if(d<bd){bd=d;best={n,city,d}}}return best;}
+const inJapan=(la,lo)=>la>24&&la<46&&lo>122&&lo<146;
+
+/* ---------- state ---------- */
+const S = {
+  tab:"f", cats:new Set(), radius:store.get("radius",10), shown:20,
+  q:"", city:"all", price:0, sort:"near", selMode:false, sel:new Set(),
+  pos:store.get("pos",null), // {la,lo,src,label,ts,acc}
+  fav:new Set(store.get("fav",[]))
+};
+$("#radius").value=String(S.radius);
+$("#city").innerHTML+=CITY_ORDER.filter(c=>PLACES.some(x=>x.city===c)).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join("");
+
+/* ---------- location ---------- */
+function setPos(p){S.pos=p;store.set("pos",p);S.shown=20;render();}
+function locate(manual){
+  const L1=$("#locL1"),L2=$("#locL2");
+  if(!("geolocation" in navigator)){fallback("อุปกรณ์นี้ไม่รองรับการหาตำแหน่ง");return;}
+  L1.textContent="กำลังหาตำแหน่ง…";L2.textContent="ถ้ามีหน้าต่างขออนุญาต ให้กด อนุญาต";
+  let done=false;
+  const t=setTimeout(()=>{if(!done){done=true;fallback("หาตำแหน่งไม่ทันเวลา");}},12000);
+  try{
+    navigator.geolocation.getCurrentPosition(pos=>{
+      if(done)return;done=true;clearTimeout(t);
+      const la=pos.coords.latitude,lo=pos.coords.longitude;
+      if(!inJapan(la,lo)){
+        const na=nearestArea(la,lo);
+        fallback("ได้ตำแหน่งจริงแล้ว แต่คุณอยู่นอกญี่ปุ่น (ห่าง"+na.n+" ~"+fmtKm(na.d)+")",manual);
+        return;
+      }
+      lastFail="";
+      setPos({la,lo,acc:pos.coords.accuracy,src:"gps",ts:Date.now()});
+      startWatch();
+    },err=>{
+      if(done)return;done=true;clearTimeout(t);
+      fallback(err&&err.code===1?"หน้านี้ไม่ได้รับสิทธิ์ใช้ตำแหน่ง":"หาตำแหน่งไม่สำเร็จ",manual);
+    },{enableHighAccuracy:true,timeout:11000,maximumAge:60000});
+  }catch(e){done=true;clearTimeout(t);fallback("หน้านี้ไม่ได้รับสิทธิ์ใช้ตำแหน่ง",manual);}
+}
+let lastFail="",WATCH=null;
+/* ติดตามตำแหน่งต่อเนื่องระหว่างเดิน: อัปเดตเมื่อขยับเกิน 60 ม. */
+function startWatch(){
+  if(WATCH!==null||!navigator.geolocation)return;
+  try{WATCH=navigator.geolocation.watchPosition(pos=>{
+    const la=pos.coords.latitude,lo=pos.coords.longitude;
+    if(!inJapan(la,lo)||!S.pos||S.pos.src!=="gps")return;
+    S.pos.acc=pos.coords.accuracy;S.pos.ts=Date.now();
+    const moved=dist(S.pos.la,S.pos.lo,la,lo);
+    S.pos.la=la;S.pos.lo=lo;
+    if(NAV.x)updateNav();
+    if(MAP&&ME)ME.setLatLng([la,lo]);
+    if(moved<0.06){renderLoc();return;}
+    store.set("pos",S.pos);
+    if(!NAV.x&&S.tab!=="map"){const y=scrollY;render();scrollTo(0,y);}
+  },()=>{},{enableHighAccuracy:true,maximumAge:10000});}catch(e){}
+}
+function fallback(msg,manual){
+  lastFail=msg;
+  if(!S.pos||S.pos.src==="gps"&&!inJapan(S.pos.la,S.pos.lo)){S.pos={la:35.6900,lo:139.7003,src:"demo",label:"ชินจูกุ, โตเกียว",ts:Date.now()};}
+  render();
+  if(manual)openDlg(msg);
+}
+
+/* ---------- render ---------- */
+function renderLoc(){
+  const p=S.pos,L1=$("#locL1"),L2=$("#locL2");
+  if(!p){return;}
+  const na=nearestArea(p.la,p.lo);
+  if(p.src==="gps"){
+    if(inJapan(p.la,p.lo)){
+      L1.textContent="📍 ใกล้"+na.n+", "+na.city;
+      L2.textContent="ตำแหน่งจริง ±"+Math.round(p.acc||0)+" ม. · อัปเดต "+new Date(p.ts).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+    }else{
+      L1.textContent="📍 คุณอยู่นอกญี่ปุ่น";
+      L2.textContent="ห่างจาก"+na.n+" ~"+fmtKm(na.d)+" · กด เลือกจุด เพื่อสมมุติว่าอยู่ญี่ปุ่น";
+    }
+  }else{
+    if(p.src==="paste"){
+      const d=describe(p.la,p.lo);
+      L1.textContent="📍 "+d.head;
+      L2.textContent=(p.exact?"จากลิงก์/พิกัดที่วาง":"ประมาณจากชื่อย่าน")+" · "+new Date(p.ts).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+    }else{
+    L1.textContent=p.src==="link"?"📍 ใกล้"+na.n+", "+na.city:"🧭 สมมุติว่าอยู่ที่ "+(p.label||na.n+", "+na.city);
+    L2.textContent=p.src==="demo"?"ยังไม่ได้ตำแหน่งจริง ใช้จุดตัวอย่าง":p.src==="link"?"ตำแหน่งจากลิงก์ · อัปเดต "+new Date(p.ts).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"}):"ตำแหน่งที่เลือกเอง";
+    }
+  }
+  const nb=$("#notice");
+  if(lastFail&&p.src!=="gps"){
+    nb.innerHTML='<div class="notice"><b>'+esc(lastFail)+'</b> ตอนนี้ใช้จุดสมมุติ: '+esc(p.label||"")+' กด <b>เลือกจุด</b> เพื่อเปลี่ยนย่าน หรือวางพิกัดจาก Google Maps'+(lastFail.indexOf("นอกญี่ปุ่น")<0?(IN_FRAME?' · หน้านี้เปิดผ่าน Claude ซึ่งไม่ให้ใช้ GPS':' · ตรวจว่าเปิด บริการหาตำแหน่ง ให้เบราว์เซอร์แล้ว และกด อนุญาต เมื่อถูกถาม'):'')+'</div>';
+  }else nb.innerHTML="";
+}
+function catsFor(tab){return tab==="fav"?CATS.f.concat(CATS.s):CATS[tab];}
+function scopeText(){
+  if(S.tab==="fav")return "ที่บันทึกไว้";
+  if(S.q)return "ผลค้นหาทั่วญี่ปุ่น";
+  if(S.city!=="all")return "ใน"+S.city;
+  return S.radius>=99999?"ทั่วญี่ปุ่น":"ในรัศมี "+fmtKm(S.radius);
+}
+function filtered(){
+  const p=S.pos,q=S.q.trim().toLowerCase();
+  let arr=PLACES.map(x=>({...x,k:p?dist(p.la,p.lo,x.la,x.lo):0}));
+  arr=S.tab==="fav"?arr.filter(x=>S.fav.has(x.id)):arr.filter(x=>x.t===S.tab);
+  if(S.city!=="all")arr=arr.filter(x=>x.city===S.city);
+  if(q){const terms=q.split(/\s+/);arr=arr.filter(x=>terms.every(t=>x.s.includes(t)||CAT[x.c].l.toLowerCase().includes(t)));}
+  if(S.price)arr=arr.filter(x=>x.t!=="f"||!x.p||x.p.length<=S.price);
+  if(S.tab!=="fav"&&!q&&S.city==="all")arr=arr.filter(x=>x.k<=S.radius);
+  const base=arr.slice();
+  if(S.cats.size)arr=arr.filter(x=>S.cats.has(x.c));
+  const by={near:(a,b)=>a.k-b.k,cheap:(a,b)=>(PRICE_ORDER[a.p||""]-PRICE_ORDER[b.p||""])||a.k-b.k,name:(a,b)=>a.n.localeCompare(b.n,"th")};
+  arr.sort(by[S.sort]||by.near);
+  return {arr,base};
+}
+function renderChips(base){
+  const el=$("#chips");
+  const cnt={};base.forEach(x=>cnt[x.c]=(cnt[x.c]||0)+1);
+  let h='<button class="chip" aria-pressed="'+(S.cats.size===0)+'" data-cat="all">ทั้งหมด<span class="n">'+base.length+'</span></button>';
+  for(const[k,l]of catsFor(S.tab)){
+    if(S.tab==="fav"&&!cnt[k])continue;
+    h+='<button class="chip" aria-pressed="'+S.cats.has(k)+'" data-cat="'+k+'">'+(S.cats.has(k)?"✓ ":"")+l+'<span class="n">'+(cnt[k]||0)+'</span></button>';
+  }
+  el.innerHTML=h;
+}
+function renderRadar(arr){
+  const svg=$("#radar"),sum=$("#radarSum"),p=S.pos;
+  const R=(S.tab==="fav"||S.tab==="map"||S.q||S.city!=="all")?Math.max(1,...arr.slice(0,40).map(x=>x.k)):Math.min(S.radius,Math.max(1,arr.length?arr[Math.min(arr.length-1,29)].k:S.radius));
+  let g='<circle r="92" fill="none" stroke="var(--line)"/><circle r="61" fill="none" stroke="var(--line)" stroke-dasharray="2 4"/><circle r="30" fill="none" stroke="var(--line)" stroke-dasharray="2 4"/>';
+  g+='<text x="0" y="-80" text-anchor="middle" font-size="11" fill="var(--muted)">N</text>';
+  arr.slice(0,40).forEach(x=>{
+    const k=Math.min(x.k,R)/R*88,b=bearing(p.la,p.lo,x.la,x.lo)*Math.PI/180;
+    g+='<circle class="dot" data-id="'+x.id+'" cx="'+(Math.sin(b)*k).toFixed(1)+'" cy="'+(-Math.cos(b)*k).toFixed(1)+'" r="5" fill="'+CAT[x.c].c+'" stroke="var(--surface)" stroke-width="1.5" style="cursor:pointer"><title>'+esc(x.n)+' · '+fmtKm(x.k)+'</title></circle>';
+  });
+  g+='<circle r="6" fill="var(--accent)"/><circle r="11" fill="none" stroke="var(--accent)" opacity=".35"/>';
+  g+='<text x="90" y="96" text-anchor="end" font-size="10" fill="var(--muted)">ขอบ '+fmtKm(R)+'</text>';
+  svg.innerHTML=g;
+  const label=S.tab==="f"?"ร้าน":"แห่ง";
+  if(S.tab==="map"){sum.innerHTML='<div class="big">'+arr.length+' <span style="font-size:1rem;font-weight:500">แห่ง</span></div><div class="sub">ในรัศมี '+fmtKm(R)+' แตะจุดเพื่อดูรายละเอียด</div>';return;}
+  const near=arr[0];
+  sum.innerHTML='<div class="big">'+arr.length+' <span style="font-size:1rem;font-weight:500">'+(S.tab==="fav"?"ที่บันทึก":label)+'</span></div>'+
+    '<div class="sub">'+esc(scopeText())+'</div>'+
+    (near?'<div class="near">ใกล้สุด: <b>'+esc(near.n)+'</b><br>'+fmtKm(near.k)+' ไปทาง'+DIRS[Math.round(bearing(p.la,p.lo,near.la,near.lo)/45)%8]+'</div>':'');
+}
+function card(x){
+  const cat=CAT[x.c],p=S.pos,b=bearing(p.la,p.lo,x.la,x.lo),di=Math.round(b/45)%8;
+  const fav=S.fav.has(x.id),sel=S.sel.has(x.id);
+  return '<article class="card'+(S.selMode?' selectable':'')+(sel?' sel':'')+'" id="p'+x.id+'" data-id="'+x.id+'"'+(S.selMode?' role="checkbox" aria-checked="'+sel+'" tabindex="0"':'')+'>'+
+    (S.selMode?'<span class="cbx" aria-hidden="true">'+(sel?'✓':'')+'</span>':'')+
+    '<div class="c-top"><div class="c-head">'+thumbHTML(x)+'<div><div class="c-name">'+(fav?'<span style="color:var(--torii)" title="บันทึกไว้">★ </span>':'')+esc(x.n)+'</div><div class="c-jp" lang="ja">'+esc(x.j)+'</div></div></div>'+
+    '<div class="dist"><div class="km">'+ARR[di]+' '+fmtKm(x.k)+'</div><div class="walk">'+(x.k<=2.5?"เดิน ~"+walkMin(x.k)+" นาที":"ทาง"+DIRS[di])+'</div></div></div>'+
+    '<div class="meta"><span class="tag" style="color:'+cat.c+'">'+cat.l+'</span><span class="area">'+esc(x.a)+'</span>'+(x.p?'<span class="price" title="ระดับราคา">'+x.p+'</span>':'')+'</div>'+
+    '<div class="c-desc">'+esc(x.d)+'</div>'+
+    (x.tip?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+
+    (S.selMode?'':routeMini(x)+
+    (RT.open===x.id?'<div class="rt-inline" id="rt'+x.id+'">'+routeHTML(x)+'</div>':'')+
+    '<div class="c-act"><button type="button" class="nav-go" data-nav="'+x.id+'">🧭 นำทาง</button>'+
+    '<button type="button" class="go" data-route="'+x.id+'" aria-expanded="'+(RT.open===x.id)+'">'+(RT.open===x.id?"▲ ซ่อน":"🚆 วิธีเดินทาง")+'</button>'+
+    '<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button></div>')+'</article>';
+}
+function render(){
+  renderLoc();
+  if(!S.pos)return;
+  document.body.dataset.view=S.tab==="map"?"map":"list";
+  const fb=$("#favBadge");fb.hidden=!S.fav.size;fb.textContent=S.fav.size;
+  if(S.tab==="map"){renderMap();return;}
+  const {arr,base}=filtered();
+  renderChips(base);
+  $("#fsum").textContent=[S.q?"ค้นทั่วญี่ปุ่น":S.city!=="all"?S.city:(S.radius>=99999?"ทั่วญี่ปุ่น":fmtKm(S.radius)),S.price?"ราคา ≤ "+"¥".repeat(S.price):"",{near:"ใกล้สุด",cheap:"ถูกสุด",name:"ชื่อ ก-ฮ"}[S.sort]].filter(Boolean).join(" · ");
+  const list=$("#list");
+  CUR=arr;
+  $("#resInfo").textContent=arr.length+" รายการ · "+scopeText();
+  $("#resetF").hidden=!(S.q||S.cats.size||S.city!=="all"||S.price||S.sort!=="near");
+  $("#price").disabled=S.tab==="s";
+  renderSelBar();
+  if(!arr.length){
+    list.innerHTML='<div class="empty">'+(S.tab==="fav"&&!S.fav.size?"ยังไม่มีที่บันทึกไว้ กด ☆ บันทึก ที่การ์ด หรือใช้ ☑ เลือกหลายรายการ เพื่อบันทึกทีเดียวหลายที่":S.q?"ไม่พบ \""+esc(S.q)+"\" ลองคำอื่น หรือล้างตัวกรอง":"ไม่มีรายการที่ตรงตัวกรอง ลองขยายระยะ เลือกเมือง หรือล้างตัวกรอง")+'</div>';
+    $("#more").hidden=true;return;
+  }
+  list.innerHTML=arr.slice(0,S.shown).map(card).join("");
+  watchThumbs(list);
+  const m=$("#more");m.hidden=arr.length<=S.shown;m.textContent="แสดงเพิ่ม ("+(arr.length-S.shown)+")";
+}
+
+/* ---------- events ---------- */
+document.querySelectorAll(".bnav button").forEach(b=>b.addEventListener("click",()=>{
+  S.tab=b.dataset.tab;S.cats.clear();S.shown=20;RT.open=null;
+  document.querySelectorAll(".bnav button").forEach(x=>{if(x===b)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
+  render();window.scrollTo({top:0});
+}));
+$("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;const k=c.dataset.cat;
+  if(k==="all")S.cats.clear();else S.cats.has(k)?S.cats.delete(k):S.cats.add(k);S.shown=20;render();});
+let qT;
+$("#q").addEventListener("paste",()=>setTimeout(()=>{const v=$("#q").value;
+  if(!/maps|goo\.gl|geo:|°|-?\d{1,2}\.\d{3,}\s*,|[23456789CFGHJMPQRVWX]{4,8}\+/i.test(v))return;
+  const r=parseLoc(v);if(!r||r.la==null)return;
+  $("#q").value="";$("#qClear").hidden=true;S.q="";
+  if(r.exact&&inJapan(r.la,r.lo)){applyLoc(r);toast("📍 ตั้งตำแหน่ง: "+describe(r.la,r.lo).head);}
+  else{openDlg();$("#coordIn").value=v;showPaste(r,false);}
+},0));
+$("#q").addEventListener("keydown",e=>{if(e.key!=="Enter")return;const v=$("#q").value;
+  if(!/[23456789CFGHJMPQRVWX]{4,8}\+/i.test(v)&&!/-?\d{1,2}\.\d{3,}\s*,/.test(v))return;
+  const r=parseLoc(v);if(!r||r.la==null)return;e.preventDefault();
+  $("#q").value="";$("#qClear").hidden=true;S.q="";applyLoc(r);toast("📍 ตั้งตำแหน่ง: "+describe(r.la,r.lo).head);});
+$("#q").addEventListener("input",e=>{clearTimeout(qT);$("#qClear").hidden=!e.target.value;qT=setTimeout(()=>{S.q=e.target.value;S.shown=20;render();},150);});
+$("#qClear").addEventListener("click",()=>{$("#q").value="";$("#qClear").hidden=true;S.q="";render();$("#q").focus();});
+$("#city").addEventListener("change",e=>{S.city=e.target.value;S.shown=20;render();});
+$("#price").addEventListener("change",e=>{S.price=+e.target.value;S.shown=20;render();});
+$("#sort").addEventListener("change",e=>{S.sort=e.target.value;render();});
+$("#resetF").addEventListener("click",()=>{S.q="";S.cats.clear();S.city="all";S.price=0;S.sort="near";
+  $("#q").value="";$("#qClear").hidden=true;$("#city").value="all";$("#price").value="0";$("#sort").value="near";S.shown=20;render();});
+
+/* multi-select */
+let CUR=[];
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000);}
+function renderSelBar(){
+  const bar=$("#selBar");bar.hidden=!S.selMode;
+  const t=$("#selToggle");t.setAttribute("aria-pressed",S.selMode);t.textContent=S.selMode?"☑ กำลังเลือก":"☑ เลือกหลายรายการ";
+  if(!S.selMode)return;
+  const n=S.sel.size;
+  $("#selCnt").textContent="เลือก "+n+" รายการ";
+  const allIn=CUR.length&&CUR.every(x=>S.sel.has(x.id));
+  $("#selAll").textContent=allIn?"ไม่เลือกเลย":"เลือกทั้งหมด ("+CUR.length+")";
+  ["#selSave","#selRemove","#selCopy"].forEach(id=>$(id).disabled=!n);
+}
+function saveFav(){store.set("fav",[...S.fav]);}
+$("#selToggle").addEventListener("click",()=>{S.selMode=!S.selMode;if(!S.selMode)S.sel.clear();render();});
+$("#selDone").addEventListener("click",()=>{S.selMode=false;S.sel.clear();render();});
+$("#selAll").addEventListener("click",()=>{const allIn=CUR.length&&CUR.every(x=>S.sel.has(x.id));
+  if(allIn)CUR.forEach(x=>S.sel.delete(x.id));else CUR.forEach(x=>S.sel.add(x.id));render();});
+$("#selSave").addEventListener("click",()=>{let a=0;S.sel.forEach(id=>{if(!S.fav.has(id)){S.fav.add(id);a++;}});saveFav();
+  toast(a?"บันทึกเพิ่ม "+a+" ที่ (รวม "+S.fav.size+")":"รายการที่เลือกบันทึกไว้แล้วทั้งหมด");S.sel.clear();render();});
+$("#selRemove").addEventListener("click",()=>{let r=0;S.sel.forEach(id=>{if(S.fav.delete(id))r++;});saveFav();
+  toast(r?"เอาออกจากที่บันทึก "+r+" ที่":"รายการที่เลือกยังไม่ได้บันทึก");S.sel.clear();render();});
+$("#selCopy").addEventListener("click",async()=>{
+  const items=PLACES.filter(x=>S.sel.has(x.id));
+  const txt=items.map((x,i)=>(i+1)+". "+x.n+" ("+x.j+") · "+CAT[x.c].l+" · "+x.a+"\n   https://www.google.com/maps/search/?api=1&query="+x.la+","+x.lo).join("\n");
+  try{await navigator.clipboard.writeText("ไกด์ญี่ปุ่น · "+items.length+" ที่\n"+txt);toast("คัดลอก "+items.length+" รายการแล้ว วางใน LINE หรือโน้ตได้เลย");}
+  catch(e){toast("คัดลอกไม่ได้ในหน้านี้");}
+});
+$("#radius").addEventListener("change",e=>{S.radius=+e.target.value;store.set("radius",S.radius);S.shown=20;render();});
+$("#more").addEventListener("click",()=>{S.shown+=20;render();});
+$("#list").addEventListener("keydown",e=>{if(S.selMode&&(e.key===" "||e.key==="Enter")){const c=e.target.closest(".card");if(c){e.preventDefault();c.click();}}});
+$("#list").addEventListener("click",async e=>{
+  if(S.selMode){const c=e.target.closest(".card");if(!c)return;const id=+c.dataset.id;
+    S.sel.has(id)?S.sel.delete(id):S.sel.add(id);
+    const on=S.sel.has(id);c.classList.toggle("sel",on);c.setAttribute("aria-checked",on);c.querySelector(".cbx").textContent=on?"✓":"";
+    renderSelBar();return;}
+  const f=e.target.closest("[data-fav]");
+  if(f){const id=+f.dataset.fav;S.fav.has(id)?S.fav.delete(id):S.fav.add(id);saveFav();render();return;}
+  const nv=e.target.closest("[data-nav]");if(nv){openNav(+nv.dataset.nav);return;}
+  const tb=e.target.closest("[data-rt]");
+  if(tb){const id=+tb.dataset.pid;RT.tab[id]=tb.dataset.rt;const x=CUR.find(c=>c.id===id)||PLACES[id];$("#rt"+id).innerHTML=routeHTML(x);return;}
+  const rt=e.target.closest("[data-route]");
+  if(rt){const id=+rt.dataset.route,prev=RT.open;RT.open=prev===id?null:id;
+    [prev,RT.open].forEach(pid=>{if(pid==null)return;const el=document.getElementById("p"+pid);const x=CUR.find(c=>c.id===pid);if(el&&x)el.outerHTML=card(x);});
+    if(RT.open!=null){const el=document.getElementById("p"+RT.open);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});}
+    return;}
+  const c=e.target.closest("[data-copy]");
+  if(c){const x=PLACES[+c.dataset.copy];
+    try{await navigator.clipboard.writeText(x.j);c.textContent="คัดลอกแล้ว ✓";}catch(err){c.textContent=x.j;}
+    setTimeout(()=>{c.textContent="คัดลอกชื่อญี่ปุ่น"},1800);}
+});
+$("#radar").addEventListener("click",e=>{
+  if(S.tab==="map"){const d=e.target.closest(".dot");if(d)showMapCard(PLACES[+d.dataset.id]);return;}
+  const d=e.target.closest(".dot");if(!d)return;
+  const id=+d.dataset.id;const {arr}=filtered();const idx=arr.findIndex(x=>x.id===id);
+  if(idx>=S.shown){S.shown=idx+1;render();}
+  const el=document.getElementById("p"+id);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600);}
+});
+$("#btnGps").addEventListener("click",()=>locate(true));
+
+/* dialog */
+const dlg=$("#dlg");
+$("#cityGrid").innerHTML=CITIES.map(([city,pts])=>'<h3>'+city+'</h3><div class="grid-c">'+pts.map(([n,a,b])=>'<button type="button" data-la="'+a+'" data-lo="'+b+'" data-label="'+esc(n+", "+city)+'">'+esc(n)+'<small>'+city+'</small></button>').join("")+'</div>').join("");
+function openDlg(msg){$("#pasteRes").innerHTML="";$("#coordIn").value="";$("#coordErr").textContent=typeof msg==="string"?msg+" · ระบุตำแหน่งเองได้ 3 วิธีด้านล่าง":"";if(dlg.open)return;try{dlg.showModal()}catch(e){dlg.setAttribute("open","");}}
+function closeDlg(){if(dlg.close)dlg.close();else dlg.removeAttribute("open");}
+$("#btnPick").addEventListener("click",openDlg);
+$("#dlgClose").addEventListener("click",closeDlg);
+$("#cityGrid").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  lastFail="";setPos({la:+b.dataset.la,lo:+b.dataset.lo,src:"manual",label:b.dataset.label,ts:Date.now()});closeDlg();});
+/* ---------- read a pasted Google Maps / Apple Maps link, coordinates, or share text ---------- */
+const AREAS=[ /* keywords | ชื่อไทย | เมือง | lat | lng | rank(1=ย่าน,2=เมือง) */
+["shinjuku|新宿","ชินจูกุ","โตเกียว",35.6900,139.7003,1],["shibuya|渋谷|jinnan|神南|dogenzaka|道玄坂","ชิบุยะ","โตเกียว",35.6580,139.7016,1],
+["harajuku|原宿|jingumae|神宮前|omotesando|表参道","ฮาราจุกุ","โตเกียว",35.6702,139.7027,1],["asakusa|浅草|taito|台東","อาซากุสะ","โตเกียว",35.7110,139.7964,1],
+["ueno|上野","อุเอโนะ","โตเกียว",35.7138,139.7773,1],["akihabara|秋葉原|sotokanda|外神田","อากิฮาบาระ","โตเกียว",35.6984,139.7731,1],
+["ginza|銀座","กินซ่า","โตเกียว",35.6717,139.7650,1],["tsukiji|築地","สึกิจิ","โตเกียว",35.6655,139.7707,1],["marunouchi|丸の内|chiyoda|千代田","มารุโนะอุจิ","โตเกียว",35.6812,139.7671,1],
+["roppongi|六本木|azabu|麻布","รปปงงิ","โตเกียว",35.6628,139.7314,1],["ebisu|恵比寿","เอบิสึ","โตเกียว",35.6467,139.7101,1],["ikebukuro|池袋|toshima|豊島","อิเคบุคุโระ","โตเกียว",35.7295,139.7109,1],
+["odaiba|お台場|daiba|台場","โอไดบะ","โตเกียว",35.6267,139.7750,1],["toyosu|豊洲","โทโยสุ","โตเกียว",35.6550,139.7960,1],["oshiage|押上|sumida|墨田","โอชิอาเกะ","โตเกียว",35.7101,139.8107,1],
+["shimokitazawa|下北沢|kitazawa|北沢","ชิโมคิตะซาวะ","โตเกียว",35.6613,139.6680,1],["tsukishima|月島","สึกิชิมะ","โตเกียว",35.6627,139.7835,1],["shinagawa|品川","ชินางาวะ","โตเกียว",35.6285,139.7387,1],
+["ota city|ota-ku|大田区|kamata|蒲田","โอตะ","โตเกียว",35.5613,139.7160,1],["minato city|minato-ku|港区|shiba|芝公園","มินาโตะ","โตเกียว",35.6581,139.7516,1],
+["bunkyo|文京|yanaka|谷中|nezu|根津","ยานากะ","โตเกียว",35.7203,139.7610,1],["nakano|中野","นากาโนะ","โตเกียว",35.7074,139.6638,1],["meguro|目黒|nakameguro|中目黒","เมกุโระ","โตเกียว",35.6339,139.7157,1],
+["koto city|koto-ku|江東区|kiyosumi|清澄","โคโตะ","โตเกียว",35.6727,139.8174,1],["kabukicho|歌舞伎町","คาบุกิโจ","โตเกียว",35.6940,139.7030,1],
+["haneda|hanedakuko|羽田|hnd|ฮาเนดะ|ท่าอากาศยานนานาชาติโตเกียว","สนามบินฮาเนดะ","โตเกียว",35.5494,139.7798,0],
+["narita|成田|nrt|นาริตะ","สนามบินนาริตะ","ชิบะ",35.7720,140.3929,0],
+["kansai international|kansai airport|関西国際空港|関空|kix|izumisano|泉佐野|rinku|りんくう|สนามบินคันไซ|ท่าอากาศยานนานาชาติคันไซ","สนามบินคันไซ","โอซาก้า",34.4320,135.2304,0],
+["itami|伊丹|osaka international airport","สนามบินอิตามิ","โอซาก้า",34.7855,135.4382,0],
+["new chitose|chitose|千歳|cts|ชิโตเสะ","สนามบินชิโตเสะ","ฮอกไกโด",42.7752,141.6923,0],
+["fukuoka airport|福岡空港|fuk","สนามบินฟุกุโอกะ","ฟุกุโอกะ",33.5859,130.4507,0],
+["naha airport|那覇空港|oka","สนามบินนาฮะ","โอกินาว่า",26.2058,127.6466,0],
+["centrair|chubu|中部国際空港|tokoname|常滑|ngo","สนามบินชูบุ","นาโกย่า",34.8584,136.8054,0],
+["tokyo|東京|โตเกียว","โตเกียว","โตเกียว",35.6812,139.7671,2],
+["yokohama|横浜|minatomirai|みなとみらい|โยโกฮามะ","โยโกฮามะ","ใกล้โตเกียว",35.4500,139.6420,2],["kamakura|鎌倉|คามาคุระ","คามาคุระ","ใกล้โตเกียว",35.3190,139.5500,2],
+["hakone|箱根|ฮาโกเนะ","ฮาโกเนะ","ใกล้โตเกียว",35.2324,139.1050,2],["kawaguchiko|河口湖|fujikawaguchiko|富士河口湖|fujiyoshida|富士吉田|คาวากุจิโกะ","คาวากุจิโกะ","ใกล้โตเกียว",35.4980,138.7680,2],
+["nikko|日光|นิกโก","นิกโก","ใกล้โตเกียว",36.7500,139.6000,2],
+["gion|祇園|กิออน","กิออน","เกียวโต",35.0037,135.7750,1],["higashiyama|東山|kiyomizu|清水","ฮิงาชิยามะ","เกียวโต",34.9960,135.7810,1],["arashiyama|嵐山|sagano|嵯峨|ukyo|右京","อาราชิยามะ","เกียวโต",35.0094,135.6670,1],
+["fushimi|伏見","ฟุชิมิ","เกียวโต",34.9671,135.7727,1],["shimogyo|下京|kyoto station|京都駅","สถานีเกียวโต","เกียวโต",34.9858,135.7588,1],["nakagyo|中京|kawaramachi|河原町|sanjo|三条","ใจกลางเกียวโต","เกียวโต",35.0050,135.7648,1],
+["sakyo|左京|ginkakuji|銀閣寺|nanzenji|南禅寺","ซาเคียว","เกียวโต",35.0200,135.7945,1],["kinkakuji|金閣寺|kita-ku, kyoto|北区","คินคะคุจิ","เกียวโต",35.0394,135.7292,1],
+["kyoto|京都|เกียวโต","เกียวโต","เกียวโต",35.0116,135.7681,2],
+["namba|難波|なんば|dotonbori|道頓堀|shinsaibashi|心斎橋|นัมบะ","นัมบะ","โอซาก้า",34.6660,135.5010,1],["umeda|梅田|kita ward, osaka|kita-ku, osaka|大阪市北区|อุเมดะ","อุเมดะ","โอซาก้า",34.7025,135.4959,1],
+["tennoji|天王寺|abeno|阿倍野|shinsekai|新世界|naniwa|浪速","เทนโนจิ","โอซาก้า",34.6466,135.5130,1],["osaka castle|大阪城","ปราสาทโอซาก้า","โอซาก้า",34.6873,135.5262,1],["konohana|此花|universal city","เบย์แอเรีย","โอซาก้า",34.6654,135.4323,1],
+["osaka|大阪|โอซาก้า","โอซาก้า","โอซาก้า",34.6937,135.5023,2],
+["nara|奈良|นารา","นารา","คันไซ",34.6840,135.8250,2],["kobe|神戸|sannomiya|三宮|โกเบ","โกเบ","คันไซ",34.6930,135.1950,2],
+["miyajima|宮島|itsukushima|厳島|hatsukaichi|廿日市|มิยาจิมะ","มิยาจิมะ","ฮิโรชิมะ",34.2959,132.3199,1],["hiroshima|広島|ฮิโรชิมะ","ฮิโรชิมะ","ฮิโรชิมะ",34.3970,132.4750,2],
+["kanazawa|金沢|คานาซาวะ","คานาซาวะ","คานาซาวะ",36.5780,136.6480,2],["nagoya|名古屋|นาโกย่า","นาโกย่า","นาโกย่า",35.1700,136.8820,2],
+["susukino|すすきの|薄野","ซุซุกิโนะ","ซัปโปโร",43.0555,141.3530,1],["otaru|小樽|โอตารุ","โอตารุ","ฮอกไกโด",43.1990,141.0020,2],["sapporo|札幌|ซัปโปโร","ซัปโปโร","ฮอกไกโด",43.0610,141.3540,2],
+["hakodate|函館|ฮาโกดาเตะ","ฮาโกดาเตะ","ฮอกไกโด",41.7740,140.7260,2],
+["hakata|博多|nakasu|中洲|ฮากาตะ","ฮากาตะ","ฟุกุโอกะ",33.5900,130.4100,1],["tenjin|天神|เท็นจิน","เท็นจิน","ฟุกุโอกะ",33.5900,130.3990,1],["dazaifu|太宰府|ดาไซฟุ","ดาไซฟุ","ฟุกุโอกะ",33.5215,130.5349,1],
+["fukuoka|福岡|ฟุกุโอกะ","ฟุกุโอกะ","ฟุกุโอกะ",33.5900,130.4050,2],
+["motobu|本部|churaumi|美ら海","โมโตบุ","โอกินาว่า",26.6944,127.8779,1],["naha|那覇|kokusai|国際通り|นาฮะ","นาฮะ","โอกินาว่า",26.2125,127.6810,2],["okinawa|沖縄|โอกินาว่า","โอกินาว่า","โอกินาว่า",26.2125,127.6810,2]
+];
+/* Open Location Code (Plus Code) — works offline */
+const OLC="23456789CFGHJMPQRVWX";
+function olcDecode(code){
+  code=code.replace("+","").replace(/0+$/,"").toUpperCase();
+  let la=-90,lo=-180,rLa=20,rLo=20;
+  for(let i=0;i<Math.min(code.length,10);i+=2){
+    const res=20/Math.pow(20,i/2);
+    la+=OLC.indexOf(code[i])*res;
+    if(code[i+1])lo+=OLC.indexOf(code[i+1])*res;
+    rLa=res;rLo=res;
+  }
+  for(let i=10;i<code.length;i++){
+    rLa/=5;rLo/=4;const d=OLC.indexOf(code[i]);
+    la+=Math.floor(d/4)*rLa;lo+=(d%4)*rLo;
+  }
+  if(code.split("").some(c=>OLC.indexOf(c)<0))return null;
+  return {la:la+rLa/2,lo:lo+rLo/2};
+}
+function olcEncode(la,lo){
+  la=Math.min(Math.max(la,-90),89.9999999)+90;lo=((lo+180)%360+360)%360;
+  let c="";
+  for(let i=0;i<5;i++){const res=20/Math.pow(20,i);const a=Math.floor(la/res+1e-9),b=Math.floor(lo/res+1e-9);c+=OLC[a]+OLC[b];la-=a*res;lo-=b*res;}
+  return c.slice(0,8)+"+"+c.slice(8);
+}
+function olcRecover(short,refLa,refLo){
+  const pad=8-short.indexOf("+");
+  if(pad<=0)return olcDecode(short);
+  const res=Math.pow(20,2-pad/2),half=res/2;
+  const r=olcDecode(olcEncode(refLa,refLo).slice(0,pad)+short);
+  if(!r)return null;
+  if(refLa+half<r.la&&r.la-res>=-90)r.la-=res;else if(refLa-half>r.la&&r.la+res<=90)r.la+=res;
+  if(refLo+half<r.lo)r.lo-=res;else if(refLo-half>r.lo)r.lo+=res;
+  return r;
+}
+function okLL(la,lo){return isFinite(la)&&isFinite(lo)&&Math.abs(la)<=90&&Math.abs(lo)<=180&&!(la===0&&lo===0);}
+function parseLoc(raw){
+  let s=String(raw||"").trim(); if(!s)return null;
+  try{s=decodeURIComponent(s.replace(/%(?![0-9a-f]{2})/gi,"%25"));}catch(e){}
+  const t=s.replace(/\+/g," ");
+  const num="(-?\\d{1,3}\\.\\d+)";
+  const tries=[
+    [new RegExp("!3d"+num+"!4d"+num),"หมุดของสถานที่ในลิงก์",true],
+    [new RegExp("[?&](?:q|query|ll|sll|daddr|destination|center|coordinate|saddr)=(?:loc:)?\\s*"+num+"\\s*,\\s*"+num),"พิกัดในลิงก์",true],
+    [new RegExp("/maps/(?:search|place|dir)/(?:[^/]*/)?"+num+"\\s*,\\s*"+num),"พิกัดในลิงก์",true],
+    [new RegExp("geo:"+num+"\\s*,\\s*"+num),"พิกัดในลิงก์",true],
+    [new RegExp("@"+num+"\\s*,\\s*"+num),"จุดกลางแผนที่ในลิงก์",false],
+  ];
+  /* degree-minute-second, e.g. 35°39'34.2"N 139°42'01.8"E */
+  const dms=t.match(/(\d{1,2})°\s*(\d{1,2})['′’]\s*([\d.]+)["″”]?\s*([NS])[\s,]+(\d{1,3})°\s*(\d{1,2})['′’]\s*([\d.]+)["″”]?\s*([EW])/i);
+  if(dms){const f=(d,m,x,h)=>(+d+m/60+x/3600)*(/[SW]/i.test(h)?-1:1);return {la:f(dms[1],dms[2],dms[3],dms[4]),lo:f(dms[5],dms[6],dms[7],dms[8]),how:"พิกัดองศา",exact:true};}
+  for(const[re,how,exact]of tries){const m=t.match(re);if(m&&okLL(+m[1],+m[2]))return {la:+m[1],lo:+m[2],how,exact};}
+  const plain=t.match(/(-?\d{1,2}\.\d{3,})\s*[,，\s]\s*(-?\d{2,3}\.\d{3,})/);
+  if(plain&&okLL(+plain[1],+plain[2]))return {la:+plain[1],lo:+plain[2],how:"พิกัดที่วาง",exact:true};
+  /* no coordinates: try a known place, then an area name in the share text / address */
+  const low=t.toLowerCase();
+  const short=/maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs/.test(low);
+  const txt=low.replace(/https?:\/\/[^\/\s]+/g," ").replace(/[?&](?:g_st|entry|g_ep|lucs|skid|shh|ftid|hl|gl)=[^&\s]*/g," ");
+  let best=null;
+  const findKw=k=>{if(!/^[a-z]/.test(k))return txt.indexOf(k);
+    const m=txt.match(new RegExp("(^|[^a-z])"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![a-z])"));return m?m.index+m[1].length:-1;};
+  AREAS.forEach(([kw,n,city,la,lo,rank])=>kw.split("|").concat([n.toLowerCase()]).forEach(k=>{const i=findKw(k);
+    if(i>=0&&(!best||rank<best.rank||rank===best.rank&&i<best.i))best={la,lo,rank,i,n,city};}));
+  /* Plus Code, full (8Q7XGQWH+R72) or short with a locality (GQWH+R72 โอตะ โตเกียว) */
+  const pc=s.match(/(^|[^0-9A-Za-z])([23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{0,4})(?![0-9A-Za-z])/i);
+  if(pc){
+    const code=pc[2].toUpperCase(),full=code.indexOf("+")===8;
+    let ref=best?{la:best.la,lo:best.lo,n:best.n}:S.pos?{la:S.pos.la,lo:S.pos.lo,n:"ตำแหน่งปัจจุบัน"}:{la:35.6812,lo:139.7671,n:"โตเกียว"};
+    const r=full?olcDecode(code):olcRecover(code,ref.la,ref.lo);
+    if(r&&okLL(r.la,r.lo))return {la:r.la,lo:r.lo,how:"Plus Code "+code+(full?"":" (อ้างอิง"+ref.n+")"),exact:true};
+  }
+  const pl=PLACES.find(x=>x.j.length>=4&&txt.includes(x.j.toLowerCase())||x.n.length>=6&&txt.includes(x.n.toLowerCase()));
+  if(pl)return {la:pl.la,lo:pl.lo,how:"ตรงกับ "+pl.n+" ในไกด์",exact:true,short};
+  if(best)return best.rank===0?{la:best.la,lo:best.lo,how:"ตรงกับ"+best.n,exact:true,short}:{la:best.la,lo:best.lo,how:"เดาจากชื่อย่าน "+best.n+" ในข้อความ",exact:false,short};
+  if(short)return {short:true};
+  return null;
+}
+function nearestPlace(la,lo){let b=null,bd=1e9;PLACES.forEach(x=>{const d=dist(la,lo,x.la,x.lo);if(d<bd){bd=d;b=x;}});return {x:b,d:bd};}
+function describe(la,lo){
+  const na=nearestArea(la,lo),np=nearestPlace(la,lo);
+  AREAS.forEach(([kw,n,city,a,b,rank])=>{if(rank>1)return;const d=dist(la,lo,a,b);if(d<=na.d){na.d=d;na.n=n;na.city=city;}});
+  if(!inJapan(la,lo))return {head:"จุดนี้อยู่นอกญี่ปุ่น",sub:"ห่างจาก"+na.n+" ~"+fmtKm(na.d)};
+  return {head:"ใกล้"+na.n+", "+na.city,sub:"ใกล้สุดในไกด์: "+np.x.n+" ("+fmtKm(np.d)+")"};
+}
+let PENDING=null;
+function applyLoc(r){
+  lastFail="";
+  const d=describe(r.la,r.lo);
+  setPos({la:r.la,lo:r.lo,src:"paste",label:d.head,how:r.how,exact:r.exact,ts:Date.now()});
+}
+function showPaste(r,auto){
+  const out=$("#pasteRes");PENDING=null;
+  if(!r){out.innerHTML='<div class="pres warn"><div class="t">อ่านตำแหน่งจากข้อความนี้ไม่ได้</div><div class="s">ลองวางตัวเลขพิกัด เช่น 35.6595, 139.7005 หรือ URL ยาวจาก google.com/maps</div></div>';return;}
+  if(r.la==null){const u=($("#coordIn").value.match(/https?:\/\/\S+/)||[""])[0];
+    out.innerHTML='<div class="pres warn"><div class="t">ลิงก์สั้นนี้ไม่มีพิกัดอยู่ในตัว</div>'+
+    '<div class="s">ลิงก์ maps.app.goo.gl เป็นแค่ทางลัด ต้องใช้เน็ตเปิดถึงจะรู้ว่าเป็นที่ไหน หน้านี้เปิดเว็บอื่นเองไม่ได้ ทำได้ 2 ทาง</div>'+
+    '<ol class="howto"><li>กดปุ่มด้านล่างเพื่อเปิดลิงก์ ถ้าเปิดในเบราว์เซอร์ ให้คัดลอก URL ยาวจากแถบที่อยู่มาวางแทน ระบบจะอ่านชื่อและย่านได้</li>'+
+    '<li>หรือวางลิงก์นี้ในแชตกับ Claude แล้วบอกว่า "แปลงเป็นตำแหน่ง" จะได้ลิงก์ไกด์ที่เปิดตรงจุดนั้น</li></ol>'+
+    (u?'<a class="btn" href="'+esc(u)+'" target="_blank" rel="noopener" style="justify-self:start;text-decoration:none;color:var(--ink)">เปิดลิงก์นี้</a>':'')+'</div>';return;}
+  const d=describe(r.la,r.lo);
+  const sub=r.la.toFixed(5)+", "+r.lo.toFixed(5)+" · "+r.how+(r.exact?"":" (โดยประมาณ)");
+  if(r.exact&&auto&&inJapan(r.la,r.lo)){applyLoc(r);closeDlg();toast("📍 "+d.head);return;}
+  PENDING=r;
+  out.innerHTML='<div class="pres '+(r.exact?'ok':'warn')+'"><div class="t">📍 '+esc(d.head)+'</div><div class="s">'+esc(d.sub)+'</div><div class="s">'+esc(sub)+'</div><button type="button" class="btn primary" id="usePending">ใช้ตำแหน่งนี้</button></div>';
+}
+$("#pasteRes").addEventListener("click",e=>{if(e.target.id==="usePending"&&PENDING){applyLoc(PENDING);closeDlg();toast("📍 "+describe(PENDING.la,PENDING.lo).head);}});
+$("#coordIn").addEventListener("keydown",e=>{if(e.key==="Enter")$("#coordGo").click();});
+$("#coordIn").addEventListener("paste",()=>setTimeout(()=>showPaste(parseLoc($("#coordIn").value),true),0));
+$("#coordIn").addEventListener("input",e=>{if(!e.target.value.trim())$("#pasteRes").innerHTML="";});
+$("#coordGo").addEventListener("click",()=>showPaste(parseLoc($("#coordIn").value),true));
+
+/* search "I'm near…" */
+const FIND=[];
+CITIES.forEach(([city,pts])=>pts.forEach(([n,a,b])=>FIND.push({k:(n+" "+city).toLowerCase(),n,sub:city,la:a,lo:b})));
+PLACES.forEach(x=>FIND.push({k:(x.n+" "+x.j+" "+x.a).toLowerCase(),n:x.n,sub:x.a,la:x.la,lo:x.lo}));
+$("#findIn").addEventListener("input",e=>{
+  const q=e.target.value.trim().toLowerCase(),out=$("#findRes");
+  if(!q){out.innerHTML="";return;}
+  const hits=FIND.filter(f=>f.k.includes(q)).slice(0,8);
+  out.innerHTML=hits.length?hits.map(f=>'<button type="button" data-la="'+f.la+'" data-lo="'+f.lo+'" data-label="'+esc(f.n)+'">'+esc(f.n)+'<small>'+esc(f.sub)+'</small></button>').join(""):'<div class="howto">ไม่พบ ลองพิมพ์ชื่อย่านหรือสถานที่ใกล้ๆ</div>';
+});
+$("#findRes").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  lastFail="";setPos({la:+b.dataset.la,lo:+b.dataset.lo,src:"manual",label:"ใกล้ "+b.dataset.label,ts:Date.now()});closeDlg();});
+
+/* position from link: #at-35p6595-139p7005 */
+function fromHash(){
+  const m=location.hash.match(/^#at-(-?\d+)p(\d+)-(-?\d+)p(\d+)$/);
+  if(!m)return false;
+  const la=+(m[1]+"."+m[2]),lo=+(m[3]+"."+m[4]);
+  if(!isFinite(la)||!isFinite(lo))return false;
+  lastFail="";const na=nearestArea(la,lo);
+  setPos({la,lo,src:"link",label:"ตำแหน่งจากลิงก์ (ใกล้"+na.n+", "+na.city+")",ts:Date.now()});
+  return true;
+}
+addEventListener("hashchange",fromHash);
+
+/* ================= วิธีเดินทาง (คำนวณออฟไลน์จากระยะทาง + ข้อมูลสถานี) ================= */
+/* ชื่อสถานีภาษาอังกฤษ (ตามป้ายในสถานี) */
+const ST_EN={"新宿":"Shinjuku","渋谷":"Shibuya","原宿":"Harajuku","明治神宮前":"Meiji-jingumae","表参道":"Omote-sando","恵比寿":"Ebisu","浅草":"Asakusa","上野":"Ueno","秋葉原":"Akihabara","東京":"Tokyo","銀座":"Ginza","築地":"Tsukiji","月島":"Tsukishima","市場前":"Shijo-mae","新豊洲":"Shin-toyosu","台場":"Daiba","新橋":"Shimbashi","押上":"Oshiage (Skytree)","六本木":"Roppongi","赤羽橋":"Akabanebashi","都庁前":"Tochomae","新宿御苑前":"Shinjuku-gyoemmae","大手町":"Otemachi","根津":"Nezu","下北沢":"Shimo-kitazawa","豪徳寺":"Gotokuji","池袋":"Ikebukuro","品川":"Shinagawa","羽田空港第3ターミナル":"Haneda Airport Terminal 3","羽田空港第1・第2ターミナル":"Haneda Airport Terminal 1·2","成田空港":"Narita Airport","元町・中華街":"Motomachi-Chukagai","日本大通り":"Nihon-odori","みなとみらい":"Minatomirai","横浜":"Yokohama","鎌倉":"Kamakura","長谷":"Hase","鎌倉高校前":"Kamakurakokomae","下吉田":"Shimoyoshida","河口湖":"Kawaguchiko","箱根湯本":"Hakone-Yumoto","彫刻の森":"Chokoku-no-Mori","大涌谷":"Owakudani","東武日光":"Tobu-Nikko","京都":"Kyoto","稲荷":"Inari","東福寺":"Tofukuji","清水五条":"Kiyomizu-Gojo","祇園四条":"Gion-Shijo","京都河原町":"Kyoto-Kawaramachi","三条":"Sanjo","烏丸御池":"Karasuma Oike","二条城前":"Nijojo-mae","蹴上":"Keage","嵯峨嵐山":"Saga-Arashiyama","嵐山":"Arashiyama (Randen)","近鉄奈良":"Kintetsu-Nara","JR奈良":"JR Nara","なんば":"Namba","日本橋":"Nippombashi","心斎橋":"Shinsaibashi","梅田・大阪":"Umeda / Osaka","天王寺":"Tennoji","恵美須町":"Ebisucho","四天王寺前夕陽ヶ丘":"Shitennoji-mae Yuhigaoka","大阪城公園":"Osakajokoen","天満":"Temma","野田":"Noda","ユニバーサルシティ":"Universal City","住吉大社":"Sumiyoshitaisha","関西空港":"Kansai Airport","三宮":"Sannomiya","新神戸":"Shin-Kobe","広島":"Hiroshima","原爆ドーム前":"Genbaku Dome-mae","宮島桟橋":"Miyajima Pier","金沢":"Kanazawa","名古屋":"Nagoya","神宮前":"Jingu-mae","市役所":"Shiyakusho","矢場町":"Yabacho","大須観音":"Osu Kannon","中部国際空港":"Central Japan Int'l Airport","札幌":"Sapporo","大通":"Odori","すすきの":"Susukino","円山公園":"Maruyama-koen","中の島":"Nakanoshima","東区役所前":"Higashi-kuyakusho-mae","新千歳空港":"New Chitose Airport","小樽":"Otaru","函館":"Hakodate","博多":"Hakata","中洲川端":"Nakasu-Kawabata","天神":"Tenjin","大濠公園":"Ohorikoen","太宰府":"Dazaifu","城戸南蔵院前":"Kido-Nanzoin-mae","福岡空港":"Fukuoka Airport","県庁前":"Kencho-mae","牧志":"Makishi","首里":"Shuri","那覇空港":"Naha Airport"};
+/* ชื่อสายภาษาอังกฤษ */
+const LINE_EN={"JR ยามาโนเตะ":"JR Yamanote Line","JR ชูโอ":"JR Chuo Line","เมโทร มารุโนะอุจิ":"Marunouchi Line (M)","โทเออิ โออิโดะ":"Toei Oedo Line (E)","โอดะคิว":"Odakyu Line","เคโอ":"Keio Line","เมโทร กินซ่า":"Ginza Line (G)","เมโทร ฮันโซมง":"Hanzomon Line (Z)","เมโทร ฟุกุโตชิน":"Fukutoshin Line (F)","โทคิว":"Tokyu Line","เคโอ อิโนะคาชิระ":"Keio Inokashira Line","เมโทร ชิโยดะ":"Chiyoda Line (C)","เมโทร ฮิบิยะ":"Hibiya Line (H)","โทเออิ อาซากุสะ":"Toei Asakusa Line (A)","โทบุ":"Tobu Line","JR เคฮินโทโฮกุ":"JR Keihin-Tohoku Line","ชินคันเซ็น":"Shinkansen","JR โซบุ":"JR Sobu Line","เมโทร ยูรากุโจ":"Yurakucho Line (Y)","ยูริคาโมเมะ":"Yurikamome","เมโทร โทไซ":"Tozai Line (T)","โทเออิ มิตะ":"Toei Mita Line (I)","เคคิว":"Keikyu Line","โมโนเรล":"Tokyo Monorail","JR นาริตะเอ็กซ์เพรส":"JR Narita Express","เคเซ สกายไลเนอร์":"Keisei Skyliner","มินาโตะมิไร":"Minatomirai Line","JR โทไกโด":"JR Tokaido Line","JR โยโกสุกะ":"JR Yokosuka Line","เอโนเด็น":"Enoden","ฟูจิคิว":"Fujikyu Railway","ฮาโกเนะโทซัง":"Hakone Tozan Railway","กระเช้าฮาโกเนะ":"Hakone Ropeway","JR":"JR","รถไฟใต้ดินคาราสุมะ":"Karasuma Subway Line (K)","คินเท็ตสึ":"Kintetsu Line","JR นารา":"JR Nara Line","เคฮัน":"Keihan Line","ฮันคิว":"Hankyu Line","รถไฟใต้ดินโทไซ":"Tozai Subway Line (T)","JR ซางาโนะ":"JR Sagano Line","รันเด็น":"Randen (Keifuku)","JR ยามาโตจิ":"JR Yamatoji Line","เมโทร มิโดสุจิ":"Midosuji Line (M)","นันไค":"Nankai Line","ฮันชิน":"Hanshin Line","เมโทร ซากาอิสุจิ":"Sakaisuji Line (K)","เมโทร เซ็นนิจิมาเอะ":"Sennichimae Line (S)","เมโทร นางาโฮริ":"Nagahori Tsurumi-ryokuchi Line (N)","JR วงแหวนโอซาก้า":"JR Osaka Loop Line","เมโทร ทานิมาจิ":"Tanimachi Line (T)","JR ยูเมะซากิ":"JR Yumesaki Line","JR ฮารุกะ":"JR Haruka","รถรางฮิโรชิมะ":"Hiroden Streetcar","เรือเฟอร์รี JR":"JR Miyajima Ferry","รถไฟใต้ดินฮิงาชิยามะ":"Higashiyama Subway Line","เมเท็ตสึ":"Meitetsu Line","รถไฟใต้ดินเมโจ":"Meijo Subway Line","รถไฟใต้ดินซึรุไม":"Tsurumai Subway Line","รถไฟใต้ดินนัมโบกุ":"Namboku Subway Line (N)","รถไฟใต้ดินโทไซ (ซัปโปโร)":"Tozai Subway Line (T)","รถไฟใต้ดินโทโฮ":"Toho Subway Line (H)","รถรางฮาโกดาเตะ":"Hakodate Streetcar","รถไฟใต้ดินคูโกะ":"Kuko (Airport) Subway Line","รถไฟใต้ดินฮาโกซากิ":"Hakozaki Subway Line","นิชิเท็ตสึ":"Nishitetsu Line","JR ซาซากุริ":"JR Sasaguri Line","โมโนเรลยุยเรล":"Yui Rail"};
+/* ทางออกสถานีที่ใกล้สถานที่ที่สุด: คีย์ = ชื่อญี่ปุ่นของสถานที่ → st = ชื่อญี่ปุ่นของสถานี */
+const EXIT={
+ "浅草寺":{st:"浅草",ex:"Exit 1",tip:"ขึ้นมาจะเห็นประตูคามินาริมง (โคมแดงใหญ่) อยู่ใกล้ๆ"},
+ "仲見世通り":{st:"浅草",ex:"Exit 1",tip:"เดินลอดประตูคามินาริมงเข้าไป"},
+ "浅草花月堂 本店":{st:"浅草",ex:"Exit 1"},
+ "明治神宮":{st:"明治神宮前",ex:"Exit 2",tip:"ออกมาแล้วข้ามสะพานจิงกูไปประตูโทริอิ หรือมาจาก JR Harajuku ใช้ Omotesando Exit"},
+ "竹下通り":{st:"原宿",ex:"Takeshita Exit (竹下口)",tip:"ถ้ามา JR ฮาราจุกุ ทางออกนี้ตรงหน้าถนนทาเคชิตะเลย"},
+ "竹下通り クレープ":{st:"原宿",ex:"Takeshita Exit (竹下口)"},
+ "渋谷スクランブル交差点":{st:"渋谷",ex:"Hachiko Exit (ハチ公口)",tip:"ออกมาจะเจอรูปปั้นฮาจิโกะและสี่แยก"},
+ "渋谷109":{st:"渋谷",ex:"Hachiko Exit (ハチ公口)"},
+ "一蘭 渋谷店":{st:"渋谷",ex:"Hachiko Exit (ハチ公口)"},
+ "魚べい 渋谷道玄坂店":{st:"渋谷",ex:"Hachiko Exit (ハチ公口)"},
+ "MEGAドン・キホーテ 渋谷本店":{st:"渋谷",ex:"Hachiko Exit (ハチ公口)"},
+ "渋谷スカイ":{st:"渋谷",ex:"Exit B6",tip:"เชื่อมเข้าตึก Shibuya Scramble Square ขึ้นลิฟต์ชั้น 14"},
+ "東京都庁 展望室":{st:"都庁前",ex:"Exit A4",tip:"ทางออกนี้พาเข้าตึกหมายเลข 1 ไปลิฟต์ชมวิว"},
+ "東京スカイツリー":{st:"押上",ex:"Exit B3",tip:"เชื่อมเข้าห้าง Tokyo Solamachi ใต้หอคอย"},
+ "東京タワー":{st:"赤羽橋",ex:"Akabanebashi Exit (赤羽橋口)"},
+ "新宿御苑":{st:"新宿御苑前",ex:"Exit 1",tip:"เดินไปประตูชินจูกุ (Shinjuku Gate)"},
+ "根津神社":{st:"根津",ex:"Exit 1"},
+ "思い出横丁":{st:"新宿",ex:"West Exit (西口)",tip:"ซอยอยู่ติดรางรถไฟด้านเหนือของทางออก"},
+ "新宿ゴールデン街":{st:"新宿",ex:"East Exit (東口)"},
+ "つな八 新宿本店":{st:"新宿",ex:"East Exit (東口)"},
+ "風雲児":{st:"新宿",ex:"South Exit (南口)"},
+ "アメ横商店街":{st:"上野",ex:"Shinobazu Exit (不忍口)",tip:"ข้ามถนนมาจะเห็นป้ายอาเมโยโกะ"},
+ "上野恩賜公園":{st:"上野",ex:"Park Exit (公園口)"},
+ "築地場外市場":{st:"築地",ex:"Exit 1"},
+ "すしざんまい 本店":{st:"築地",ex:"Exit 1"},
+ "東京駅 丸の内駅舎":{st:"東京",ex:"Marunouchi Central Exit (丸の内中央口)"},
+ "六厘舎 東京ラーメンストリート":{st:"東京",ex:"Yaesu South Exit (八重洲南口)",tip:"ร้านอยู่ชั้นใต้ดิน Tokyo Ramen Street ดูป้าย Tokyo Station City"},
+ "皇居東御苑":{st:"大手町",ex:"Exit C13a",tip:"เดินไปประตูโอเทมง (Otemon Gate)"},
+ "秋葉原電気街":{st:"秋葉原",ex:"Electric Town Exit (電気街口)"},
+ "銀座":{st:"銀座",ex:"Exit A2",tip:"ขึ้นมาตรงสี่แยกกินซ่า 4 โจเมะ ตึกนาฬิกา Wako"},
+ "月島もんじゃストリート":{st:"月島",ex:"Exit 7"},
+ "とんかつ まい泉 青山本店":{st:"表参道",ex:"Exit A2"},
+ "チームラボプラネッツ":{st:"新豊洲",ex:"ทางออกเดียว",tip:"ออกจากสถานีเดิน 1 นาที"},
+ "寿司大 豊洲市場":{st:"市場前",ex:"ทางเชื่อมไปตลาด",tip:"เดินตามป้าย Toyosu Market อาคารร้านอาหารฝั่ง Fish Intermediate Wholesale"},
+ "ユニコーンガンダム立像":{st:"台場",ex:"South Exit (南口)",tip:"เดินตามป้าย DiverCity Tokyo Plaza ~5 นาที"},
+ "豪徳寺":{st:"豪徳寺",ex:"ทางออกเดียว"},
+ "横浜中華街":{st:"元町・中華街",ex:"Exit 2 (Chinatown)",tip:"ออกมาเจอซุ้มประตูไชน่าทาวน์"},
+ "大さん橋":{st:"日本大通り",ex:"Exit 3"},
+ "鎌倉大仏 (高徳院)":{st:"長谷",ex:"ทางออกเดียว",tip:"เลี้ยวซ้ายเดินขึ้นเนิน ~7 นาที"},
+ "鶴岡八幡宮":{st:"鎌倉",ex:"East Exit (東口)",tip:"เดินตามถนนโคมาจิไปจนสุด"},
+ "小町通り":{st:"鎌倉",ex:"East Exit (東口)"},
+ "伏見稲荷大社":{st:"稲荷",ex:"ทางออกเดียว",tip:"ออกมาจะเห็นโทริอิใหญ่ฝั่งตรงข้าม"},
+ "東福寺":{st:"東福寺",ex:"ทางออกเดียว"},
+ "八坂神社":{st:"祇園四条",ex:"Exit 7",tip:"เดินตรงไปทางตะวันออกตามถนนชิโจ สุดถนนคือศาลเจ้า"},
+ "祇園 花見小路":{st:"祇園四条",ex:"Exit 7"},
+ "嵐山 竹林の小径":{st:"嵯峨嵐山",ex:"South Exit (南口)",tip:"เดินตามถนนไปทางวัดเท็นริวจิ"},
+ "天龍寺":{st:"嵯峨嵐山",ex:"South Exit (南口)"},
+ "二条城":{st:"二条城前",ex:"Exit 1"},
+ "永観堂 禅林寺":{st:"蹴上",ex:"Exit 1",tip:"เดินลอดอุโมงค์อิฐเนจิมัมโปไปทางวัดนันเซ็นจิ"},
+ "南禅寺 奥丹":{st:"蹴上",ex:"Exit 1",tip:"เดินลอดอุโมงค์อิฐเนจิมัมโปไปทางวัดนันเซ็นจิ"},
+ "京都タワー":{st:"京都",ex:"Karasuma Central Exit (烏丸中央口)",tip:"หอคอยอยู่ตรงข้ามทางออกพอดี"},
+ "ジェイアール京都伊勢丹":{st:"京都",ex:"เชื่อมในสถานี",tip:"ห้างอยู่ฝั่งตะวันตกของโถงกลางสถานี"},
+ "本家 第一旭 たかばし本店":{st:"京都",ex:"Karasuma Central Exit (烏丸中央口)",tip:"เลี้ยวซ้ายเดินไปทางตะวันออก ~5 นาที"},
+ "東大寺":{st:"近鉄奈良",ex:"Exit 2",tip:"เดินขึ้นถนนโนโบริโอจิไปทางตะวันออก จะเริ่มเจอกวาง"},
+ "奈良公園":{st:"近鉄奈良",ex:"Exit 2"},
+ "道頓堀":{st:"なんば",ex:"Exit 14",tip:"ขึ้นมาเดินไปสะพานเอบิสึบาชิ"},
+ "グリコサイン":{st:"なんば",ex:"Exit 14",tip:"ยืนบนสะพานเอบิสึบาชิ ป้ายอยู่ริมคลอง"},
+ "黒門市場":{st:"日本橋",ex:"Exit 10"},
+ "心斎橋筋商店街":{st:"心斎橋",ex:"Exit 6"},
+ "新世界 通天閣":{st:"恵美須町",ex:"Exit 3"},
+ "串カツだるま 新世界総本店":{st:"恵美須町",ex:"Exit 3"},
+ "四天王寺":{st:"四天王寺前夕陽ヶ丘",ex:"Exit 4"},
+ "梅田スカイビル 空中庭園":{st:"梅田・大阪",ex:"JR Osaka: Central North Exit (中央北口)",tip:"เดินตามป้าย Umeda Sky Building ผ่านอุโมงค์ลอดรางรถไฟ ~10 นาที"},
+ "あべのハルカス 展望台":{st:"天王寺",ex:"เชื่อมตึก Abeno Harukas",tip:"ขึ้นลิฟต์ไปชั้น 16 จุดขายตั๋วชมวิว"},
+ "住吉大社":{st:"住吉大社",ex:"East Exit (東口)"},
+ "名古屋城":{st:"市役所",ex:"Exit 7"},
+ "熱田神宮":{st:"神宮前",ex:"West Exit (西口)"},
+ "大須商店街":{st:"大須観音",ex:"Exit 2"},
+ "鼓門":{st:"金沢",ex:"East Exit (東口 / 兼六園口)"}
+};
+/* [ชื่อไทย, ชื่อญี่ปุ่น, lat, lng, "สาย, สาย"] */
+const STATIONS=[
+["ชินจูกุ","新宿",35.6896,139.7006,"JR ยามาโนเตะ, JR ชูโอ, เมโทร มารุโนะอุจิ, โทเออิ โออิโดะ, โอดะคิว, เคโอ"],
+["ชิบุยะ","渋谷",35.6580,139.7016,"JR ยามาโนเตะ, เมโทร กินซ่า, เมโทร ฮันโซมง, เมโทร ฟุกุโตชิน, โทคิว, เคโอ อิโนะคาชิระ"],
+["ฮาราจุกุ","原宿",35.6702,139.7027,"JR ยามาโนเตะ"],
+["เมจิจิงกูมาเอะ","明治神宮前",35.6685,139.7056,"เมโทร ชิโยดะ, เมโทร ฟุกุโตชิน"],
+["โอโมเตะซันโด","表参道",35.6652,139.7123,"เมโทร กินซ่า, เมโทร ฮันโซมง, เมโทร ชิโยดะ"],
+["เอบิสึ","恵比寿",35.6467,139.7101,"JR ยามาโนเตะ, เมโทร ฮิบิยะ"],
+["อาซากุสะ","浅草",35.7111,139.7965,"เมโทร กินซ่า, โทเออิ อาซากุสะ, โทบุ"],
+["อุเอโนะ","上野",35.7138,139.7773,"JR ยามาโนเตะ, JR เคฮินโทโฮกุ, เมโทร กินซ่า, เมโทร ฮิบิยะ, ชินคันเซ็น"],
+["อากิฮาบาระ","秋葉原",35.6984,139.7731,"JR ยามาโนเตะ, JR เคฮินโทโฮกุ, JR โซบุ, เมโทร ฮิบิยะ"],
+["โตเกียว","東京",35.6812,139.7671,"JR ยามาโนเตะ, JR เคฮินโทโฮกุ, JR ชูโอ, เมโทร มารุโนะอุจิ, ชินคันเซ็น"],
+["กินซ่า","銀座",35.6717,139.7640,"เมโทร กินซ่า, เมโทร มารุโนะอุจิ, เมโทร ฮิบิยะ"],
+["สึกิจิ","築地",35.6681,139.7720,"เมโทร ฮิบิยะ"],
+["สึกิชิมะ","月島",35.6648,139.7843,"เมโทร ยูรากุโจ, โทเออิ โออิโดะ"],
+["ชิโจมาเอะ","市場前",35.6458,139.7856,"ยูริคาโมเมะ"],
+["ชินโทโยสุ","新豊洲",35.6489,139.7894,"ยูริคาโมเมะ"],
+["ไดบะ","台場",35.6258,139.7714,"ยูริคาโมเมะ"],
+["ชิมบาชิ","新橋",35.6663,139.7583,"JR ยามาโนเตะ, JR เคฮินโทโฮกุ, เมโทร กินซ่า, โทเออิ อาซากุสะ, ยูริคาโมเมะ"],
+["โอชิอาเกะ (สกายทรี)","押上",35.7101,139.8132,"โทเออิ อาซากุสะ, เมโทร ฮันโซมง, โทบุ"],
+["รปปงงิ","六本木",35.6628,139.7314,"เมโทร ฮิบิยะ, โทเออิ โออิโดะ"],
+["อากาบาเนบาชิ","赤羽橋",35.6551,139.7438,"โทเออิ โออิโดะ"],
+["โทโจมาเอะ","都庁前",35.6906,139.6927,"โทเออิ โออิโดะ"],
+["ชินจูกุเกียวเอ็นมาเอะ","新宿御苑前",35.6886,139.7106,"เมโทร มารุโนะอุจิ"],
+["โอเตะมาจิ","大手町",35.6865,139.7660,"เมโทร มารุโนะอุจิ, เมโทร ชิโยดะ, เมโทร ฮันโซมง, เมโทร โทไซ, โทเออิ มิตะ"],
+["เนซึ","根津",35.7175,139.7655,"เมโทร ชิโยดะ"],
+["ชิโมคิตะซาวะ","下北沢",35.6614,139.6681,"โอดะคิว, เคโอ อิโนะคาชิระ"],
+["โกโตคุจิ","豪徳寺",35.6537,139.6475,"โอดะคิว"],
+["อิเคบุคุโระ","池袋",35.7295,139.7109,"JR ยามาโนเตะ, เมโทร มารุโนะอุจิ, เมโทร ฟุกุโตชิน"],
+["ชินางาวะ","品川",35.6285,139.7387,"JR ยามาโนเตะ, JR เคฮินโทโฮกุ, เคคิว, ชินคันเซ็น"],
+["สนามบินฮาเนดะ T3","羽田空港第3ターミナル",35.5441,139.7686,"เคคิว, โมโนเรล"],
+["สนามบินฮาเนดะ T1/T2","羽田空港第1・第2ターミナル",35.5494,139.7840,"เคคิว, โมโนเรล"],
+["สนามบินนาริตะ","成田空港",35.7638,140.3863,"JR นาริตะเอ็กซ์เพรส, เคเซ สกายไลเนอร์"],
+["โมโตมาจิ-ชูคะไก","元町・中華街",35.4428,139.6501,"มินาโตะมิไร, โทคิว"],
+["นิฮงโอโดริ","日本大通り",35.4466,139.6427,"มินาโตะมิไร, โทคิว"],
+["มินาโตะมิไร","みなとみらい",35.4577,139.6326,"มินาโตะมิไร, โทคิว"],
+["โยโกฮามะ","横浜",35.4657,139.6223,"JR โทไกโด, JR โยโกสุกะ, โทคิว, มินาโตะมิไร"],
+["คามาคุระ","鎌倉",35.3192,139.5503,"JR โยโกสุกะ, เอโนเด็น"],
+["ฮาเสะ","長谷",35.3117,139.5359,"เอโนเด็น"],
+["คามาคุระโคโคมาเอะ","鎌倉高校前",35.3066,139.5010,"เอโนเด็น"],
+["ชิโมโยชิดะ","下吉田",35.4983,138.8040,"ฟูจิคิว"],
+["คาวากุจิโกะ","河口湖",35.4982,138.7686,"ฟูจิคิว"],
+["ฮาโกเนะยูโมโตะ","箱根湯本",35.2324,139.1050,"โอดะคิว, ฮาโกเนะโทซัง"],
+["โชโกกุโนะโมริ","彫刻の森",35.2447,139.0506,"ฮาโกเนะโทซัง"],
+["โอวาคุดานิ (กระเช้า)","大涌谷",35.2443,139.0202,"กระเช้าฮาโกเนะ"],
+["โทบุนิกโก","東武日光",36.7477,139.6197,"โทบุ"],
+["เกียวโต","京都",34.9858,135.7588,"JR, ชินคันเซ็น, รถไฟใต้ดินคาราสุมะ, คินเท็ตสึ"],
+["อินาริ","稲荷",34.9670,135.7703,"JR นารา"],
+["โทฟุคุจิ","東福寺",34.9807,135.7697,"JR นารา, เคฮัน"],
+["คิโยมิสึ-โกโจ","清水五条",34.9963,135.7690,"เคฮัน"],
+["กิออน-ชิโจ","祇園四条",35.0039,135.7720,"เคฮัน"],
+["เคียวโตะคาวาระมาจิ","京都河原町",35.0039,135.7690,"ฮันคิว"],
+["ซันโจ","三条",35.0089,135.7723,"เคฮัน, รถไฟใต้ดินโทไซ"],
+["คาราสุมะโออิเกะ","烏丸御池",35.0107,135.7595,"รถไฟใต้ดินคาราสุมะ, รถไฟใต้ดินโทไซ"],
+["นิโจโจมาเอะ","二条城前",35.0105,135.7522,"รถไฟใต้ดินโทไซ"],
+["เคอาเกะ","蹴上",35.0045,135.7905,"รถไฟใต้ดินโทไซ"],
+["ซางะ-อาราชิยามะ","嵯峨嵐山",35.0181,135.6810,"JR ซางาโนะ"],
+["อาราชิยามะ (รันเด็น)","嵐山",35.0152,135.6779,"รันเด็น"],
+["คินเท็ตสึนารา","近鉄奈良",34.6840,135.8288,"คินเท็ตสึ"],
+["JR นารา","JR奈良",34.6809,135.8196,"JR ยามาโตจิ"],
+["นัมบะ","なんば",34.6663,135.5008,"เมโทร มิโดสุจิ, นันไค, คินเท็ตสึ, ฮันชิน"],
+["นิปปมบาชิ","日本橋",34.6653,135.5065,"เมโทร ซากาอิสุจิ, เมโทร เซ็นนิจิมาเอะ, คินเท็ตสึ"],
+["ชินไซบาชิ","心斎橋",34.6750,135.5007,"เมโทร มิโดสุจิ, เมโทร นางาโฮริ"],
+["อุเมดะ / โอซาก้า","梅田・大阪",34.7025,135.4959,"JR วงแหวนโอซาก้า, JR, เมโทร มิโดสุจิ, ฮันคิว, ฮันชิน"],
+["เทนโนจิ","天王寺",34.6466,135.5133,"JR วงแหวนโอซาก้า, เมโทร มิโดสุจิ, คินเท็ตสึ"],
+["เอบิสึโจ","恵美須町",34.6528,135.5063,"เมโทร ซากาอิสุจิ"],
+["ชิเท็นโนจิมาเอะ","四天王寺前夕陽ヶ丘",34.6608,135.5166,"เมโทร ทานิมาจิ"],
+["โอซาก้าโจโคเอ็น","大阪城公園",34.6880,135.5340,"JR วงแหวนโอซาก้า"],
+["เท็มมะ","天満",34.7046,135.5117,"JR วงแหวนโอซาก้า"],
+["โนดะ","野田",34.6950,135.4740,"JR วงแหวนโอซาก้า"],
+["ยูนิเวอร์แซลซิตี้","ユニバーサルシティ",34.6680,135.4350,"JR ยูเมะซากิ"],
+["ซุมิโยชิไทฉะ","住吉大社",34.6129,135.4932,"นันไค"],
+["สนามบินคันไซ","関西空港",34.4329,135.2441,"JR ฮารุกะ, นันไค"],
+["ซันโนมิยะ (โกเบ)","三宮",34.6945,135.1955,"JR, ฮันคิว, ฮันชิน"],
+["ชินโกเบ","新神戸",34.7065,135.1952,"ชินคันเซ็น"],
+["ฮิโรชิมะ","広島",34.3976,132.4753,"JR, ชินคันเซ็น, รถรางฮิโรชิมะ"],
+["เก็นบะคุโดมุมาเอะ","原爆ドーム前",34.3953,132.4530,"รถรางฮิโรชิมะ"],
+["ท่าเรือมิยาจิมะ","宮島桟橋",34.2994,132.3236,"เรือเฟอร์รี JR"],
+["คานาซาวะ","金沢",36.5781,136.6480,"JR, ชินคันเซ็น"],
+["นาโกย่า","名古屋",35.1709,136.8815,"JR, ชินคันเซ็น, รถไฟใต้ดินฮิงาชิยามะ, เมเท็ตสึ"],
+["จิงกูมาเอะ","神宮前",35.1259,136.9105,"เมเท็ตสึ"],
+["ชิยาคุโชะ","市役所",35.1817,136.9065,"รถไฟใต้ดินเมโจ"],
+["ยาบะโจ","矢場町",35.1630,136.9080,"รถไฟใต้ดินเมโจ"],
+["โอสึคันนง","大須観音",35.1595,136.8970,"รถไฟใต้ดินซึรุไม"],
+["สนามบินชูบุ","中部国際空港",34.8590,136.8150,"เมเท็ตสึ"],
+["ซัปโปโร","札幌",43.0687,141.3508,"JR, รถไฟใต้ดินนัมโบกุ"],
+["โอโดริ","大通",43.0605,141.3545,"รถไฟใต้ดินนัมโบกุ, รถไฟใต้ดินโทไซ (ซัปโปโร), รถไฟใต้ดินโทโฮ"],
+["ซุซุกิโนะ","すすきの",43.0553,141.3530,"รถไฟใต้ดินนัมโบกุ"],
+["มารุยามะโคเอ็น","円山公園",43.0549,141.3200,"รถไฟใต้ดินโทไซ (ซัปโปโร)"],
+["นากาโนะชิมะ","中の島",43.0390,141.3570,"รถไฟใต้ดินนัมโบกุ"],
+["ฮิงาชิกุยาคุโชะมาเอะ","東区役所前",43.0760,141.3640,"รถไฟใต้ดินโทโฮ"],
+["สนามบินชินชิโตเสะ","新千歳空港",42.7880,141.6810,"JR"],
+["โอตารุ","小樽",43.1977,140.9937,"JR"],
+["ฮาโกดาเตะ","函館",41.7737,140.7266,"JR, รถรางฮาโกดาเตะ"],
+["ฮากาตะ","博多",33.5902,130.4207,"JR, ชินคันเซ็น, รถไฟใต้ดินคูโกะ"],
+["นากาสุคาวาบาตะ","中洲川端",33.5947,130.4065,"รถไฟใต้ดินคูโกะ, รถไฟใต้ดินฮาโกซากิ"],
+["เท็นจิน","天神",33.5914,130.3989,"รถไฟใต้ดินคูโกะ, นิชิเท็ตสึ"],
+["โอโฮริโคเอ็น","大濠公園",33.5867,130.3786,"รถไฟใต้ดินคูโกะ"],
+["ดาไซฟุ","太宰府",33.5194,130.5326,"นิชิเท็ตสึ"],
+["คิโด-นันโซอิน-มาเอะ","城戸南蔵院前",33.6225,130.5620,"JR ซาซากุริ"],
+["สนามบินฟุกุโอกะ","福岡空港",33.5856,130.4505,"รถไฟใต้ดินคูโกะ"],
+["เคนโจมาเอะ","県庁前",26.2149,127.6795,"โมโนเรลยุยเรล"],
+["มากิชิ","牧志",26.2173,127.6915,"โมโนเรลยุยเรล"],
+["ชูริ","首里",26.2190,127.7250,"โมโนเรลยุยเรล"],
+["สนามบินนาฮะ","那覇空港",26.2065,127.6520,"โมโนเรลยุยเรล"]
+].map(([n,j,la,lo,l])=>({n,j,la,lo,l:l.split(", "),en:ST_EN[j]||""}));
+
+/* รถเมล์/รถรางที่ควรรู้ ต่อสถานที่ (คีย์ = ชื่อญี่ปุ่น) */
+const BUS_HINT={
+ "清水寺":{no:"206, 86 (เสาร์-อาทิตย์มีรถด่วน EX100, EX101)",stop:"Gojo-zaka",stopJ:"五条坂",board:"Kyoto Station Bus Terminal ฝั่ง D",walk:10,hub:"เกียวโต",fare:230,tip:"ลงป้ายแล้วเดินขึ้นเนินชาวันซากะ"},
+ "三年坂・二年坂":{no:"206, 86",stop:"Kiyomizu-michi",stopJ:"清水道",board:"Kyoto Station Bus Terminal ฝั่ง D",walk:6,hub:"เกียวโต",fare:230},
+ "八坂の塔 (法観寺)":{no:"206, 86",stop:"Kiyomizu-michi",stopJ:"清水道",board:"Kyoto Station Bus Terminal ฝั่ง D",walk:5,hub:"เกียวโต",fare:230},
+ "八坂神社":{no:"206, 86",stop:"Gion",stopJ:"祇園",board:"Kyoto Station Bus Terminal ฝั่ง D",walk:1,hub:"เกียวโต",fare:230},
+ "祇園 花見小路":{no:"206, 86",stop:"Gion",stopJ:"祇園",board:"Kyoto Station Bus Terminal ฝั่ง D",walk:4,hub:"เกียวโต",fare:230},
+ "いづ重":{no:"206, 86",stop:"Gion",stopJ:"祇園",board:"Kyoto Station Bus Terminal ฝั่ง D",walk:1,hub:"เกียวโต",fare:230},
+ "祇園辻利 本店":{no:"206, 86",stop:"Gion",stopJ:"祇園",board:"Kyoto Station Bus Terminal ฝั่ง D",walk:3,hub:"เกียวโต",fare:230},
+ "金閣寺":{no:"205",stop:"Kinkakuji-michi",stopJ:"金閣寺道",board:"Kyoto Station Bus Terminal ฝั่ง B",walk:5,hub:"เกียวโต",fare:230,tip:"คนน้อยกว่า: นั่งรถไฟใต้ดินคาราสุมะไป Kitaoji แล้วต่อ 204/205"},
+ "銀閣寺":{no:"5, 17",stop:"Ginkakuji-michi",stopJ:"銀閣寺道",board:"Kyoto Station Bus Terminal ฝั่ง A",walk:10,hub:"เกียวโต",fare:230},
+ "おめん 銀閣寺本店":{no:"5, 17",stop:"Ginkakuji-michi",stopJ:"銀閣寺道",board:"Kyoto Station Bus Terminal ฝั่ง A",walk:3,hub:"เกียวโต",fare:230},
+ "哲学の道":{no:"5, 17",stop:"Ginkakuji-michi",stopJ:"銀閣寺道",board:"Kyoto Station Bus Terminal ฝั่ง A",walk:6,hub:"เกียวโต",fare:230},
+ "永観堂 禅林寺":{no:"5",stop:"Nanzenji Eikando-michi",stopJ:"南禅寺・永観堂道",board:"Kyoto Station Bus Terminal ฝั่ง A",walk:5,hub:"เกียวโต",fare:230},
+ "南禅寺 奥丹":{no:"5",stop:"Nanzenji Eikando-michi",stopJ:"南禅寺・永観堂道",board:"Kyoto Station Bus Terminal ฝั่ง A",walk:8,hub:"เกียวโต",fare:230},
+ "東大寺":{no:"City Loop 2 (市内循環)",stop:"Todaiji Daibutsuden Kasugataisha-mae",stopJ:"東大寺大仏殿・春日大社前",board:"ป้ายหน้าสถานี Kintetsu-Nara",walk:7,hub:"คินเท็ตสึนารา",fare:250},
+ "春日大社":{no:"City Loop 2 (市内循環)",stop:"Todaiji Daibutsuden Kasugataisha-mae",stopJ:"東大寺大仏殿・春日大社前",board:"ป้ายหน้าสถานี Kintetsu-Nara",walk:12,hub:"คินเท็ตสึนารา",fare:250},
+ "若草山":{no:"City Loop 2 (市内循環)",stop:"Todaiji Daibutsuden Kasugataisha-mae",stopJ:"東大寺大仏殿・春日大社前",board:"ป้ายหน้าสถานี Kintetsu-Nara",walk:12,hub:"คินเท็ตสึนารา",fare:250},
+ "箱根神社":{no:"Hakone Tozan Bus / Izuhakone Bus",stop:"Moto-Hakone-ko",stopJ:"元箱根港",board:"ป้ายหน้าสถานี Hakone-Yumoto",walk:10,hub:"ฮาโกเนะยูโมโตะ",fare:1200,ride:40},
+ "大石公園":{no:"Retro Bus สายแดง (Kawaguchiko Line)",stop:"Kawaguchiko Natural Living Center",stopJ:"河口湖自然生活館",board:"ป้ายหน้าสถานี Kawaguchiko",walk:1,hub:"คาวากุจิโกะ",fare:500,ride:25},
+ "沖縄美ら海水族館":{no:"Yanbaru Express / Express Bus 117",stop:"Kinen-koen-mae",stopJ:"記念公園前",board:"ป้ายรถบัส Naha Airport อาคารในประเทศ",walk:5,hub:"สนามบินนาฮะ",fare:2400,ride:140},
+ "福岡タワー":{no:"Nishitetsu 306, 312",stop:"Fukuoka Tower",stopJ:"福岡タワー",board:"Hakata Bus Terminal หน้าสถานีฮากาตะ",walk:1,hub:"ฮากาตะ",fare:260,ride:25},
+ "兼六園":{no:"Kanazawa Loop Bus (周遊バス)",stop:"Kenrokuen-shita / Kanazawa-jo",stopJ:"兼六園下・金沢城",board:"Kanazawa Station East Exit Bus Terminal",walk:3,hub:"คานาซาวะ",fare:210,ride:15},
+ "ひがし茶屋街":{no:"Kanazawa Loop Bus (周遊バス)",stop:"Hashiba-cho",stopJ:"橋場町",board:"Kanazawa Station East Exit Bus Terminal",walk:5,hub:"คานาซาวะ",fare:210,ride:10},
+ "金沢21世紀美術館":{no:"Kanazawa Loop Bus (周遊バス)",stop:"Hirosaka / 21st Century Museum",stopJ:"広坂・21世紀美術館",board:"Kanazawa Station East Exit Bus Terminal",walk:1,hub:"คานาซาวะ",fare:210,ride:15},
+ "近江町市場":{no:"Kanazawa Loop Bus (周遊バス)",stop:"Musashigatsuji / Omicho Market",stopJ:"武蔵ヶ辻・近江町市場",board:"Kanazawa Station East Exit Bus Terminal",walk:1,hub:"คานาซาวะ",fare:210,ride:7},
+ "藻岩山":{no:"Sapporo Streetcar + รถรับส่งฟรี",stop:"Ropeway Iriguchi",stopJ:"ロープウェイ入口",board:"ป้ายรถราง Susukino",walk:2,hub:"ซุซุกิโนะ",fare:200,ride:20,tram:true},
+ "函館山":{no:"Hakodate Streetcar 2, 5",stop:"Jujigai",stopJ:"十字街",board:"ป้ายรถราง Hakodate-ekimae",walk:10,hub:"ฮาโกดาเตะ",fare:230,ride:10,tram:true},
+ "平和記念公園":{no:"Hiroden Streetcar 2, 6",stop:"Genbaku Dome-mae",stopJ:"原爆ドーム前",board:"ป้ายรถราง Hiroshima Station",walk:3,hub:"ฮิโรชิมะ",fare:240,ride:15,tram:true}
+};
+const CITY_BUS_FARE={"เกียวโต":230,"นารา":250};
+
+function walkMin(km){return Math.max(1,Math.round(km*1.25/4.8*60));}
+function nearestStations(la,lo,n){return STATIONS.map(s=>({s,d:dist(la,lo,s.la,s.lo)})).sort((a,b)=>a.d-b.d).slice(0,n||2);}
+function yen(n){return "¥"+(Math.round(n/10)*10).toLocaleString();}
+function trainFare(k){
+  if(k<3)return "¥170–210";if(k<7)return "¥200–280";if(k<15)return "¥250–400";if(k<30)return "¥400–700";
+  if(k<60)return "¥700–1,500";if(k<150)return "¥1,500–4,000";return "~"+yen(Math.round(k*38/100)*100)+" (ชินคันเซ็น)";
+}
+function taxiFare(roadKm,city){
+  let base=500,first=1.0,step=0.232; /* โตเกียว 23 เขต ตั้งแต่ 20 เม.ย. 2026 */
+  if(city==="เกียวโต"||city==="นารา"){first=0.9;step=0.255;}
+  else if(!/โตเกียว|ชินางาวะ|โยโกฮามะ|สนามบินฮาเนดะ/.test(city||"")){first=1.0;step=0.25;}
+  const f=roadKm<=first?base:base+Math.ceil((roadKm-first)/step)*100;
+  return f;
+}
+function busFareFor(x){const h=BUS_HINT[x.j];if(h)return h.fare;return CITY_BUS_FARE[x.city]||210;}
+
+function planWalk(o,x){
+  const k=dist(o.la,o.lo,x.la,x.lo),road=k*1.25,t=walkMin(k);
+  return {key:"walk",name:"เดิน",icon:"🚶",t,cost:0,costTxt:"ฟรี",ok:k<=8,
+    note:t>40?"ไกลเกินจะเดินสบาย":t>20?"เดินได้ถ้าอยากชมเมือง":"เดินสบาย",
+    steps:[{i:"🚶",h:"เดินไป "+x.n,d:"~"+fmtKm(road)+" · "+t+" นาที (คิดเผื่อทางอ้อมแล้ว)"}],gm:"walking"};
+}
+function legMin(km){return km>150?Math.round(km*1.2/170*60):km>40?Math.round(km*1.2/55*60):Math.round(km*1.2/27*60+km/1.3*0.5);}
+function findTransfer(a,b){
+  let best=null;
+  for(const c of STATIONS){
+    if(c===a||c===b)continue;
+    const l1=a.l.filter(l=>c.l.includes(l)),l2=c.l.filter(l=>b.l.includes(l));
+    if(!l1.length||!l2.length)continue;
+    const sc=dist(a.la,a.lo,c.la,c.lo)+dist(c.la,c.lo,b.la,b.lo);
+    if(!best||sc<best.sc)best={c,l1:l1[0],l2:l2[0],sc};
+  }
+  return best&&best.sc<dist(a.la,a.lo,b.la,b.lo)*1.7+2?best:null;
+}
+function stName(st){return "สถานี"+st.n+(st.en?" · "+st.en:"")+' <span lang="ja">('+esc(st.j)+')</span>';}
+function lineName(l){return l+(LINE_EN[l]&&LINE_EN[l]!==l?" · "+LINE_EN[l]:"");}
+function planTrain(o,x){
+  const A=nearestStations(o.la,o.lo,2);let B=nearestStations(x.la,x.lo,2);
+  const ex=EXIT[x.j],exSt=ex&&STATIONS.find(s=>s.j===ex.st);
+  if(exSt)B=[{s:exSt,d:dist(x.la,x.lo,exSt.la,exSt.lo)}].concat(B.filter(b=>b.s!==exSt)).slice(0,2);
+  let best=null;
+  for(const a of A)for(const b of B){
+    if(a.s===b.s)continue;
+    const k=dist(a.s.la,a.s.lo,b.s.la,b.s.lo);
+    if(k<0.8)continue;
+    const common=a.s.l.filter(l=>b.s.l.includes(l));
+    const wait=k>150?10:4,wA=walkMin(a.d),wB=walkMin(b.d);
+    let legs,t;
+    if(common.length){
+      const r=legMin(k);legs=[{from:a.s,to:b.s,line:common[0],min:r,km:k}];t=wA+wait+r+wB;
+    }else{
+      const tr=findTransfer(a.s,b.s);
+      if(tr){
+        const k1=dist(a.s.la,a.s.lo,tr.c.la,tr.c.lo),k2=dist(tr.c.la,tr.c.lo,b.s.la,b.s.lo),r1=legMin(k1),r2=legMin(k2);
+        legs=[{from:a.s,to:tr.c,line:tr.l1,min:r1,km:k1},{from:tr.c,to:b.s,line:tr.l2,min:r2,km:k2,xfer:k>150?15:7}];
+        t=wA+wait+r1+(k>150?15:7)+r2+wB;
+      }else{
+        const r=legMin(k);legs=[{from:a.s,to:b.s,line:null,min:r,km:k,unknown:true}];t=wA+wait+r+10+wB;
+      }
+    }
+    if(!best||t<best.t)best={t,a,b,k,legs,wait,wA,wB};
+  }
+  if(!best)return {key:"train",name:"รถไฟ",icon:"🚆",ok:false,t:Infinity,costTxt:"–",note:"สถานีต้นทางกับปลายทางเป็นสถานีเดียวกัน เดินเร็วกว่า",steps:[],gm:"transit"};
+  const b=best,steps=[{i:"🚶",h:"เดินไปสถานี"+b.a.s.n,d:stName(b.a.s)+" · "+fmtKm(b.a.d*1.25)+" · "+b.wA+" นาที"}];
+  b.legs.forEach((g,n)=>{
+    if(g.xfer)steps.push({i:"🔁",h:"เปลี่ยนสายที่สถานี"+g.from.n,d:stName(g.from)+"<br>เดินตามป้ายสีของสาย <b>"+esc(lineName(g.line))+"</b> ~"+g.xfer+" นาที"});
+    steps.push({i:g.km>150?"🚄":"🚆",h:g.unknown?"นั่งรถไฟไปสถานี"+g.to.n+" (ต้องต่อรถ)":"นั่ง "+g.line+" ไปสถานี"+g.to.n,
+      d:(g.unknown?"":"<b>"+esc(lineName(g.line))+"</b><br>")+"ลงที่ "+stName(g.to)+" · ~"+g.min+" นาที"+(n===0?" · รอรถ ~"+b.wait+" นาที":"")});
+  });
+  const useEx=ex&&exSt===b.b.s;
+  steps.push({i:"🚪",h:useEx?"ออกทาง "+ex.ex:"ออกจากสถานี (ดูป้ายเหลือง 出口 ที่เขียนชื่อสถานที่)",
+    d:(useEx&&ex.tip?esc(ex.tip)+"<br>":"")+"เดินไป "+esc(x.n)+" · "+fmtKm(b.b.d*1.25)+" · "+b.wB+" นาที"});
+  const nX=b.legs.length-1;
+  return {key:"train",name:"รถไฟ",icon:"🚆",t:b.t,ok:true,costTxt:trainFare(b.k),cost:b.k,
+    note:(nX?"ต่อรถ "+nX+" ครั้งที่สถานี"+b.legs[1].from.n:b.legs[0].unknown?"ต้องต่อรถ":"ไม่ต้องต่อรถ")+" · ค่าตั๋วประมาณ "+trainFare(b.k)+(b.a.d>2.5?" · สถานีใกล้สุดอยู่ห่าง "+fmtKm(b.a.d):""),
+    steps,gm:"transit",st:b};
+}
+function planBus(o,x){
+  const k=dist(o.la,o.lo,x.la,x.lo),h=BUS_HINT[x.j];
+  if(h){
+    const hub=STATIONS.find(s=>s.n===h.hub),fromHub=hub?dist(o.la,o.lo,hub.la,hub.lo):99;
+    const ride=h.ride||Math.round(k*1.3/13*60), wait=8, toStop=fromHub<0.6?walkMin(fromHub)+2:5;
+    const t=toStop+wait+ride+h.walk;
+    return {key:"bus",name:h.tram?"รถราง/บัส":"รถบัส",icon:h.tram?"🚋":"🚌",t,ok:k<60||!!h.ride,cost:h.fare,costTxt:yen(h.fare),
+      note:"สาย "+h.no,
+      steps:[{i:"🚶",h:fromHub<0.6?"เดินไปขึ้นรถที่ "+h.board:"เดินไปป้ายรถเมล์ใกล้คุณที่มีสาย "+h.no.split(" (")[0],d:"~"+toStop+" นาที"+(fromHub<0.6?"":" · ป้ายรถเมล์ญี่ปุ่นบอกเลขสายที่จอดไว้บนเสาป้าย")},
+        {i:h.tram?"🚋":"🚌",h:"ขึ้นสาย "+h.no,d:'ลงป้าย <b>'+esc(h.stop)+'</b> <span lang="ja">('+esc(h.stopJ)+')</span> · ~'+ride+" นาที · รอรถ ~"+wait+" นาที · "+yen(h.fare)+" (แตะบัตร IC ได้)"},
+        {i:"🚶",h:"เดินต่อถึง "+x.n,d:"~"+h.walk+" นาที"+(h.tip?" · "+esc(h.tip):"")}],gm:"transit",hint:h,hub};
+  }
+  if(k>25)return {key:"bus",name:"รถบัส",icon:"🚌",ok:false,t:Infinity,costTxt:"–",note:"ไกลเกินรถเมล์ในเมือง ใช้รถไฟหรือบัสทางไกลแทน",steps:[],gm:"transit"};
+  const ride=Math.round(k*1.3/13*60),t=5+8+ride+5,fare=busFareFor(x);
+  return {key:"bus",name:"รถบัส",icon:"🚌",t,ok:true,cost:fare,costTxt:yen(fare),note:"รถเมล์ในเมือง ราคาเดียวตลอดสาย",
+    steps:[{i:"🚶",h:"เดินไปป้ายรถเมล์ใกล้คุณ",d:"~5 นาที"},
+      {i:"🚌",h:"นั่งรถเมล์ไปทาง"+x.a,d:"~"+ride+" นาที · รอรถ ~8 นาที · "+yen(fare)+"<br><small>เลขสายดูได้จากลิงก์ Google Maps ด้านล่างตอนมีเน็ต ขึ้นประตูหลัง จ่ายตอนลงประตูหน้า</small>"},
+      {i:"🚶",h:"ลงป้ายใกล้ "+x.n+" แล้วเดินต่อ",d:"~5 นาที"}],gm:"transit"};
+}
+function planTaxi(o,x){
+  const k=dist(o.la,o.lo,x.la,x.lo),road=k*1.35;
+  const t=Math.round(road/(road>25?45:20)*60)+3;
+  const na=nearestArea(o.la,o.lo),f=taxiFare(road,na.city==="โตเกียว"?"โตเกียว":x.city);
+  return {key:"taxi",name:"แท็กซี่",icon:"🚕",t,ok:true,cost:f,costTxt:"~"+yen(f),
+    note:road>20?"อาจมีค่าทางด่วนเพิ่ม":"",
+    steps:[{i:"🚕",h:"เรียกแท็กซี่ หรือใช้แอป GO / Uber",d:"ยื่นชื่อญี่ปุ่นให้คนขับ: <b lang=\"ja\">"+esc(x.j)+"</b>"},
+      {i:"🛣️",h:"นั่งไปถึงหน้า "+x.n,d:"~"+fmtKm(road)+" · ~"+t+" นาที · ~"+yen(f)+" (ไม่รวมรถติด/ทางด่วน)"}],gm:"driving"};
+}
+function planCombo(o,x,W,T,B){
+  /* แนะนำ: เลือกวิธีที่เร็วสุดที่ไม่ใช่แท็กซี่ รวมรถไฟ+บัสถ้ามีข้อมูลสาย */
+  const c=[];
+  if(W.ok&&W.t<=45)c.push(W);
+  if(T.ok)c.push(T);
+  if(B.ok)c.push(B);
+  if(B.hub){ /* รถไฟไปสถานีต้นสายบัส แล้วต่อบัส */
+    const hub=B.hub,dHub=dist(o.la,o.lo,hub.la,hub.lo);
+    if(dHub>1.2){
+      const T2=planTrain(o,{la:hub.la,lo:hub.lo,n:"สถานี"+hub.n,j:hub.j,a:"",city:x.city});
+      if(T2.ok){
+        const h=B.hint,wait=8,ride=h.ride||Math.round(dist(hub.la,hub.lo,x.la,x.lo)*1.3/13*60);
+        const t=T2.t-T2.st.wB+2+wait+ride+h.walk;
+        c.push({key:"combo",name:"รถไฟ + บัส",icon:"🚆🚌",t,ok:true,costTxt:T2.costTxt+" + "+yen(h.fare),
+          steps:T2.steps.slice(0,2).concat([
+            {i:h.tram?"🚋":"🚌",h:"ต่อสาย "+h.no,d:"ขึ้นที่ "+esc(h.board)+'<br>ลงป้าย <b>'+esc(h.stop)+'</b> <span lang="ja">('+esc(h.stopJ)+')</span> · ~'+ride+" นาที · "+yen(h.fare)},
+            {i:"🚶",h:"เดินต่อถึง "+x.n,d:"~"+h.walk+" นาที"+(h.tip?" · "+esc(h.tip):"")}]),gm:"transit"});
+      }
+    }
+  }
+  if(!c.length)return null;
+  /* ถ้าเดินช้ากว่าไม่เกิน 5 นาที ให้เดิน (ไม่ต้องรอรถ ขึ้นลงบันได) */
+  const sc=p=>p.t+(p.key==="walk"?0:5);
+  c.sort((a,b)=>sc(a)-sc(b));
+  const best=c[0],why=[];
+  if(W.ok&&best!==W&&W.t<200)why.push("เร็วกว่าเดิน "+(W.t-best.t)+" นาที");
+  const tx=planTaxi(o,x);if(tx.cost>=1000)why.push("ถูกกว่าแท็กซี่ (~"+yen(tx.cost)+")");
+  return Object.assign({},best,{rec:true,why:why.join(" · ")});
+}
+function plans(x){
+  const o=S.pos,W=planWalk(o,x),T=planTrain(o,x),B=planBus(o,x),X=planTaxi(o,x),R=planCombo(o,x,W,T,B);
+  return {W,T,B,X,R};
+}
+function fmtT(t){if(!isFinite(t))return "–";if(t<60)return t+" นาที";return Math.floor(t/60)+" ชม. "+(t%60?t%60+" น.":"");}
+function gmUrl(x,mode){return "https://www.google.com/maps/dir/?api=1&origin="+S.pos.la.toFixed(5)+","+S.pos.lo.toFixed(5)+"&destination="+x.la+","+x.lo+"&travelmode="+mode;}
+
+const RT={open:null,tab:{}};
+function routeTabs(P){return [["rec",P.R,"แนะนำ"],["walk",P.W,"เดิน"],["train",P.T,"รถไฟ"],["bus",P.B,P.B.name],["taxi",P.X,"แท็กซี่"]];}
+function tShort(t){return t<60?t+" นาที":Math.floor(t/60)+"ชม."+(t%60?String(t%60).padStart(2,"0"):"");}
+function routeMini(x){
+  const P=plans(x),r=P.R;
+  const bits=[[P.W,"🚶"],[P.T,"🚆"],[P.B,P.B.icon],[P.X,"🚕"]].map(([p,ic])=>'<span'+(p.ok?'':' class="off"')+'>'+ic+' '+(p.ok?(p.key==="taxi"?p.costTxt:tShort(p.t)):"–")+'</span>').join("");
+  return '<button type="button" class="rt-mini" data-route="'+x.id+'" aria-expanded="'+(RT.open===x.id)+'">'+
+    (r?'<span class="rec">★ '+r.icon+' '+esc(r.name)+' '+tShort(r.t)+'</span>':'')+'<span class="all">'+bits+'</span></button>';
+}
+function routeHTML(x){
+  const P=plans(x),tab=RT.tab[x.id]||"rec",tabs=routeTabs(P);
+  let h='<div class="rt-tabs" role="tablist">'+tabs.map(([key,p,label])=>{
+    const dis=!p||!p.ok;
+    return '<button type="button" role="tab" data-rt="'+key+'" data-pid="'+x.id+'" aria-selected="'+(tab===key)+'"'+(dis?' class="dis"':'')+'>'+
+      '<span class="rt-l">'+(key==="rec"?"★ ":"")+label+'</span><span class="rt-t">'+(p&&p.ok?tShort(p.t):"–")+'</span><span class="rt-c">'+(p&&p.ok?(key==="rec"?p.name:p.costTxt):"ไม่เหมาะ")+'</span></button>';
+  }).join("")+'</div>';
+  const cur=tabs.find(t=>t[0]===tab)[1];
+  if(!cur||!cur.ok){h+='<div class="pres warn"><div class="t">วิธีนี้ไม่เหมาะกับเส้นทางนี้</div><div class="s">'+esc(cur?cur.note:"")+'</div></div>';}
+  else{
+    h+='<div class="rt-sum"><span class="big">'+fmtT(cur.t)+'</span><span>'+cur.icon+' '+esc(cur.name)+' · '+esc(cur.costTxt)+'</span></div>';
+    if(cur.rec)h+='<div class="rt-why">✓ '+esc(cur.why)+' · ไม่รวมแท็กซี่</div>';
+    else if(cur.note)h+='<div class="rt-why muted">'+esc(cur.note)+'</div>';
+    h+='<ol class="rt-steps">'+cur.steps.map(s=>'<li><span class="ic" aria-hidden="true">'+s.i+'</span><div><div class="h">'+esc(s.h)+'</div><div class="d">'+s.d+'</div></div></li>').join("")+'</ol>';
+  }
+  h+='<p class="rt-foot">จาก '+esc(S.pos.label||describe(S.pos.la,S.pos.lo).head)+(cur&&cur.ok?' · <a href="'+gmUrl(x,cur.gm)+'" target="_blank" rel="noopener">เทียบกับ Google Maps</a>':'')+'</p>';
+  return h;
+}
+
+/* ================= ภาพ แผนที่ และหน้านำทาง ================= */
+const IN_FRAME=(()=>{try{return window.self!==window.top}catch(e){return true}})();
+const CAN_NET=!IN_FRAME&&/^https?:$/.test(location.protocol);
+const CAT_ICON={ramen:"🍜",sushi:"🍣",beef:"🥩",fried:"🍤",local:"🍱",market:"🏮",sweet:"🍡",izakaya:"🍶",temple:"⛩️",view:"🌄",photo:"📸",shop:"🛍️",sight:"🏯"};
+const WIKI_T={"鎌倉大仏 (高徳院)":"高徳院","八坂の塔 (法観寺)":"法観寺","嵐山 竹林の小径":"嵐山","新倉山浅間公園 忠霊塔":"新倉山浅間公園","厳島神社 大鳥居":"厳島神社","東京都庁 展望室":"東京都庁舎","渋谷スカイ":"渋谷スクランブルスクエア","チームラボプラネッツ":"チームラボプラネッツ TOKYO DMM","ユニコーンガンダム立像":"ダイバーシティ東京","グリコサイン":"グリコサイン","梅田スカイビル 空中庭園":"梅田スカイビル","あべのハルカス 展望台":"あべのハルカス","HEP FIVE 観覧車":"HEP FIVE","ローソン 河口湖駅前店":"河口湖","大石公園":"大石公園 (富士河口湖町)","将軍塚青龍殿":"将軍塚","皇居東御苑":"皇居東御苑","さっぽろテレビ塔":"さっぽろテレビ塔","第一牧志公設市場":"第一牧志公設市場","築地場外市場":"築地場外市場","横浜中華街":"横浜中華街","中洲屋台":"屋台","宮島":"厳島"};
+let PHOTO=store.get("photo",{});
+function wikiTitle(x){return WIKI_T[x.j]||x.j.replace(/\s*\(.*\)$/,"").split(" ")[0];}
+function photoable(x){return x.t==="s"||x.c==="market";}
+function thumbHTML(x){
+  const u=PHOTO[x.id];
+  return '<div class="thumb'+(u?' has':'')+'" data-ph="'+x.id+'"'+(u?' style="background-image:url(\''+esc(u)+'\')"':'')+' aria-hidden="true">'+CAT_ICON[x.c]+'</div>';
+}
+let PH_LOADING=null;
+/* ดึงภาพจาก Wikipedia ทีละชุด (40 ชื่อต่อครั้ง) แล้วเก็บไว้ในเครื่อง */
+function fetchAllPhotos(){
+  if(!CAN_NET||!navigator.onLine)return Promise.resolve();
+  if(PH_LOADING)return PH_LOADING;
+  const todo=PLACES.filter(x=>photoable(x)&&PHOTO[x.id]===undefined);
+  if(!todo.length)return Promise.resolve();
+  const groups=[];for(let i=0;i<todo.length;i+=40)groups.push(todo.slice(i,i+40));
+  PH_LOADING=Promise.all(groups.map(g=>{
+    const titles=[...new Set(g.map(wikiTitle))];
+    return fetch("https://ja.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=480&redirects=1&origin=*&titles="+encodeURIComponent(titles.join("|")))
+      .then(r=>r.json()).then(j=>{
+        const q=j.query||{},N={},Rd={},P={};
+        (q.normalized||[]).forEach(n=>N[n.from]=n.to);(q.redirects||[]).forEach(n=>Rd[n.from]=n.to);
+        Object.values(q.pages||{}).forEach(pg=>P[pg.title]=pg.thumbnail&&pg.thumbnail.source||"");
+        g.forEach(x=>{let t=wikiTitle(x);t=N[t]||t;t=Rd[t]||t;PHOTO[x.id]=P[t]||"";});
+      });
+  })).then(()=>{store.set("photo",PHOTO);document.querySelectorAll(".thumb[data-ph]").forEach(el=>paintThumb(el,PHOTO[+el.dataset.ph]));})
+    .catch(()=>{}).then(()=>{PH_LOADING=null;});
+  return PH_LOADING;
+}
+function fetchPhoto(id){return PHOTO[id]!==undefined?Promise.resolve(PHOTO[id]):fetchAllPhotos().then(()=>PHOTO[id]);}
+function paintThumb(el,u){if(u){el.style.backgroundImage="url('"+u+"')";el.classList.add("has");}}
+function watchThumbs(root){
+  if(!CAN_NET)return;
+  let need=false;
+  root.querySelectorAll(".thumb[data-ph]:not(.has)").forEach(el=>{const id=+el.dataset.ph;if(PHOTO[id])paintThumb(el,PHOTO[id]);else if(PHOTO[id]===undefined&&photoable(PLACES[id]))need=true;});
+  if(need)fetchAllPhotos();
+}
+
+/* ---- แผนที่ (Leaflet + OpenStreetMap เมื่อเปิดบนเว็บของตัวเอง) ---- */
+let MAP=null,LAYER=null,ME=null,MEACC=null,LEAF=null;const MF={f:true,s:true,fav:false};
+function ensureLeaflet(){
+  if(window.L)return Promise.resolve(window.L);
+  if(!CAN_NET)return Promise.reject();
+  if(LEAF)return LEAF;
+  LEAF=new Promise((ok,no)=>{
+    const css=document.createElement("link");css.rel="stylesheet";css.href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";document.head.appendChild(css);
+    const js=document.createElement("script");js.src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
+    js.onload=()=>ok(window.L);js.onerror=()=>{LEAF=null;no();};document.head.appendChild(js);
+    setTimeout(()=>{if(!window.L){LEAF=null;no();}},9000);
+  });
+  return LEAF;
+}
+function mapPlaces(){
+  const p=S.pos;
+  return PLACES.filter(x=>(MF.fav?S.fav.has(x.id):true)&&(x.t==="f"?MF.f:MF.s)).map(x=>({...x,k:dist(p.la,p.lo,x.la,x.lo)})).sort((a,b)=>a.k-b.k);
+}
+function renderMap(){
+  document.querySelectorAll("#mapChips [data-mf]").forEach(b=>b.setAttribute("aria-pressed",MF[b.dataset.mf]));
+  ensureLeaflet().then(L=>{
+    $("#mapFallback").hidden=true;$(".map-wrap").hidden=false;
+    if(!MAP){
+      MAP=L.map("map",{zoomControl:true,attributionControl:true}).setView([S.pos.la,S.pos.lo],15);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(MAP);
+      LAYER=L.layerGroup().addTo(MAP);
+      MEACC=L.circle([S.pos.la,S.pos.lo],{radius:S.pos.acc||40,color:"#1F6FA8",weight:1,fillOpacity:.12}).addTo(MAP);
+      ME=L.circleMarker([S.pos.la,S.pos.lo],{radius:8,color:"#fff",weight:3,fillColor:"#1F6FA8",fillOpacity:1}).addTo(MAP).bindTooltip("คุณอยู่ที่นี่");
+    }
+    ME.setLatLng([S.pos.la,S.pos.lo]);MEACC.setLatLng([S.pos.la,S.pos.lo]).setRadius(S.pos.acc||40);
+    LAYER.clearLayers();
+    mapPlaces().forEach(x=>{
+      L.circleMarker([x.la,x.lo],{radius:9,color:"#fff",weight:2,fillColor:CAT[x.c].c,fillOpacity:1})
+        .bindTooltip(CAT_ICON[x.c]+" "+x.n,{direction:"top"}).on("click",()=>showMapCard(x)).addTo(LAYER);
+    });
+    setTimeout(()=>MAP.invalidateSize(),60);
+  }).catch(()=>{
+    $(".map-wrap").hidden=true;$("#mapFallback").hidden=false;
+    $("#mapMsg").innerHTML=IN_FRAME?"แผนที่จริงใช้ได้เมื่อเปิดไกด์บนเว็บของคุณเอง (GitHub Pages) ตอนนี้แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ":"โหลดแผนที่ไม่ได้ (ไม่มีเน็ต) แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ";
+    renderRadar(mapPlaces().filter(x=>x.k<=Math.max(3,S.radius)).slice(0,60));
+  });
+}
+function showMapCard(x){
+  const k=dist(S.pos.la,S.pos.lo,x.la,x.lo);
+  $("#mapCard").innerHTML='<div class="list">'+card({...x,k})+'</div>';
+  watchThumbs($("#mapCard"));
+  $("#mapCard").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("#mapChips").addEventListener("click",e=>{const b=e.target.closest("[data-mf]");if(!b)return;MF[b.dataset.mf]=!MF[b.dataset.mf];if(!MF.f&&!MF.s)MF[b.dataset.mf==="f"?"s":"f"]=true;renderMap();});
+$("#mapMe").addEventListener("click",()=>{if(MAP)MAP.setView([S.pos.la,S.pos.lo],16);});
+$("#mapCard").addEventListener("click",e=>{
+  const nv=e.target.closest("[data-nav]");if(nv){openNav(+nv.dataset.nav);return;}
+  const rt=e.target.closest("[data-route]");if(rt){openNav(+rt.dataset.route);return;}
+  const f=e.target.closest("[data-fav]");if(f){const id=+f.dataset.fav;S.fav.has(id)?S.fav.delete(id):S.fav.add(id);saveFav();showMapCard(PLACES[id]);const fb=$("#favBadge");fb.hidden=!S.fav.size;fb.textContent=S.fav.size;}
+});
+
+/* ---- หน้านำทาง: เข็มทิศ + ระยะสด + ขั้นตอน + ถามทาง ---- */
+const NAV={x:null,heading:null,arrived:false,map:null,line:null,me:null};
+function onOri(e){
+  let h=null;
+  if(typeof e.webkitCompassHeading==="number")h=e.webkitCompassHeading;
+  else if(e.absolute&&typeof e.alpha==="number")h=360-e.alpha;
+  if(h==null)return;
+  const so=(screen.orientation&&screen.orientation.angle)||window.orientation||0;
+  NAV.heading=(h+so+360)%360;drawCompass();
+}
+let ORI_ON=false;
+function startCompass(user){
+  if(ORI_ON)return;
+  const D=window.DeviceOrientationEvent;
+  if(!D){$("#navCompassBtn").hidden=true;return;}
+  const go=()=>{ORI_ON=true;addEventListener("deviceorientationabsolute",onOri);addEventListener("deviceorientation",onOri);$("#navCompassBtn").hidden=true;
+    setTimeout(()=>{if(NAV.heading==null){$("#navCompassBtn").hidden=false;$("#navCompassBtn").textContent="🧭 เครื่องนี้ไม่ส่งค่าเข็มทิศ (ใช้ทิศเหนือด้านบนแทน)";$("#navCompassBtn").disabled=true;}},2500);};
+  if(typeof D.requestPermission==="function"){
+    if(!user)return;
+    D.requestPermission().then(r=>{if(r==="granted")go();else toast("ไม่ได้รับสิทธิ์เข็มทิศ ใช้ทิศเหนือด้านบนแทน");}).catch(()=>toast("เปิดเข็มทิศไม่ได้ในหน้านี้"));
+  }else go();
+}
+function drawCompass(){
+  const x=NAV.x;if(!x)return;
+  const b=bearing(S.pos.la,S.pos.lo,x.la,x.lo),h=NAV.heading;
+  $("#cRing").style.transform="rotate("+(h==null?0:-h)+"deg)";
+  $("#cArrow").style.transform="rotate("+(h==null?b:b-h)+"deg)";
+}
+function updateNav(){
+  const x=NAV.x;if(!x)return;
+  const k=dist(S.pos.la,S.pos.lo,x.la,x.lo),b=bearing(S.pos.la,S.pos.lo,x.la,x.lo);
+  $("#navKm").textContent=fmtKm(k);
+  $("#navEta").textContent=k<=2.5?"เดิน ~"+walkMin(k)+" นาที":"ระยะเส้นตรง · ดูวิธีเดินทางด้านล่าง";
+  $("#navDir").textContent="ไปทาง"+DIRS[Math.round(b/45)%8]+" ("+Math.round(b)+"°)";
+  const hint=$("#navHint"),live=S.pos.src==="gps";
+  if(live&&k<0.04){hint.className="nav-hint arrived";hint.textContent="🎉 ถึงแล้ว! "+x.n+" อยู่ตรงนี้";if(!NAV.arrived&&navigator.vibrate)navigator.vibrate([120,60,120]);NAV.arrived=true;}
+  else{hint.className="nav-hint";hint.innerHTML=live?(NAV.heading==null?"ลูกศรอ้างอิง <b>ทิศเหนือด้านบน</b> · กดเปิดเข็มทิศเพื่อให้ลูกศรหมุนตามมือถือ":"ถือมือถือแนวราบ หมุนตัวจนลูกศรชี้ขึ้น แล้วเดินตามลูกศร ระยะจะลดลงเรื่อยๆ"):
+    "ตำแหน่งตอนนี้เป็นจุดที่ตั้งเอง ระยะและลูกศรจะไม่ขยับตามคุณ"+(IN_FRAME?" (เปิดบนเว็บของคุณเองเพื่อใช้ GPS สด)":" · กด 📍 GPS ด้านบนเพื่อใช้ตำแหน่งจริง");}
+  drawCompass();
+  if(NAV.map&&NAV.me){NAV.me.setLatLng([S.pos.la,S.pos.lo]);NAV.line.setLatLngs([[S.pos.la,S.pos.lo],[x.la,x.lo]]);}
+}
+function openNav(id){
+  const x=PLACES[id];NAV.x=x;NAV.arrived=false;
+  $("#navName").textContent=x.n;$("#navJp").textContent=x.j;$("#askJp").textContent=x.j;
+  $("#navGm").href=gmUrl(x,dist(S.pos.la,S.pos.lo,x.la,x.lo)<=2.5?"walking":"transit");
+  $("#navRoute").innerHTML=routeHTML({...x,k:dist(S.pos.la,S.pos.lo,x.la,x.lo)});
+  const ph=$("#navPhoto");ph.hidden=true;
+  fetchPhoto(id).then(u=>{if(u&&NAV.x===x){ph.style.backgroundImage="url('"+u+"')";ph.hidden=false;}});
+  const d=$("#nav");try{d.showModal()}catch(e){d.setAttribute("open","")}
+  d.querySelector(".nav-body").scrollTop=0;
+  $("#navCompassBtn").hidden=ORI_ON;$("#navCompassBtn").disabled=false;$("#navCompassBtn").textContent="🧭 เปิดเข็มทิศ (ลูกศรหมุนตามมือถือ)";
+  startCompass(false);
+  updateNav();
+  if(S.pos.src==="gps")startWatch();
+  const nm=$("#navMap");
+  ensureLeaflet().then(L=>{
+    nm.hidden=false;
+    if(!NAV.map){NAV.map=L.map("navMap",{zoomControl:false,attributionControl:true});
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(NAV.map);
+      NAV.line=L.polyline([],{color:"#C2402B",weight:4,dashArray:"6 8"}).addTo(NAV.map);
+      NAV.me=L.circleMarker([0,0],{radius:8,color:"#fff",weight:3,fillColor:"#1F6FA8",fillOpacity:1}).addTo(NAV.map);
+      NAV.dest=L.circleMarker([0,0],{radius:10,color:"#fff",weight:3,fillColor:"#C2402B",fillOpacity:1}).addTo(NAV.map);}
+    NAV.dest.setLatLng([x.la,x.lo]);updateNav();
+    setTimeout(()=>{NAV.map.invalidateSize();NAV.map.fitBounds([[S.pos.la,S.pos.lo],[x.la,x.lo]],{padding:[30,30],maxZoom:17});},80);
+  }).catch(()=>{nm.hidden=true;});
+}
+function closeNav(){NAV.x=null;const d=$("#nav");if(d.close)d.close();else d.removeAttribute("open");}
+$("#navClose").addEventListener("click",closeNav);
+$("#nav").addEventListener("close",()=>{NAV.x=null;});
+$("#navCompassBtn").addEventListener("click",()=>startCompass(true));
+$("#askCopy").addEventListener("click",async e=>{const b=e.target;try{await navigator.clipboard.writeText(NAV.x.j);b.textContent="คัดลอกแล้ว ✓";}catch(err){b.textContent="คัดลอกไม่ได้";}setTimeout(()=>b.textContent="คัดลอกชื่อญี่ปุ่น",1600);});
+$("#navRoute").addEventListener("click",e=>{const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;$("#navRoute").innerHTML=routeHTML({...NAV.x,k:dist(S.pos.la,S.pos.lo,NAV.x.la,NAV.x.lo)});});
+
+/* ติดตั้งให้ใช้ออฟไลน์ */
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!IN_FRAME){
+  addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+/* online / offline */
+function net(){const n=$("#net");if(navigator.onLine){n.textContent="ออนไลน์";n.className="net on";}else{n.textContent="ออฟไลน์ · ใช้ได้ปกติ";n.className="net off";}}
+addEventListener("online",net);addEventListener("offline",net);net();
+
+/* start: show last known spot immediately, then try GPS */
+if(!fromHash()){if(S.pos)render();locate(false);}
+</script>
+</body>
+</html>

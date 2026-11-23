@@ -98,6 +98,42 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 dialog{overflow:hidden}
 .dlg h2{margin:0;font-size:1.05rem}
 .dlg h3{margin:6px 0 0;font-size:.85rem;color:var(--muted);font-weight:600}
+.hline{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:.84rem;background:var(--bg);border-radius:10px;padding:6px 10px}
+.hstars{color:#C79200;letter-spacing:1px}
+.score{background:var(--accent);color:var(--bg);font-weight:700;border-radius:6px;padding:0 6px;font-variant-numeric:tabular-nums}
+.hprice{font-weight:600}
+.erbadge{color:var(--torii);font-weight:700}
+.telbtn{font-weight:700;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:8px;padding:2px 8px}
+.c-act a.extbtn{font-size:.84rem;text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:5px 10px;color:var(--accent)}
+.sosbtn{border:0;background:var(--torii);color:#fff;font-weight:700;border-radius:99px;padding:4px 10px;font-size:.78rem}
+#moreView{display:grid;gap:14px;margin-top:12px}
+body[data-view="list"] #moreView,body[data-view="map"] #moreView,body[data-view="more"] .listview,body[data-view="more"] #mapView{display:none}
+.more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{display:grid;gap:2px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;text-decoration:none;color:var(--ink)}
+.tile .i{font-size:1.5rem}
+.tile small{color:var(--muted);font-size:.76rem}
+.sos,.tickets{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px;scroll-margin-top:110px}
+.sos h2,.tickets h2{margin:0;font-size:1.05rem}
+.sos-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sos-btn{display:grid;gap:2px;border:1px solid var(--line);border-radius:12px;padding:10px;text-decoration:none;color:var(--ink);background:var(--bg)}
+.sos-btn b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+.sos-btn span{font-size:.76rem;color:var(--muted)}
+.sos-btn.red{background:var(--torii);border-color:var(--torii);color:#fff}
+.sos-btn.red span{color:#fff}
+@media (max-width:420px){.sos-grid{grid-template-columns:1fr}}
+.guide{border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--bg)}
+.guide summary{cursor:pointer;font-weight:600;font-size:.92rem}
+.guide ol,.guide ul{margin:8px 0 2px;padding-left:20px;display:grid;gap:6px;font-size:.88rem}
+.guide a{color:var(--accent)}
+.phr{list-style:none;padding-left:0!important}
+.phr li{display:grid;font-family:var(--font-jp);font-size:1rem}
+.phr small{font-family:var(--font-body);color:var(--muted);font-size:.76rem}
+.tbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;display:grid;gap:8px}
+.tbox h3{margin:0;font-size:.95rem}
+.tbox .row2{display:flex;flex-wrap:wrap;gap:6px}
+.tbox .row2 a,.tbox .row2 button{font-size:.84rem;text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:6px 10px;color:var(--ink);background:var(--bg)}
+.tbox .row2 a.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.tbox p{margin:0;font-size:.82rem;color:var(--muted)}
 .grid-c{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
 .grid-c button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-size:.88rem}
 .grid-c button small{display:block;color:var(--muted);font-size:.74rem}
@@ -175,7 +211,7 @@ dialog{overflow:hidden}
 :root{--bnav:62px}
 body{padding-bottom:calc(var(--bnav) + env(safe-area-inset-bottom))}
 .btn .sm{font-size:.78rem;margin-left:2px}
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
 .bnav button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:7px 0 6px;font-size:.74rem;color:var(--muted);position:relative;min-height:var(--bnav)}
 .bnav .i{font-size:1.25rem;line-height:1.2;filter:grayscale(1);opacity:.7}
 .bnav button[aria-current="page"]{color:var(--accent);font-weight:700}
@@ -244,7 +280,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   <div class="top-inner">
     <div class="brand">
       <h1><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5.5h20M4 9h16M7 5.5V21M17 5.5V21" stroke="var(--torii)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>ไกด์ญี่ปุ่นใกล้ฉัน</h1>
-      <span id="net" class="net">ออนไลน์</span>
+      <span style="display:flex;gap:6px;align-items:center"><span id="net" class="net">ออนไลน์</span><button type="button" class="sosbtn" id="sosBtn" aria-label="ฉุกเฉิน เบอร์โทรและโรงพยาบาล">🆘 ฉุกเฉิน</button></span>
     </div>
     <div class="loc">
       <div class="loc-info" aria-live="polite">
@@ -262,7 +298,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   <div class="listview">
   <div class="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    <input id="q" type="search" placeholder="ค้นหา: ราเมง, กิออน, ใบไม้แดง, 寿司…" autocomplete="off" aria-label="ค้นหา">
+    <input id="q" type="search" placeholder="ค้นหา: ราเมง, กิออน, โรงแรม, 寿司…" autocomplete="off" aria-label="ค้นหา">
     <button type="button" id="qClear" aria-label="ล้างคำค้น" hidden>✕</button>
   </div>
   <div class="chips" id="chips" role="group" aria-label="ประเภท (เลือกได้หลายอัน)"></div>
@@ -299,6 +335,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     <span style="display:flex;gap:10px;align-items:center"><button type="button" class="linkbtn" id="resetF" hidden>ล้างตัวกรอง</button>
     <button type="button" class="btn" id="selToggle" aria-pressed="false">☑ เลือกหลายรายการ</button></span>
   </div>
+  <div id="tabBox"></div>
   <div class="list" id="list"></div>
   <button class="btn more" id="more" type="button" hidden>แสดงเพิ่ม</button>
   <div class="selbar" id="selBar" hidden>
@@ -310,10 +347,90 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     </div>
   </div>
   </div>
+  <section id="moreView" aria-label="ช่วยเหลือและข้อมูลเพิ่มเติม">
+    <div class="more-grid">
+      <button type="button" class="tile" data-go="fav"><span class="i">★</span><b>บันทึกไว้</b><small id="favCount">0 ที่</small></button>
+      <button type="button" class="tile" data-go="m"><span class="i">🏥</span><b>โรงพยาบาลใกล้ฉัน</b><small>รับชาวต่างชาติ เรียงตามระยะ</small></button>
+      <button type="button" class="tile" data-go="h"><span class="i">🏨</span><b>หาโรงแรมด่วน</b><small>คะแนนรีวิว ราคา ดาว</small></button>
+      <a class="tile" href="#tickets"><span class="i">🎫</span><b>วิธีซื้อตั๋ว</b><small>รถไฟ ชินคันเซ็น บัส บัตร IC</small></a>
+    </div>
+    <section class="sos" id="sos" aria-labelledby="sosT">
+      <h2 id="sosT">🆘 เบอร์ฉุกเฉินในญี่ปุ่น</h2>
+      <div class="sos-grid">
+        <a class="sos-btn red" href="tel:119"><b>119</b><span>รถพยาบาล / ดับเพลิง (ฟรี 24 ชม.)</span></a>
+        <a class="sos-btn" href="tel:110"><b>110</b><span>ตำรวจ (ฟรี 24 ชม.)</span></a>
+        <a class="sos-btn" href="tel:05038162787"><b>050-3816-2787</b><span>Japan Visitor Hotline (JNTO) 24 ชม. อังกฤษ/จีน/เกาหลี ช่วยเรื่องป่วยและภัยพิบัติ</span></a>
+        <a class="sos-btn" href="tel:0357892433"><b>03-5789-2433</b><span>สถานทูตไทย กรุงโตเกียว (ในเวลาราชการ) · แผนกกงสุล 03-5789-2449</span></a>
+      </div>
+      <details class="guide"><summary>สายด่วนสถานทูต/กงสุลไทยนอกเวลา และสิ่งที่ต้องพูดตอนโทร 119</summary>
+        <ul>
+          <li>สายด่วนฉุกเฉินนอกเวลา (ข้อมูลปี 2565 ควรเช็กกับเว็บสถานทูตอีกครั้ง): สอท.โตเกียว +81-90-4435-7812 · สกญ.โอซาก้า +81-90-1895-0987 · สกญ.ฟุกุโอกะ +81-90-2585-3027</li>
+          <li>Call Center กรมการกงสุล (ไทย 24 ชม.): +66-2-572-8442</li>
+          <li>โทร 119 พูดอังกฤษได้: บอก <b>"Ambulance, please"</b> หรือ <span lang="ja">救急です (Kyūkyū desu)</span> แล้วบอกที่อยู่ ใช้ปุ่ม 🧭 นำทาง ในการ์ดใดก็ได้เพื่อดูชื่อสถานที่ใกล้ตัวเป็นภาษาญี่ปุ่น</li>
+          <li>รถพยาบาลในญี่ปุ่นไม่เสียค่าใช้จ่าย แต่ค่ารักษาสำหรับนักท่องเที่ยวต้องจ่ายเอง พกบัตรประกันเดินทางและพาสปอร์ตไว้</li>
+          <li>ค้นหาโรงพยาบาลตามภาษา/แผนก: เว็บ JNTO <a href="https://www.jnto.go.jp/emergency/eng/mi_guide.html" target="_blank" rel="noopener">jnto.go.jp/emergency</a></li>
+        </ul>
+      </details>
+    </section>
+    <section class="tickets" id="tickets" aria-labelledby="tkT">
+      <h2 id="tkT">🎫 วิธีซื้อตั๋วและจ่ายค่ารถ</h2>
+      <details class="guide" open><summary>1 · บัตร IC (Suica / PASMO / ICOCA) ง่ายที่สุด แนะนำ</summary>
+        <ol>
+          <li><b>คืออะไร:</b> บัตรเติมเงินแตะผ่านประตูรถไฟ รถไฟใต้ดิน รถบัส และจ่ายในร้านสะดวกซื้อได้ ใช้ได้เกือบทั้งประเทศ (Suica ซื้อที่โตเกียวใช้ที่โอซาก้า เกียวโต ฟุกุโอกะได้)</li>
+          <li><b>ซื้อที่ไหน:</b> บัตรจริง Suica/PASMO แบบไม่ลงชื่อกลับมาขายตามตู้ในสถานีแล้วตั้งแต่ 1 มี.ค. 2025 มีมัดจำ ¥500 · <b>Welcome Suica</b> (สำหรับนักท่องเที่ยว ไม่มีมัดจำ) ขายที่สนามบินฮาเนดะ/นาริตะ · มือถือ iPhone ใช้แอป <b>Welcome Suica Mobile</b> หรือเพิ่ม Suica ใน Apple Wallet</li>
+          <li><b>เติมเงิน:</b> ตู้ขายตั๋วในสถานีที่มีปุ่ม Charge (チャージ) เลือก English → Charge → ใส่ธนบัตร หรือเติมที่เคาน์เตอร์ 7-Eleven/FamilyMart (เงินสด)</li>
+          <li><b>ใช้:</b> แตะบัตรที่ประตูตอนเข้าและตอนออก ระบบตัดเงินตามระยะเอง ถ้าเงินไม่พอประตูจะปิด ให้ไปตู้ <span lang="ja">精算機</span> (Fare Adjustment) ข้างประตูออกเพื่อจ่ายส่วนต่าง</li>
+        </ol>
+      </details>
+      <details class="guide"><summary>2 · ซื้อตั๋วรถไฟ/รถไฟใต้ดินทีละเที่ยวที่ตู้</summary>
+        <ol>
+          <li>ดูแผนผังค่าโดยสารเหนือตู้ หาสถานีปลายทาง ตัวเลขข้างชื่อคือราคา (ถ้าหาไม่เจอ ซื้อราคาต่ำสุดไปก่อน แล้วจ่ายเพิ่มที่ตู้ Fare Adjustment ตอนออก)</li>
+          <li>กดปุ่ม <b>English</b> ที่หน้าจอ → เลือกจำนวนคน → เลือกราคา → ใส่เงิน (บางตู้รับบัตรเครดิต)</li>
+          <li>สอดตั๋วเข้าประตู แล้ว<b>หยิบตั๋วคืนด้านหน้า</b> เก็บไว้ใช้ตอนออก</li>
+          <li>รถไฟคนละบริษัท (เช่น JR กับ Metro) ตั๋วอาจแยกกัน ดูป้ายสีของสายให้ตรงกับประตู</li>
+        </ol>
+      </details>
+      <details class="guide"><summary>3 · ชินคันเซ็น (รถไฟหัวกระสุน)</summary>
+        <ol>
+          <li><b>ซื้อที่ไหน:</b> ตู้จองที่นั่ง JR สีเขียว/ฟ้า (<span lang="ja">指定席券売機</span>) เลือก English ใช้บัตรเครดิตได้ · ห้องขายตั๋ว <span lang="ja">みどりの窓口</span> (Midori-no-madoguchi) ยื่นพาสปอร์ต · ออนไลน์: <b>SmartEX</b> (สายโทไกโด/ซันโย โตเกียว–เกียวโต–โอซาก้า–ฮากาตะ) หรือ <b>JR-EAST Train Reservation</b> (สายตะวันออก/เหนือ)</li>
+          <li><b>ที่นั่ง:</b> Reserved (<span lang="ja">指定席</span>) มีที่นั่งแน่นอน · Non-reserved (<span lang="ja">自由席</span>) ถูกกว่าเล็กน้อย ขึ้นตู้ที่เขียนว่า Non-reserved · Green Car = ชั้นหนึ่ง</li>
+          <li><b>ตั๋ว 2 ใบ:</b> มักได้ตั๋วค่าโดยสาร + ตั๋วด่วนพิเศษ ให้สอดทั้ง 2 ใบเข้าประตูพร้อมกัน</li>
+          <li><b>กระเป๋าใหญ่:</b> สายโทไกโด/ซันโย/คิวชู ถ้ากระเป๋า กว้าง+ยาว+สูง เกิน 160 ซม. ต้องจองที่นั่งที่มีที่วางกระเป๋า (Oversized baggage area) ตอนซื้อตั๋ว</li>
+          <li><b>JR Pass ทั้งประเทศ:</b> 7 วัน ¥50,000 · 14 วัน ¥80,000 · 21 วัน ¥100,000 (ราคาในเว็บทางการ) ส่วนตัวแทนจำหน่ายขึ้นเป็น ¥53,000/¥84,000/¥105,000 ตั้งแต่ 1 ต.ค. 2026 คุ้มเมื่อนั่งชินคันเซ็นไกลหลายเที่ยว ถ้าไปแค่โตเกียว–เกียวโต–โอซาก้า ซื้อเป็นเที่ยวมักถูกกว่า · ขึ้น Nozomi/Mizuho ต้องซื้อตั๋วเสริม</li>
+        </ol>
+      </details>
+      <details class="guide"><summary>4 · รถบัสในเมือง</summary>
+        <ol>
+          <li><b>ขึ้นประตูไหน:</b> เกียวโตและหลายเมือง <b>ขึ้นประตูกลาง/หลัง จ่ายตอนลงประตูหน้า</b> · โตเกียวส่วนใหญ่ขึ้นประตูหน้าและจ่ายตอนขึ้น ดูป้ายที่ประตู</li>
+          <li><b>จ่าย:</b> แตะบัตร IC ที่เครื่องข้างคนขับ หรือหยอดเงินสดพอดี (มีช่องแลกเหรียญ ¥1,000 ที่ตู้หน้า) ถ้าใช้เงินสดและรถคิดตามระยะ ให้หยิบ<b>ตั๋วเลข (<span lang="ja">整理券</span>)</b> ตอนขึ้น แล้วดูราคาตามเลขบนจอหน้ารถ</li>
+          <li><b>กดลง:</b> กดปุ่ม <span lang="ja">とまります</span> (Stop) ก่อนถึงป้าย ป้ายถัดไปขึ้นบนจอเป็นภาษาอังกฤษ</li>
+          <li><b>เกียวโต:</b> รถเมล์เมืองในเขตราคาเดียว ¥230 · บัตร Subway &amp; Bus 1-Day Pass ¥1,100 นั่งรถไฟใต้ดินและรถเมล์ได้ไม่จำกัดใน 1 วัน (คุ้มเมื่อนั่ง 5 เที่ยวขึ้นไป) · เสาร์-อาทิตย์มีรถด่วนท่องเที่ยว EX100/EX101 ราคา ¥500</li>
+        </ol>
+      </details>
+      <details class="guide"><summary>5 · รถบัสทางไกล / บัสสนามบิน</summary>
+        <ol>
+          <li><b>บัสสนามบิน (Limousine Bus):</b> ซื้อตั๋วที่เคาน์เตอร์ในอาคารผู้โดยสารขาเข้าหรือตู้อัตโนมัติ บอกชื่อโรงแรม/สถานีปลายทาง ฝากกระเป๋าใต้ท้องรถได้</li>
+          <li><b>บัสข้ามเมือง</b> (เช่น ชินจูกุ → คาวากุจิโกะ/ฟูจิ): ขึ้นที่ <b>Busta Shinjuku</b> (ชั้น 4 เหนือสถานีชินจูกุ ทางออก New South) ควรจองล่วงหน้าออนไลน์ที่เว็บ Highway Buses หรือ Japan Bus Online ช่วงวันหยุดเต็มเร็ว</li>
+          <li><b>บัสกลางคืน:</b> ประหยัดค่าโรงแรม 1 คืน ราคาถูกกว่าชินคันเซ็นมาก แต่เหนื่อยกว่า</li>
+        </ol>
+      </details>
+      <details class="guide"><summary>6 · ประโยคที่ใช้บ่อย (ยื่นจอให้ดูได้)</summary>
+        <ul class="phr">
+          <li><span lang="ja">この電車は ○○ に行きますか？</span><small>Kono densha wa ○○ ni ikimasu ka? · รถไฟขบวนนี้ไป ○○ ไหม</small></li>
+          <li><span lang="ja">○○ までの切符をください。</span><small>○○ made no kippu o kudasai · ขอตั๋วไป ○○</small></li>
+          <li><span lang="ja">何番線ですか？</span><small>Nanban-sen desu ka? · ชานชาลาที่เท่าไร</small></li>
+          <li><span lang="ja">今夜、空いている部屋はありますか？</span><small>Kon'ya, aite iru heya wa arimasu ka? · คืนนี้มีห้องว่างไหม</small></li>
+          <li><span lang="ja">病院に行きたいです。</span><small>Byōin ni ikitai desu · อยากไปโรงพยาบาล</small></li>
+        </ul>
+      </details>
+    </section>
+  </section>
   <section id="mapView" aria-label="แผนที่">
     <div class="chips" id="mapChips" role="group" aria-label="แสดงบนแผนที่">
       <button type="button" class="chip" data-mf="f" aria-pressed="true">🍜 ร้านอาหาร</button>
       <button type="button" class="chip" data-mf="s" aria-pressed="true">⛩️ ที่เที่ยว</button>
+      <button type="button" class="chip" data-mf="h" aria-pressed="false">🏨 ที่พัก</button>
+      <button type="button" class="chip" data-mf="m" aria-pressed="false">🏥 โรงพยาบาล</button>
       <button type="button" class="chip" data-mf="fav" aria-pressed="false">★ เฉพาะที่บันทึก</button>
     </div>
     <div class="map-wrap">
@@ -333,10 +450,11 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   <footer>ข้อมูลและวิธีเดินทางคำนวณในหน้านี้ ใช้ได้แม้ไม่มีเน็ต เวลาและราคาเป็นค่าประมาณ · ลิงก์ "เทียบกับ Google Maps" ต้องใช้เน็ต<br>ทางออกสถานีดูจากป้ายสีเหลือง 出口 (Exit) ในสถานี · ค่าแท็กซี่: โตเกียว ¥500 กม.แรก แล้ว ¥100 ทุก 232 ม. · เกียวโต ¥500 900 ม.แรก แล้ว ¥100 ทุก 255 ม. · 22:00–05:00 บวก 20%<br>เวลาเปิด-ปิดและวันหยุดร้านเปลี่ยนได้ ควรเช็กก่อนไป<br>ภาพสถานที่จาก Wikipedia / Wikimedia Commons · แผนที่ © OpenStreetMap contributors</footer>
 </main>
 <nav class="bnav" aria-label="เมนูหลัก">
-  <button type="button" data-tab="f" aria-current="page"><span class="i">🍜</span><span>ร้านอาหาร</span></button>
-  <button type="button" data-tab="s"><span class="i">⛩️</span><span>ที่เที่ยว</span></button>
+  <button type="button" data-tab="f" aria-current="page"><span class="i">🍜</span><span>กิน</span></button>
+  <button type="button" data-tab="s"><span class="i">⛩️</span><span>เที่ยว</span></button>
+  <button type="button" data-tab="h"><span class="i">🏨</span><span>ที่พัก</span></button>
   <button type="button" data-tab="map"><span class="i">🗺️</span><span>แผนที่</span></button>
-  <button type="button" data-tab="fav"><span class="i">★</span><span>บันทึกไว้</span><b class="badge" id="favBadge" hidden></b></button>
+  <button type="button" data-tab="more"><span class="i">☰</span><span>อื่นๆ</span><b class="badge" id="favBadge" hidden></b></button>
 </nav>
 <dialog id="nav" class="full" aria-labelledby="navName">
   <div class="nav-body">
@@ -411,6 +529,12 @@ const CATS = {
   s: [
     ["temple","วัด/ศาลเจ้า","#C2402B"],["view","จุดชมวิว","#1F6FA8"],["photo","จุดถ่ายรูป","#A0457A"],
     ["shop","ช้อปปิ้ง","#B26A00"],["sight","สถานที่ท่องเที่ยว","#2E7D4F"]
+  ],
+  h: [
+    ["budget","ประหยัด (≤ US$90)","#2E7D4F"],["mid","กลาง (US$90–200)","#1F6FA8"],["premium","หรู / สนามบิน","#8A3B2E"]
+  ],
+  m: [
+    ["er","มีห้องฉุกเฉิน (ER)","#C2402B"],["hosp","โรงพยาบาลรับชาวต่างชาติ","#1F6FA8"]
   ]
 };
 const CAT = {}; for (const t in CATS) for (const [k,l,c] of CATS[t]) CAT[k]={l,c,t};
@@ -598,6 +722,68 @@ const RAW = [
 ["s","view","สะพานโคริ","古宇利大橋",26.6950,128.0200,"นาคิจิน, โอกินาว่า","สะพานข้ามทะเลสีฟ้าใส 2 กม.","",""]
 ];
 const PLACES = RAW.map((r,i)=>({id:i,t:r[0],c:r[1],n:r[2],j:r[3],la:r[4],lo:r[5],a:r[6],d:r[7],tip:r[8],p:r[9]}));
+
+/* ---------- โรงแรม: [ชื่อ, ชื่อญี่ปุ่น, lat, lng, ย่าน, ระดับ, ดาวโรงแรม(0=ไม่ระบุ), คะแนนรีวิว/10, จำนวนรีวิว, แหล่งคะแนน, ราคา/คืน (2 คน), สรุปรีวิว]
+   คะแนนและราคาเก็บจากเว็บจองช่วงปี 2026 ราคาเปลี่ยนตามวันจริง ---------- */
+const HOTELS=[
+["Hotel Gracery Shinjuku","ホテルグレイスリー新宿",35.6945,139.7019,"คาบุกิโจ, โตเกียว","premium",4,9.0,4115,"Expedia","~US$150–320","ตึกหัวก็อดซิลล่า ทำเลกลางย่านกินดื่ม ห้องเล็กแบบญี่ปุ่น ด้านหลังเป็นย่านโรงแรมม่านรูด"],
+["Sotetsu Fresa Inn Higashi-Shinjuku","相鉄フレッサイン 東新宿",35.6979,139.7071,"ชินจูกุ, โตเกียว","budget",3,9.0,1695,"Expedia","~US$73–134","ติดสถานีฮิงาชิชินจูกุ 1 นาที สะอาด พนักงานดี ห้องเล็ก"],
+["Sotetsu Grand Fresa Takadanobaba","相鉄グランドフレッサ 高田馬場",35.7126,139.7033,"ทาคาดาโนบาบะ, โตเกียว","budget",3,9.4,854,"Expedia","~US$86–109","สะอาดมาก พนักงานใจดี ย่านนักศึกษาราคาอาหารถูก นั่ง JR ยามาโนเตะ 4 นาทีถึงชินจูกุ"],
+["Shinjuku Washington Hotel (Main)","新宿ワシントンホテル本館",35.6866,139.6936,"ชินจูกุตะวันตก","budget",4,8.0,3361,"Expedia","~US$84","โรงแรมใหญ่ราคาคุ้ม ใกล้ตึกรัฐบาลโตเกียว ห้องเก่ากว่าเชนใหม่"],
+["APA Hotel Higashi-Shinjuku Kabukicho Tower","アパホテル〈東新宿 歌舞伎町タワー〉",35.6955,139.7055,"คาบุกิโจ, โตเกียว","mid",0,8.8,1694,"Expedia","~US$112","ห้องเล็กแต่สะอาด คุ้มราคา มีห้องอาบน้ำรวม"],
+["Hyatt Regency Tokyo","ハイアット リージェンシー 東京",35.6918,139.6916,"ชินจูกุตะวันตก","premium",4.5,9.0,1004,"Expedia","~US$243–333","ห้องกว้าง วิวสวน อาหารเช้าดี เดินไปสถานีราว 10 นาที"],
+["Richmond Hotel Premier Asakusa International","リッチモンドホテル プレミア浅草インターナショナル",35.7134,139.7948,"อาซากุสะ, โตเกียว","budget",4,9.4,2284,"Expedia","~US$85","ทำเลดีมาก เดินถึงวัดเซ็นโซจิ ห้องสะอาด บางห้องเห็นสกายทรี"],
+["hotel MONday Asakusa","hotel MONday 浅草",35.7050,139.7950,"อาซากุสะ, โตเกียว","budget",3.5,9.2,515,"Expedia","~US$81","ห้องดีไซน์สวย คุ้มราคา สะอาด"],
+["Sotetsu Fresa Inn Ueno-Okachimachi","相鉄フレッサイン 上野御徒町",35.7075,139.7745,"อุเอโนะ, โตเกียว","budget",3,9.0,1001,"Expedia","~US$67","ห้องเล็กแต่ครบ ใกล้อาเมโยโกะ"],
+["APA Hotel Keisei Ueno Ekimae","アパホテル〈京成上野駅前〉",35.7113,139.7745,"อุเอโนะ, โตเกียว","budget",3,8.4,1197,"Expedia","~US$59","ตรงข้ามสถานีเคเซอุเอโนะ (รถไฟจากนาริตะ) ใกล้ร้านค้าและอาเมโยโกะ"],
+["Nohga Hotel Ueno Tokyo","ノーガホテル 上野 東京",35.7105,139.7810,"อุเอโนะ, โตเกียว","mid",4,9.4,1008,"Expedia","~US$114–163","โรงแรมดีไซน์ บริการดี ทำเลเดินสะดวก"],
+["&Here Tokyo Ueno","&Here TOKYO UENO",35.7095,139.7710,"อุเอโนะ, โตเกียว","mid",3,9.6,1161,"Expedia","~US$175","ห้องกว้าง มีสปาวิวสระชิโนบาซุ"],
+["Centurion Hotel Ueno","センチュリオンホテル上野",35.7125,139.7735,"อุเอโนะ, โตเกียว","budget",3,7.6,1002,"Expedia","~US$43","ราคาถูกมาก ใกล้สวนอุเอโนะ ห้องเรียบง่าย"],
+["Mitsui Garden Hotel Ginza Gochome","三井ガーデンホテル銀座五丁目",35.6696,139.7672,"กินซ่า, โตเกียว","premium",4,9.0,1005,"Expedia","~US$258","ติดสถานีฮิงาชิกินซ่า 2 นาที มีห้องอาบน้ำรวม สะอาด"],
+["Mitsui Garden Hotel Ginza Premier","三井ガーデンホテル銀座プレミア",35.6658,139.7626,"กินซ่า, โตเกียว","premium",4.5,9.2,0,"Hotels.com","สูง (ดูราคาในเว็บจอง)","ล็อบบี้ชั้น 16 วิวโตเกียวทาวเวอร์ เงียบสงบ"],
+["Hotel Villa Fontaine Grand Haneda Airport","ホテル ヴィラフォンテーヌ グランド 羽田空港",35.5467,139.7700,"สนามบินฮาเนดะ","premium",4,9.3,7536,"Trip.com","~US$82–160","เชื่อมอาคาร 3 สนามบินฮาเนดะ มีออนเซ็นดาดฟ้า เหมาะไฟลต์เช้า/ดึก"],
+["Miyako Hotel Kyoto Hachijo","都ホテル 京都八条",34.9845,135.7580,"สถานีเกียวโต","mid",0,9.3,9796,"Trip.com","ดูราคาในเว็บจอง","ฝั่งใต้สถานีเกียวโต (ทางออกฮาจิโจ) เดินสะดวก โรงแรมใหญ่"],
+["Ala Hotel Kyoto","Ala Hotel Kyoto",34.9825,135.7600,"สถานีเกียวโต","budget",0,9.4,4427,"Trip.com","~€54 ขึ้นไป","มีออนเซ็นและซาวน่า ราคาคุ้ม"],
+["Mitsui Garden Hotel Kyoto Station","三井ガーデンホテル京都駅前",34.9877,135.7565,"สถานีเกียวโต","mid",0,9.3,817,"Trip.com","~€70 ขึ้นไป","ใกล้สถานีเกียวโต 3 นาที สะอาด"],
+["Hotel Keihan Kyoto Ekiminami","ホテル京阪 京都駅南",34.9840,135.7600,"สถานีเกียวโต","mid",0,9.4,1897,"Trip.com","ดูราคาในเว็บจอง","ฝั่งใต้สถานี เงียบกว่าฝั่งเหนือ"],
+["Hotel Vischio Kyoto by GRANVIA","ホテルヴィスキオ京都 by GRANVIA",34.9843,135.7598,"สถานีเกียวโต","mid",0,9.0,2034,"Booking.com","~US$123 ขึ้นไป","ทำเลดี คุ้มราคา เช็กอินด้วยตัวเองง่าย"],
+["Hotel Granvia Kyoto","ホテルグランヴィア京都",34.9855,135.7590,"สถานีเกียวโต","premium",0,9.3,569,"Trip.com","สูง (ดูราคาในเว็บจอง)","อยู่ในอาคารสถานีเกียวโตเลย ฝนตกไม่ต้องออกไปข้างนอก"],
+["Toyoko Inn Osaka Namba","東横INN大阪難波",34.6670,135.5040,"นัมบะ, โอซาก้า","budget",3,8.7,1750,"Booking.com","~US$63–84","คุ้มมาก สะอาด มีอาหารเช้า ใกล้โดทงโบริ"],
+["APA Hotel & Resort Osaka Namba Ekimae Tower","アパホテル&リゾート〈大阪難波駅前タワー〉",34.6680,135.4950,"นัมบะ, โอซาก้า","budget",3,0,0,"Travelocity","~US$65","ตึกสูงหน้าสถานีนัมบะ มีออนเซ็นดาดฟ้า ห้องเล็ก"],
+["Citadines Namba Osaka","シタディーン なんば大阪",34.6705,135.4975,"นัมบะ, โอซาก้า","mid",4,9.1,2318,"Booking.com","~US$118–162","ห้องแบบอพาร์ตเมนต์มีครัว เหมาะครอบครัว"],
+["Hotel Keihan Namba Grande","ホテル京阪 なんば グランデ",34.6640,135.5000,"นัมบะ, โอซาก้า","mid",0,8.6,2742,"Booking.com","ดูราคาในเว็บจอง","ใกล้สถานีนัมบะและถนนกินดื่ม"],
+["APA Hotel Sapporo-Susukino-Ekimae","アパホテル〈札幌すすきの駅前〉",43.0565,141.3545,"ซุซุกิโนะ, ซัปโปโร","budget",3,8.4,7686,"Agoda (ความคุ้มค่า)","ดูราคาในเว็บจอง","หน้าสถานีซุซุกิโนะ ทำเล 9.0/10 ห้องเล็กแบบ APA"],
+["Hotel Relief Sapporo Susukino","ホテルリリーフ札幌すすきの",43.0530,141.3555,"ซุซุกิโนะ, ซัปโปโร","budget",3,8.6,990,"Expedia","ดูราคาในเว็บจอง","ราคาประหยัด ใกล้ย่านกินดื่ม"],
+["Sotetsu Fresa Inn Sapporo-Susukino","相鉄フレッサイン 札幌すすきの",43.0560,141.3535,"ซุซุกิโนะ, ซัปโปโร","budget",3,0,0,"Travelocity","~US$47 ขึ้นไป","ใกล้ถนนทานุกิโคจิ ราคาถูก"],
+["JR Kyushu Hotel Blossom Hakata Chuo","JR九州ホテル ブラッサム博多中央",33.5890,130.4195,"ฮากาตะ, ฟุกุโอกะ","mid",4,9.2,0,"Hotels.com","~US$151","ติดสถานีฮากาตะ 1 นาที อาหารเช้าดี คุ้มราคา"],
+["The Basics Fukuoka","THE BASICS FUKUOKA",33.5900,130.4130,"ฮากาตะ, ฟุกุโอกะ","mid",4,8.8,1485,"Booking.com","ดูราคาในเว็บจอง","เดินจากสถานีฮากาตะ 7 นาที ดีไซน์สวย"],
+["Super Hotel Premier Hakataeki","スーパーホテルPremier博多駅",33.5935,130.4185,"ฮากาตะ, ฟุกุโอกะ","budget",0,8.5,199,"Booking.com","ดูราคาในเว็บจอง","มีบ่อน้ำแร่ เดินจากสถานี JR ฮากาตะ 9 นาที"]
+];
+HOTELS.forEach(([n,j,la,lo,a,tier,st,sc,rv,src,pr,sum])=>PLACES.push({id:PLACES.length,t:"h",c:tier,n,j,la,lo,a,d:sum,tip:"",p:"",hx:{st,sc,rv,src,pr}}));
+
+/* ---------- โรงพยาบาลที่รับชาวต่างชาติ: [ชื่อ, ชื่อญี่ปุ่น, lat, lng, ย่าน, โทร, มี ER, หมายเหตุ] ---------- */
+const HOSP=[
+["St. Luke's International Hospital","聖路加国際病院",35.6687,139.7778,"สึกิจิ, โตเกียว","03-3541-5151",1,"รพ.เอกชนใหญ่ มีบริการภาษาอังกฤษและฝ่ายผู้ป่วยต่างชาติ"],
+["Tokyo Medical University Hospital","東京医科大学病院",35.6927,139.6956,"ชินจูกุตะวันตก","03-3342-6111",1,"รับผู้ป่วยฉุกเฉิน มีเจ้าหน้าที่พูดอังกฤษ"],
+["Keio University Hospital","慶應義塾大学病院",35.6802,139.7176,"ชินาโนมาจิ, โตเกียว","03-3353-1211",1,"รพ.มหาวิทยาลัย รับผู้ป่วยฉุกเฉิน"],
+["National Center for Global Health and Medicine (NCGM)","国立国際医療研究センター病院",35.7013,139.7180,"โทยามะ, ชินจูกุ","+81-3-6228-0749",1,"ฝ่ายช่วยผู้ป่วยต่างชาติ (อังกฤษ จีน ฯลฯ) ชื่อหน่วยงานอาจเปลี่ยนเป็น JIHS"],
+["Jikei University Hospital","東京慈恵会医科大学附属病院",35.6634,139.7493,"ชิมบาชิ, โตเกียว","03-3433-1111",1,"มีหน่วยฉุกเฉิน ใกล้โตเกียวทาวเวอร์"],
+["Japanese Red Cross Medical Center","日本赤十字社医療センター",35.6512,139.7186,"ฮิโระโอะ, โตเกียว","03-3400-1311",0,"รพ.สภากาชาด ใกล้ชิบุยะ/เอบิสึ"],
+["Kyoto Prefectural University of Medicine Hospital","京都府立医科大学附属病院",35.0245,135.7680,"ใจกลางเกียวโต","075-251-5255",1,"โรงพยาบาลฉุกเฉินตามรายชื่อของเมืองเกียวโต"],
+["Japanese Red Cross Kyoto Daiichi Hospital","京都第一赤十字病院",34.9817,135.7720,"ฮิงาชิยามะ, เกียวโต","075-561-1121",1,"ใกล้วัดโทฟุคุจิ"],
+["Japanese Red Cross Kyoto Daini Hospital","京都第二赤十字病院",35.0185,135.7600,"ใจกลางเกียวโต","075-231-5171",1,"ใกล้ปราสาทนิโจ/วังหลวง"],
+["Kyoto University Hospital","京都大学医学部附属病院",35.0215,135.7766,"ซาเคียว, เกียวโต","075-751-3111",0,"จุดต้อนรับมีระบบช่วยหลายภาษา"],
+["Kyoto City Hospital","京都市立病院",34.9969,135.7464,"นากาเกียว, เกียวโต","075-311-5311",0,"จุดต้อนรับมีระบบช่วยหลายภาษา"],
+["Takeda Hospital","武田病院",34.9890,135.7590,"ใกล้สถานีเกียวโต","075-361-1351",0,"อยู่ในรายชื่อโรงพยาบาลของเว็บท่องเที่ยวเกียวโต"],
+["Osaka University Hospital","大阪大学医学部附属病院",34.8188,135.5243,"ซุอิตะ, โอซาก้า","06-6879-5111",0,"มีเจ้าหน้าที่พูดอังกฤษ อยู่ทางเหนือของเมือง"],
+["Rinku General Medical Center","りんくう総合医療センター",34.4110,135.3000,"ใกล้สนามบินคันไซ","072-469-3111",1,"ใกล้สนามบินคันไซ มีคลินิกสำหรับชาวต่างชาติ"],
+["Japanese Red Cross Aichi Medical Center Nagoya Daiichi","名古屋第一赤十字病院",35.1720,136.8550,"นาโกย่า","052-481-5111",1,"ควรเช็กก่อนว่ามีแพทย์พูดอังกฤษ"],
+["Sapporo Medical University Hospital","札幌医科大学附属病院",43.0565,141.3405,"ซัปโปโร","",0,"รพ.มหาวิทยาลัยใจกลางเมือง"],
+["Kyushu University Hospital","九州大学病院",33.6170,130.4170,"ฟุกุโอกะ","",0,"มีศูนย์ช่วยผู้ป่วยต่างชาติ"],
+["Hiroshima City Hiroshima Citizens Hospital","広島市立広島市民病院",34.3990,132.4560,"ฮิโรชิมะ","",0,"ใกล้ปราสาทฮิโรชิมะ"],
+["Naha City Hospital","那覇市立病院",26.2290,127.6990,"นาฮะ, โอกินาว่า","",0,"รพ.ประจำเมืองนาฮะ"]
+];
+HOSP.forEach(([n,j,la,lo,a,tel,er,note])=>PLACES.push({id:PLACES.length,t:"m",c:er?"er":"hosp",n,j,la,lo,a,d:note,tip:"",p:"",mx:{tel,er}}));
 const PRICE_ORDER={"":9,"¥":1,"¥¥":2,"¥¥¥":3,"¥¥¥¥":4};
 
 /* Cities / preset points for "suppose I'm at…" */
@@ -725,9 +911,10 @@ function renderLoc(){
     nb.innerHTML='<div class="notice"><b>'+esc(lastFail)+'</b> ตอนนี้ใช้จุดสมมุติ: '+esc(p.label||"")+' กด <b>เลือกจุด</b> เพื่อเปลี่ยนย่าน หรือวางพิกัดจาก Google Maps'+(lastFail.indexOf("นอกญี่ปุ่น")<0?(IN_FRAME?' · หน้านี้เปิดผ่าน Claude ซึ่งไม่ให้ใช้ GPS':' · ตรวจว่าเปิด บริการหาตำแหน่ง ให้เบราว์เซอร์แล้ว และกด อนุญาต เมื่อถูกถาม'):'')+'</div>';
   }else nb.innerHTML="";
 }
-function catsFor(tab){return tab==="fav"?CATS.f.concat(CATS.s):CATS[tab];}
+function catsFor(tab){return tab==="fav"?CATS.f.concat(CATS.s,CATS.h,CATS.m):CATS[tab];}
 function scopeText(){
   if(S.tab==="fav")return "ที่บันทึกไว้";
+  if(S.tab==="m"&&!S.q)return "เรียงจากใกล้ที่สุด";
   if(S.q)return "ผลค้นหาทั่วญี่ปุ่น";
   if(S.city!=="all")return "ใน"+S.city;
   return S.radius>=99999?"ทั่วญี่ปุ่น":"ในรัศมี "+fmtKm(S.radius);
@@ -739,7 +926,7 @@ function filtered(){
   if(S.city!=="all")arr=arr.filter(x=>x.city===S.city);
   if(q){const terms=q.split(/\s+/);arr=arr.filter(x=>terms.every(t=>x.s.includes(t)||CAT[x.c].l.toLowerCase().includes(t)));}
   if(S.price)arr=arr.filter(x=>x.t!=="f"||!x.p||x.p.length<=S.price);
-  if(S.tab!=="fav"&&!q&&S.city==="all")arr=arr.filter(x=>x.k<=S.radius);
+  if(S.tab!=="fav"&&S.tab!=="m"&&!q&&S.city==="all")arr=arr.filter(x=>x.k<=S.radius);
   const base=arr.slice();
   if(S.cats.size)arr=arr.filter(x=>S.cats.has(x.c));
   const by={near:(a,b)=>a.k-b.k,cheap:(a,b)=>(PRICE_ORDER[a.p||""]-PRICE_ORDER[b.p||""])||a.k-b.k,name:(a,b)=>a.n.localeCompare(b.n,"th")};
@@ -775,6 +962,20 @@ function renderRadar(arr){
     '<div class="sub">'+esc(scopeText())+'</div>'+
     (near?'<div class="near">ใกล้สุด: <b>'+esc(near.n)+'</b><br>'+fmtKm(near.k)+' ไปทาง'+DIRS[Math.round(bearing(p.la,p.lo,near.la,near.lo)/45)%8]+'</div>':'');
 }
+function stars(n){if(!n)return '<span class="muted">ดาวโรงแรม: ไม่ระบุ</span>';const f=Math.floor(n);return '<span class="hstars" title="'+n+' ดาว">'+"★".repeat(f)+(n%1?"½":"")+'</span> <b>'+n+' ดาว</b>';}
+function hotelLine(x){
+  const h=x.hx;
+  return '<div class="hline">'+stars(h.st)+
+    (h.sc?'<span class="score">'+h.sc.toFixed(1)+'</span><span class="muted">/10'+(h.rv?' จาก '+h.rv.toLocaleString()+' รีวิว':'')+' · '+esc(h.src)+'</span>':'<span class="muted">คะแนนรีวิว: ดูในเว็บจอง</span>')+
+    '<span class="hprice">💴 '+esc(h.pr)+' /คืน (2 คน)</span></div>';
+}
+function hospLine(x){
+  const m=x.mx;
+  return '<div class="hline">'+(m.er?'<span class="erbadge">🚑 มีห้องฉุกเฉิน</span>':'<span class="muted">ควรโทรถามก่อนไป</span>')+
+    (m.tel?'<a class="telbtn" href="tel:'+m.tel.replace(/[^+\d]/g,"")+'">📞 '+esc(m.tel)+'</a>':'')+'</div>';
+}
+function bookUrl(x){const d=new Date(),d2=new Date(Date.now()+864e5),f=t=>t.toISOString().slice(0,10);
+  return "https://www.booking.com/searchresults.html?ss="+encodeURIComponent(x.n)+"&checkin="+f(d)+"&checkout="+f(d2)+"&group_adults=2&no_rooms=1";}
 function card(x){
   const cat=CAT[x.c],p=S.pos,b=bearing(p.la,p.lo,x.la,x.lo),di=Math.round(b/45)%8;
   const fav=S.fav.has(x.id),sel=S.sel.has(x.id);
@@ -785,18 +986,23 @@ function card(x){
     '<div class="meta"><span class="tag" style="color:'+cat.c+'">'+cat.l+'</span><span class="area">'+esc(x.a)+'</span>'+(x.p?'<span class="price" title="ระดับราคา">'+x.p+'</span>':'')+'</div>'+
     '<div class="c-desc">'+esc(x.d)+'</div>'+
     (x.tip?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+
+    (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+
     (S.selMode?'':routeMini(x)+
     (RT.open===x.id?'<div class="rt-inline" id="rt'+x.id+'">'+routeHTML(x)+'</div>':'')+
     '<div class="c-act"><button type="button" class="nav-go" data-nav="'+x.id+'">🧭 นำทาง</button>'+
     '<button type="button" class="go" data-route="'+x.id+'" aria-expanded="'+(RT.open===x.id)+'">'+(RT.open===x.id?"▲ ซ่อน":"🚆 วิธีเดินทาง")+'</button>'+
-    '<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button></div>')+'</article>';
+    '<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button>'+
+    (x.hx?'<a class="extbtn" href="'+bookUrl(x)+'" target="_blank" rel="noopener">เช็กห้องว่างคืนนี้ ↗</a>':'')+'</div>')+'</article>';
 }
 function render(){
   renderLoc();
   if(!S.pos)return;
-  document.body.dataset.view=S.tab==="map"?"map":"list";
-  const fb=$("#favBadge");fb.hidden=!S.fav.size;fb.textContent=S.fav.size;
+  document.body.dataset.view=S.tab==="map"?"map":S.tab==="more"?"more":"list";
+  const fb=$("#favBadge");fb.hidden=!S.fav.size;fb.textContent=S.fav.size;$("#favCount").textContent=S.fav.size+" ที่";
+  document.querySelectorAll(".bnav button").forEach(x=>{const on=x.dataset.tab===S.tab||(x.dataset.tab==="more"&&(S.tab==="fav"||S.tab==="m"));if(on)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
   if(S.tab==="map"){renderMap();return;}
+  if(S.tab==="more")return;
+  renderTabBox();
   const {arr,base}=filtered();
   renderChips(base);
   $("#fsum").textContent=[S.q?"ค้นทั่วญี่ปุ่น":S.city!=="all"?S.city:(S.radius>=99999?"ทั่วญี่ปุ่น":fmtKm(S.radius)),S.price?"ราคา ≤ "+"¥".repeat(S.price):"",{near:"ใกล้สุด",cheap:"ถูกสุด",name:"ชื่อ ก-ฮ"}[S.sort]].filter(Boolean).join(" · ");
@@ -804,7 +1010,7 @@ function render(){
   CUR=arr;
   $("#resInfo").textContent=arr.length+" รายการ · "+scopeText();
   $("#resetF").hidden=!(S.q||S.cats.size||S.city!=="all"||S.price||S.sort!=="near");
-  $("#price").disabled=S.tab==="s";
+  $("#price").disabled=S.tab!=="f"&&S.tab!=="fav";
   renderSelBar();
   if(!arr.length){
     list.innerHTML='<div class="empty">'+(S.tab==="fav"&&!S.fav.size?"ยังไม่มีที่บันทึกไว้ กด ☆ บันทึก ที่การ์ด หรือใช้ ☑ เลือกหลายรายการ เพื่อบันทึกทีเดียวหลายที่":S.q?"ไม่พบ \""+esc(S.q)+"\" ลองคำอื่น หรือล้างตัวกรอง":"ไม่มีรายการที่ตรงตัวกรอง ลองขยายระยะ เลือกเมือง หรือล้างตัวกรอง")+'</div>';
@@ -816,11 +1022,24 @@ function render(){
 }
 
 /* ---------- events ---------- */
-document.querySelectorAll(".bnav button").forEach(b=>b.addEventListener("click",()=>{
-  S.tab=b.dataset.tab;S.cats.clear();S.shown=20;RT.open=null;
-  document.querySelectorAll(".bnav button").forEach(x=>{if(x===b)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
-  render();window.scrollTo({top:0});
-}));
+function goTab(t){S.tab=t;S.cats.clear();S.shown=20;RT.open=null;render();window.scrollTo({top:0});}
+document.querySelectorAll(".bnav button").forEach(b=>b.addEventListener("click",()=>goTab(b.dataset.tab)));
+$("#moreView").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goTab(g.dataset.go);});
+$("#sosBtn").addEventListener("click",()=>{goTab("more");setTimeout(()=>$("#sos").scrollIntoView({behavior:"smooth",block:"start"}),50);});
+$("#tabBox").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g){if(g.dataset.go==="sos")$("#sosBtn").click();else goTab(g.dataset.go);}});
+function renderTabBox(){
+  const b=$("#tabBox"),p=S.pos;
+  if(S.tab==="h"){
+    const d=new Date(),d2=new Date(Date.now()+864e5),f=t=>t.toISOString().slice(0,10),area=describe(p.la,p.lo).head.replace(/^ใกล้/,"");
+    b.innerHTML='<div class="tbox"><h3>🛏️ ต้องหาที่พักคืนนี้ด่วน</h3>'+
+      '<div class="row2"><a class="primary" href="https://www.google.com/maps/search/hotels/@'+p.la.toFixed(5)+','+p.lo.toFixed(5)+',15z" target="_blank" rel="noopener">โรงแรมรอบตัวใน Google Maps ↗</a>'+
+      '<a href="https://www.booking.com/searchresults.html?ss='+encodeURIComponent(nearestArea(p.la,p.lo).n+", Japan")+'&checkin='+f(d)+'&checkout='+f(d2)+'&group_adults=2&no_rooms=1&order=distance_from_search" target="_blank" rel="noopener">ห้องว่างคืนนี้ใน Booking ↗</a></div>'+
+      '<p>ต้องใช้เน็ตเพื่อดูห้องว่างและราคาสด · รายการด้านล่างคือโรงแรมที่รีวิวดีใกล้สถานีหลัก (คะแนนและราคาจากเว็บจองปี 2026 ราคาจริงขึ้นกับวัน) · ทางเลือกฉุกเฉินราคาถูก: โรงแรมแคปซูล, Toyoko Inn/APA/Super Hotel ที่มีแทบทุกสถานีใหญ่ · คืนนี้มีห้องว่างไหม = <span lang="ja">今夜、空いている部屋はありますか？</span></p></div>';
+  }else if(S.tab==="m"){
+    b.innerHTML='<div class="tbox"><h3>🚑 ฉุกเฉินโทร 119 (รถพยาบาล ฟรี)</h3><div class="row2"><a class="primary" href="tel:119">📞 119 รถพยาบาล</a><a href="tel:110">📞 110 ตำรวจ</a><a href="tel:05038162787">📞 050-3816-2787 สายด่วนนักท่องเที่ยว</a><button type="button" data-go="sos">เบอร์สถานทูตไทย</button></div>'+
+      '<p>โรงพยาบาลด้านล่างเรียงจากใกล้คุณ (เลือกจากรายชื่อที่หน่วยงานรัฐ/สถานทูตระบุว่ารับชาวต่างชาติ) ควรโทรถามก่อนไปถ้าไม่ใช่เหตุฉุกเฉิน พกพาสปอร์ตและบัตรประกันเดินทาง</p></div>';
+  }else b.innerHTML="";
+}
 $("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;const k=c.dataset.cat;
   if(k==="all")S.cats.clear();else S.cats.has(k)?S.cats.delete(k):S.cats.add(k);S.shown=20;render();});
 let qT;
@@ -1475,7 +1694,7 @@ function routeHTML(x){
 /* ================= ภาพ แผนที่ และหน้านำทาง ================= */
 const IN_FRAME=(()=>{try{return window.self!==window.top}catch(e){return true}})();
 const CAN_NET=!IN_FRAME&&/^https?:$/.test(location.protocol);
-const CAT_ICON={ramen:"🍜",sushi:"🍣",beef:"🥩",fried:"🍤",local:"🍱",market:"🏮",sweet:"🍡",izakaya:"🍶",temple:"⛩️",view:"🌄",photo:"📸",shop:"🛍️",sight:"🏯"};
+const CAT_ICON={budget:"🛏️",mid:"🏨",premium:"✨",er:"🚑",hosp:"🏥",ramen:"🍜",sushi:"🍣",beef:"🥩",fried:"🍤",local:"🍱",market:"🏮",sweet:"🍡",izakaya:"🍶",temple:"⛩️",view:"🌄",photo:"📸",shop:"🛍️",sight:"🏯"};
 const WIKI_T={"鎌倉大仏 (高徳院)":"高徳院","八坂の塔 (法観寺)":"法観寺","嵐山 竹林の小径":"嵐山","新倉山浅間公園 忠霊塔":"新倉山浅間公園","厳島神社 大鳥居":"厳島神社","東京都庁 展望室":"東京都庁舎","渋谷スカイ":"渋谷スクランブルスクエア","チームラボプラネッツ":"チームラボプラネッツ TOKYO DMM","ユニコーンガンダム立像":"ダイバーシティ東京","グリコサイン":"グリコサイン","梅田スカイビル 空中庭園":"梅田スカイビル","あべのハルカス 展望台":"あべのハルカス","HEP FIVE 観覧車":"HEP FIVE","ローソン 河口湖駅前店":"河口湖","大石公園":"大石公園 (富士河口湖町)","将軍塚青龍殿":"将軍塚","皇居東御苑":"皇居東御苑","さっぽろテレビ塔":"さっぽろテレビ塔","第一牧志公設市場":"第一牧志公設市場","築地場外市場":"築地場外市場","横浜中華街":"横浜中華街","中洲屋台":"屋台","宮島":"厳島"};
 let PHOTO=store.get("photo",{});
 function wikiTitle(x){return WIKI_T[x.j]||x.j.replace(/\s*\(.*\)$/,"").split(" ")[0];}
@@ -1515,7 +1734,7 @@ function watchThumbs(root){
 }
 
 /* ---- แผนที่ (Leaflet + OpenStreetMap เมื่อเปิดบนเว็บของตัวเอง) ---- */
-let MAP=null,LAYER=null,ME=null,MEACC=null,LEAF=null;const MF={f:true,s:true,fav:false};
+let MAP=null,LAYER=null,ME=null,MEACC=null,LEAF=null;const MF={f:true,s:true,h:false,m:false,fav:false};
 function ensureLeaflet(){
   if(window.L)return Promise.resolve(window.L);
   if(!CAN_NET)return Promise.reject();
@@ -1531,7 +1750,7 @@ function ensureLeaflet(){
 function meIcon(L){return L.divIcon({className:"",html:'<div class="me-dot"><span></span></div>',iconSize:[22,22],iconAnchor:[11,11]});}
 function mapPlaces(){
   const p=S.pos;
-  return PLACES.filter(x=>(MF.fav?S.fav.has(x.id):true)&&(x.t==="f"?MF.f:MF.s)).map(x=>({...x,k:dist(p.la,p.lo,x.la,x.lo)})).sort((a,b)=>a.k-b.k);
+  return PLACES.filter(x=>(MF.fav?S.fav.has(x.id):true)&&MF[x.t]).map(x=>({...x,k:dist(p.la,p.lo,x.la,x.lo)})).sort((a,b)=>a.k-b.k);
 }
 function renderMap(){
   document.querySelectorAll("#mapChips [data-mf]").forEach(b=>b.setAttribute("aria-pressed",MF[b.dataset.mf]));
@@ -1563,7 +1782,7 @@ function showMapCard(x){
   watchThumbs($("#mapCard"));
   $("#mapCard").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
-$("#mapChips").addEventListener("click",e=>{const b=e.target.closest("[data-mf]");if(!b)return;MF[b.dataset.mf]=!MF[b.dataset.mf];if(!MF.f&&!MF.s)MF[b.dataset.mf==="f"?"s":"f"]=true;renderMap();});
+$("#mapChips").addEventListener("click",e=>{const b=e.target.closest("[data-mf]");if(!b)return;MF[b.dataset.mf]=!MF[b.dataset.mf];if(!MF.f&&!MF.s&&!MF.h&&!MF.m)MF[b.dataset.mf]=true;renderMap();});
 $("#mapMe").addEventListener("click",()=>{if(MAP)MAP.setView([S.pos.la,S.pos.lo],16);});
 $("#mapCard").addEventListener("click",e=>{
   const nv=e.target.closest("[data-nav]");if(nv){openNav(+nv.dataset.nav);return;}

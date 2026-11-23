@@ -98,6 +98,21 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 dialog{overflow:hidden}
 .dlg h2{margin:0;font-size:1.05rem}
 .dlg h3{margin:6px 0 0;font-size:.85rem;color:var(--muted);font-weight:600}
+.trust{display:grid;gap:2px;border-left:3px solid var(--tc);padding-left:8px}
+.tbadge{font-weight:700;font-size:.82rem;color:var(--tc)}
+.twhy{font-size:.82rem;color:var(--muted)}
+.menu{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.menu .mh{font-size:.8rem;font-weight:700}
+.dish{display:grid;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:4px 10px;font-size:.8rem;line-height:1.35}
+.dish b{font-weight:600}
+.dish span{font-family:var(--font-jp);color:var(--muted);font-size:.76rem}
+.chipsep{flex:none;width:1px;background:var(--line);margin:4px 2px}
+.trustchip[aria-pressed="true"]{background:#B26A00;border-color:#B26A00;color:#fff}
+.guide-trust summary{cursor:pointer;font-weight:600;font-size:.9rem}
+.guide-trust ul{margin:8px 0 0;padding-left:18px;display:grid;gap:5px;font-size:.84rem}
+.dishbox{text-align:center;justify-items:center}
+.dish-jp{font-family:var(--font-jp);font-size:2.2rem;font-weight:700;line-height:1.3}
+.dish-ask{font-family:var(--font-jp);font-size:1.3rem}
 .hline{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:.84rem;background:var(--bg);border-radius:10px;padding:6px 10px}
 .revlinks{font-size:.8rem;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
 .revlinks a{color:var(--accent);font-weight:600}
@@ -327,6 +342,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     <label for="sort">เรียง
       <select id="sort">
         <option value="near">ใกล้สุด</option>
+        <option value="trust">น่าเชื่อถือก่อน (🏆→📜→👍)</option>
         <option value="cheap">ถูกสุด</option>
         <option value="name">ชื่อ ก-ฮ</option>
       </select></label>
@@ -458,6 +474,15 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   <button type="button" data-tab="map"><span class="i">🗺️</span><span>แผนที่</span></button>
   <button type="button" data-tab="more"><span class="i">☰</span><span>อื่นๆ</span><b class="badge" id="favBadge" hidden></b></button>
 </nav>
+<dialog id="dishDlg" aria-labelledby="dishJp">
+  <div class="dlg dishbox">
+    <div class="dish-jp" id="dishJp" lang="ja"></div>
+    <div class="dish-ask" lang="ja">これをください。</div>
+    <div class="muted">Kore o kudasai · ขออันนี้ครับ/ค่ะ</div>
+    <div class="muted" id="dishTh"></div>
+    <button class="btn primary" id="dishClose" type="button">ปิด</button>
+  </div>
+</dialog>
 <dialog id="nav" class="full" aria-labelledby="navName">
   <div class="nav-body">
     <div class="nav-top">
@@ -806,6 +831,88 @@ CITIES.forEach(([g,pts])=>{if(g==="สนามบิน")return;if(BIG.includes
 PLACES.forEach(x=>{let best=null,bd=1e9;for(const[g,pts]of CITIES){if(g==="สนามบิน")continue;for(const[n,a,b]of pts){const d=Math.hypot(x.la-a,(x.lo-b)*Math.cos(a*Math.PI/180));if(d<bd){bd=d;best=BIG.includes(g)?g:n;}}}x.city=best;
   x.s=(x.n+" "+x.j+" "+x.a+" "+x.d+" "+x.tip+" "+best).toLowerCase();});
 
+
+/* ---------- ทำไมแนะนำ + เมนูเด็ด (คีย์ = ชื่อญี่ปุ่นของร้าน)
+   w: award = ติดรางวัล Tabelog 百名店 (ตรวจกับ award.tabelog.com พ.ย. 2026)
+      legend = ร้านเก่าแก่/ต้นตำรับ  popular = ร้านดัง/เชนยอดนิยม สะดวก ไม่ใช่ร้านรางวัล  area = ย่าน/ตลาด เดินเลือกเอง
+   m: [ชื่อเมนูไทย, ชื่อญี่ปุ่นไว้ชี้สั่ง] ---------- */
+const FOODINFO={
+"一蘭 渋谷店":{w:"popular",why:"เชนราเมงที่นักท่องเที่ยวรู้จักมากที่สุด เปิดดึก รสชาติคงที่ทุกสาขา",m:[["ราเมงทงคตสึ (ปรับความเข้ม/เผ็ดเองในกระดาษ)","天然とんこつラーメン"],["เพิ่มเส้น","替玉"]]},
+"AFURI 恵比寿":{w:"popular",why:"ต้นกำเนิดราเมงซุปเกลือยูซุ เป็นที่รู้จักทั้งในและต่างประเทศ",m:[["ราเมงเกลือยูซุ","柚子塩らーめん"],["สึเคเมงยูซุ","柚子露つけ麺"]]},
+"風雲児":{w:"award",why:"ติด Tabelog ราเมง TOKYO 百名店 2025",m:[["สึเคเมงพิเศษ (ไข่ + ชาชู)","得製つけ麺"],["สึเคเมงธรรมดา","つけ麺"]]},
+"銀座 篝":{w:"popular",why:"ร้านดังของกินซ่า คิวยาวทุกวัน ต้นตำรับราเมงซุปไก่ขาวข้นสายครีม",m:[["ราเมงซุปไก่ขาวข้น","鶏白湯SOBA"],["สึเคเมงซุปไก่","鶏白湯つけSOBA"]]},
+"六厘舎 東京ラーメンストリート":{w:"award",why:"ติด Tabelog ราเมง TOKYO 百名店 2025",m:[["สึเคเมงพิเศษ","特製つけめん"],["สึเคเมงรอบเช้า (ก่อน 10 โมง)","朝つけめん"]]},
+"寿司大 豊洲市場":{w:"popular",why:"ร้านซูชิในตลาดปลาที่คิวยาวที่สุดร้านหนึ่ง ปลาสดจากตลาดตรงๆ",m:[["ชุดโอมากาเสะ (เชฟเลือกให้)","おまかせセット"]]},
+"すしざんまい 本店":{w:"popular",why:"เชนซูชิราคาสมเหตุผล สาขาแรกที่สึกิจิ เปิด 24 ชม.",m:[["ซูชิทูน่าคุณภาพดี (โอโทโระ)","本まぐろ大とろ"],["ชุดรวมทูน่า","まぐろ三昧"]]},
+"魚べい 渋谷道玄坂店":{w:"popular",why:"ซูชิสายพานราคาประหยัด สั่งผ่านจอภาษาอังกฤษ ส่งตรงถึงโต๊ะ",m:[["แซลมอนย่างไฟ","炙りサーモン"],["ทูน่า","まぐろ"]]},
+"築地場外市場":{w:"area",why:"ตลาดเก่าแก่ เดินเลือกร้านเอง ร้านคิวยาวมักดีกว่า",m:[["ไข่หวานย่าง","玉子焼き"],["ข้าวหน้าซีฟู้ด","海鮮丼"],["หอยเชลล์ย่าง","ホタテ焼き"]]},
+"アメ横商店街":{w:"area",why:"ตลาดเก่าใต้ทางรถไฟ ราคาย่อมเยา เดินเลือกเอง",m:[["ผลไม้เสียบไม้","フルーツ串"],["ข้าวหน้าซีฟู้ด","海鮮丼"],["ไก่ย่างยืนกิน","焼き鳥"]]},
+"とんかつ まい泉 青山本店":{w:"legend",why:"ร้านทงคัตสึชื่อดังตั้งแต่ปี 1965 อยู่ในอาคารโรงอาบน้ำเก่า",m:[["ทงคัตสึหมูดำคุโรบุตะ","黒豚ロースかつ"],["แซนด์วิชทงคัตสึ (ซื้อกลับ)","ヒレかつサンド"]]},
+"つな八 新宿本店":{w:"legend",why:"ร้านเทมปุระเก่าแก่ตั้งแต่ปี 1924 ราคาไม่แรง",m:[["ชุดเทมปุระ","天ぷら定食"],["ข้าวหน้าเทมปุระ","天丼"]]},
+"牛かつ もと村 渋谷店":{w:"popular",why:"ร้านเนื้อชุบทอดที่ทำให้เมนูนี้ดังในหมู่นักท่องเที่ยว",m:[["ชุดเนื้อชุบทอด ย่างต่อบนหินร้อน","牛かつ麦めしセット"]]},
+"浅草今半 本店":{w:"award",why:"สาขาหลัก (国際通り本店) ติด Tabelog สุกี้ยากี้/ชาบู 百名店 2026 เปิดมาตั้งแต่ยุคเมจิ",m:[["สุกี้ยากี้เนื้อวากิว","すき焼"],["ชุดกลางวัน (คุ้มสุด)","昼膳"]]},
+"焼肉チャンピオン 恵比寿本店":{w:"popular",why:"ร้านยากินิกุวากิวที่คนท้องถิ่นและนักท่องเที่ยวรู้จักดี เลือกส่วนเนื้อได้ละเอียด",m:[["ลิ้นวัวโรยเกลือ","タン塩"],["คัลบิวากิว","和牛カルビ"]]},
+"月島もんじゃストリート":{w:"area",why:"ถนนต้นกำเนิดมนจะ มีร้านเรียงกันหลายสิบร้าน",m:[["มนจะไข่ปลาโมจิชีส","明太もちチーズもんじゃ"]]},
+"思い出横丁":{w:"area",why:"ซอยอาหารเก่าตั้งแต่หลังสงคราม เดินเลือกร้านเอง",m:[["ไก่ย่างเสียบไม้","焼き鳥"],["เครื่องในย่าง","もつ焼き"]]},
+"新宿ゴールデン街":{w:"area",why:"ย่านบาร์เล็กดั้งเดิม เหมาะไปดื่มดูบรรยากาศ",m:[["ไฮบอล","ハイボール"]]},
+"権八 西麻布":{w:"popular",why:"ร้านที่เป็นแรงบันดาลใจฉากในหนัง Kill Bill บรรยากาศดี เหมาะมาเป็นกลุ่ม",m:[["ไก่ย่างเสียบไม้","焼き鳥"],["โซบะทำมือ","手打ち蕎麦"]]},
+"竹下通り クレープ":{w:"area",why:"ถนนต้นตำรับเครปฮาราจุกุ มีหลายร้านให้เลือก",m:[["เครปสตรอว์เบอร์รีคัสตาร์ด","いちごカスタードクレープ"]]},
+"浅草花月堂 本店":{w:"popular",why:"ร้านเมลอนปังดังของอาซากุสะ อบใหม่ตลอดวัน",m:[["เมลอนปังจัมโบ้","ジャンボめろんぱん"]]},
+"横浜中華街":{w:"area",why:"ไชน่าทาวน์ใหญ่ที่สุดในญี่ปุ่น เดินเลือกร้านเอง",m:[["เสี่ยวหลงเปาทอด","焼き小籠包"],["ซาลาเปาหมู","肉まん"]]},
+"ほうとう不動 東恋路店":{w:"popular",why:"ร้านโฮโตะที่ขึ้นชื่อของคาวากุจิโกะ อาคารรูปเมฆเป็นจุดสังเกต",m:[["โฮโตะในหม้อเหล็ก","不動ほうとう"]]},
+"錦市場":{w:"area",why:"ตลาดอายุหลายร้อยปี 'ครัวของเกียวโต' เดินชิมได้ทั้งแถว",m:[["ไข่ม้วนน้ำซุปดาชิ","だし巻き玉子"],["ปลาหมึกยัดไข่นกกระทา","たこたまご"],["โดนัทนมถั่วเหลือง","豆乳ドーナツ"]]},
+"本家 第一旭 たかばし本店":{w:"award",why:"ติด Tabelog ราเมง WEST 百名店 2025",m:[["ราเมงพิเศษ (ชาชูเยอะ)","特製ラーメン"],["ราเมงธรรมดา","ラーメン"]]},
+"麺屋 五行":{w:"popular",why:"ร้านของเครือ Ippudo ดังเรื่องมิโซะไหม้ซุปสีดำ",m:[["ราเมงมิโซะไหม้","焦がし味噌麺"]]},
+"おめん 銀閣寺本店":{w:"popular",why:"ร้านอุด้งดังใกล้วัดกินคะคุจิ เสิร์ฟพร้อมผักสดหลายชนิด",m:[["อุด้งจุ่มน้ำซุปร้อน","おめん"]]},
+"南禅寺 奥丹":{w:"legend",why:"ร้านเต้าหู้ต้มเก่าแก่หลายร้อยปีของเกียวโต",m:[["ชุดเต้าหู้ต้ม","ゆどうふ一とおり"]]},
+"いづ重":{w:"legend",why:"ร้านซูชิเก่าแก่หน้าศาลเจ้ายาซากะ ขายมากว่า 100 ปี",m:[["ซาบะซูชิ","鯖姿寿司"],["อินาริซูชิ","いなり寿司"]]},
+"肉専科 はふう 本店":{w:"popular",why:"ร้านเนื้อชื่อดังของเกียวโต ควรจองล่วงหน้า",m:[["สเต๊กวากิว","ステーキ"],["แซนด์วิชเนื้อชุบทอด","ビフカツサンド"]]},
+"名代とんかつ かつくら 三条本店":{w:"popular",why:"เชนทงคัตสึต้นกำเนิดจากเกียวโต ข้าว กะหล่ำ ซุป เติมได้ไม่อั้น",m:[["ชุดทงคัตสึสันหมู","名代とんかつ膳"]]},
+"祇園辻利 本店":{w:"legend",why:"ร้านชาเก่าแก่ของกิออน ก่อตั้งตั้งแต่ยุคเอโดะ",m:[["พาร์เฟต์มัทฉะ","特選都路里パフェ"],["ซอฟต์ครีมมัทฉะ","抹茶ソフトクリーム"]]},
+"% ARABICA 京都 東山":{w:"popular",why:"ร้านกาแฟดังที่ทำให้แบรนด์โด่งดังทั่วโลก คิวยาวตอนสาย",m:[["คาเฟ่ลาเต้","カフェラテ"]]},
+"先斗町":{w:"area",why:"ซอยเก่าริมแม่น้ำ มีทั้งร้านแพงและร้านทั่วไป ดูเมนูหน้าร้านก่อนเข้า",m:[["อาหารเกียวโตแบบกับข้าว","おばんざい"],["ที่นั่งริมแม่น้ำ (ฤดูร้อน)","川床"]]},
+"中谷堂":{w:"award",why:"ติด Tabelog ขนมญี่ปุ่น WEST 百名店 2026",m:[["โมจิโยโมงิไส้ถั่วแดง","よもぎ餅"]]},
+"道頓堀":{w:"area",why:"ถนนอาหารที่คนโอซาก้าภูมิใจ เดินเลือกร้านเอง",m:[["ทาโกะยากิ","たこ焼き"],["โอโคโนมิยากิ","お好み焼き"],["คุชิคัตสึ","串カツ"]]},
+"黒門市場":{w:"area",why:"ตลาดสดเก่าแก่ ราคาแรงกว่าทั่วไป ดูป้ายราคาก่อนซื้อ",m:[["หอยเม่นสด","生うに"],["หอยนางรมย่าง","焼き牡蠣"],["วากิวเสียบไม้","和牛串"]]},
+"たこ焼道楽 わなか 千日前本店":{w:"popular",why:"ร้านทาโกะยากิดังที่คนโอซาก้าเองก็ต่อคิว",m:[["ทาโกะยากิ 8 ลูก","たこ焼き"]]},
+"美津の":{w:"award",why:"ติด Tabelog โอโคโนมิยากิ 百名店 2025 เปิดตั้งแต่ปี 1945",m:[["มิสึโนะยากิ (ใส่ทุกอย่าง)","美津の焼"],["ยามะอิโมะยากิ (เมนูขึ้นชื่อ)","山芋焼"]]},
+"串カツだるま 新世界総本店":{w:"legend",why:"ต้นตำรับคุชิคัตสึชินเซไค เปิดตั้งแต่ปี 1929",m:[["คุชิคัตสึต้นตำรับ (เนื้อ)","元祖串かつ"],["ชุดรวม","新世界セット"]]},
+"金龍ラーメン 道頓堀店":{w:"popular",why:"ร้านป้ายมังกรที่ทุกคนจำได้ ราคาถูก เปิด 24 ชม.",m:[["ราเมง + กิมจิกระเทียมเติมฟรี","ラーメン"]]},
+"ゑんどう寿司 京橋店":{w:"legend",why:"ร้านซูชิในตลาดกลางโอซาก้าที่คนตลาดกินมานาน",m:[["ชุดซูชิ 5 คำ","おまかせ"]]},
+"春駒 本店":{w:"popular",why:"ร้านซูชิราคาคุ้มที่คนท้องถิ่นต่อคิวในถนนเท็นจินบาชิ",m:[["ทูน่ากลางมัน","中トロ"],["ปลาไหล","うなぎ"]]},
+"松阪牛焼肉M 法善寺横丁店":{w:"popular",why:"ร้านยากินิกุเนื้อมัตสึซากะที่นักท่องเที่ยวรู้จักดี",m:[["เนื้อมัตสึซากะรวม","松阪牛 特選盛り"],["ซูกิยากินิกุเนื้อชิ้นบาง","焼きすき"]]},
+"りくろーおじさんの店 なんば本店":{w:"popular",why:"ชีสเค้กอบใหม่ขึ้นชื่อของโอซาก้า ซื้อเป็นของฝากได้",m:[["ชีสเค้กอบใหม่","焼きたてチーズケーキ"]]},
+"裏なんば":{w:"area",why:"ซอยร้านเล็กของคนทำงาน เดินดูบรรยากาศแล้วเลือกเอง",m:[["ดื่มแบบยืน + ของทานเล่น","立ち飲み"]]},
+"ステーキランド 神戸館":{w:"popular",why:"ร้านเนื้อโกเบที่นักท่องเที่ยวนิยม ราคาเข้าถึงได้กว่าร้านหรู",m:[["สเต๊กเนื้อโกเบชุดกลางวัน","神戸牛ステーキランチ"]]},
+"お好み村":{w:"area",why:"อาคารรวมร้านโอโคโนมิยากิฮิโรชิมะหลายร้าน เลือกชั้นไหนก็ได้",m:[["โอโคโนมิยากิฮิโรชิมะใส่เส้น","広島風お好み焼き そば入り"]]},
+"牡蠣屋":{w:"popular",why:"ร้านหอยนางรมดังบนถนนหลักของมิยาจิมะ",m:[["หอยนางรมย่าง","焼き牡蠣"],["หอยนางรมทอด","カキフライ"]]},
+"近江町市場":{w:"area",why:"ตลาดเก่าแก่ 'ครัวของคานาซาวะ' เดินเลือกร้านเอง",m:[["ข้าวหน้าซีฟู้ด","海鮮丼"],["ปลาโนโดกุโระ","のどぐろ"],["ปูหิมะตัวเมีย (ฤดูหนาว)","香箱ガニ"]]},
+"あつた蓬莱軒 本店":{w:"award",why:"ติด Tabelog ปลาไหล 百名店 2026 ต้นตำรับฮิตสึมาบุชิตั้งแต่ปี 1873",m:[["ข้าวหน้าปลาไหลกิน 3 แบบ","ひつまぶし"]]},
+"矢場とん 矢場町本店":{w:"legend",why:"ร้านมิโซะคัตสึเก่าแก่ประจำนาโกย่า เปิดตั้งแต่ปี 1947",m:[["ทงคัตสึราดซอสมิโซะ","みそかつ"],["ทงคัตสึแผ่นใหญ่","わらじとんかつ"]]},
+"二条市場":{w:"area",why:"ตลาดซีฟู้ดเก่าแก่ของซัปโปโร เดินเลือกร้านเอง",m:[["ข้าวหน้าไข่ปลาแซลมอน + หอยเม่น","いくらうに丼"]]},
+"元祖さっぽろラーメン横丁":{w:"area",why:"ซอยราเมงดั้งเดิมของซัปโปโร มีหลายร้านให้เลือก",m:[["ราเมงมิโซะ","味噌ラーメン"]]},
+"すみれ 札幌本店":{w:"award",why:"สาขานากาโนะชิมะ (本店) ติด Tabelog ราเมง HOKKAIDO 百名店 2025",m:[["ราเมงมิโซะ","味噌ラーメン"]]},
+"成吉思汗だるま 本店":{w:"legend",why:"ร้านเจงกิสข่าน (เนื้อแกะย่าง) เก่าแก่ของซุซุกิโนะ เปิดตั้งแต่ปี 1954",m:[["เนื้อแกะย่างกระทะโดม","ジンギスカン"]]},
+"小樽洋菓子舗ルタオ 本店":{w:"popular",why:"แบรนด์ขนมดังของโอตารุ ชีสเค้กเป็นของฝากยอดนิยม",m:[["ชีสเค้ก 2 ชั้น","ドゥーブルフロマージュ"]]},
+"函館朝市":{w:"area",why:"ตลาดเช้าใหญ่หน้าสถานีฮาโกดาเตะ",m:[["ปลาหมึกสดหั่นซาชิมิ","活いか刺し"],["ข้าวหน้าซีฟู้ด","海鮮丼"]]},
+"中洲屋台":{w:"area",why:"แผงลอยริมแม่น้ำเอกลักษณ์ของฟุกุโอกะ ดูป้ายราคาก่อนนั่ง",m:[["ราเมงทงคตสึ","とんこつラーメン"],["ราเมงผัด","焼きラーメン"],["โอเด้ง","おでん"]]},
+"一蘭 本社総本店":{w:"legend",why:"สาขาแรกของอิจิรันที่บ้านเกิดฟุกุโอกะ",m:[["ราเมงทงคตสึ","天然とんこつラーメン"],["เพิ่มเส้น","替玉"]]},
+"博多らーめん ShinShin 天神本店":{w:"popular",why:"ร้านราเมงฮากาตะที่คนท้องถิ่นนิยม",m:[["ราเมงฮากาตะ","博多らーめん"],["ข้าวผัด","炒飯"]]},
+"もつ鍋 楽天地":{w:"popular",why:"ร้านหม้อไฟเครื่องในชื่อดังของฮากาตะ",m:[["หม้อไฟเครื่องในวัว","もつ鍋"],["ปิดท้ายด้วยเส้นชัมปง","ちゃんぽん麺"]]},
+"第一牧志公設市場":{w:"area",why:"ตลาดสาธารณะของนาฮะ ซื้อของสดชั้นล่างให้ร้านชั้นบนปรุง",m:[["ปลาท้องถิ่นทอด","グルクンの唐揚げ"],["หอยยาโคไก","夜光貝"]]},
+"首里そば":{w:"popular",why:"ร้านโอกินาว่าโซบะเล็กๆ ที่คนท้องถิ่นแนะนำ",m:[["โอกินาว่าโซบะ","首里そば"]]}
+};
+const TRUST={award:["🏆","ติดรางวัล Tabelog 百名店","#B26A00"],legend:["📜","ร้านเก่าแก่ / ต้นตำรับ","#6A4FA3"],popular:["👍","ร้านดัง / เชนยอดนิยม","#1F6FA8"],area:["🧭","ย่านอาหาร เดินเลือกเอง","#2E7D4F"]};
+PLACES.forEach(x=>{const fi=FOODINFO[x.j];if(fi){x.fi=fi;x.s=(x.s||"")+" "+fi.m.map(m=>m[0]+" "+m[1]).join(" ")+" "+(fi.w==="award"?"รางวัล 百名店 award":"");}});
+function trustRank(x){return x.fi?{award:0,legend:1,popular:2,area:3}[x.fi.w]:4;}
+function foodInfoHTML(x){
+  const fi=x.fi;if(!fi)return "";
+  const t=TRUST[fi.w];
+  return '<div class="trust" style="--tc:'+t[2]+'"><span class="tbadge">'+t[0]+' '+t[1]+'</span><span class="twhy">'+esc(fi.why)+'</span></div>'+
+    '<div class="menu"><span class="mh">🍽️ เมนูเด็ด</span>'+fi.m.map(m=>'<button type="button" class="dish" data-dish="'+esc(m[1])+'"><b>'+esc(m[0])+'</b><span lang="ja">'+esc(m[1])+'</span></button>').join("")+'</div>';
+}
+function tabelogUrl(x){return "https://tabelog.com/rstLst/?sw="+encodeURIComponent(x.j.replace(/\s*\(.*\)$/,""));}
+
 /* ---------- helpers ---------- */
 const $ = s=>document.querySelector(s);
 const store = {
@@ -827,7 +934,7 @@ const inJapan=(la,lo)=>la>24&&la<46&&lo>122&&lo<146;
 
 /* ---------- state ---------- */
 const S = {
-  tab:"f", cats:new Set(), radius:store.get("radius",10), shown:20,
+  tab:"f", cats:new Set(), trust:"", radius:store.get("radius",10), shown:20,
   q:"", city:"all", price:0, sort:"near", selMode:false, sel:new Set(),
   pos:store.get("pos",null), // {la,lo,src,label,ts,acc}
   fav:new Set(store.get("fav",[]))
@@ -930,8 +1037,9 @@ function filtered(){
   if(S.price)arr=arr.filter(x=>x.t!=="f"||!x.p||x.p.length<=S.price);
   if(S.tab!=="fav"&&S.tab!=="m"&&!q&&S.city==="all")arr=arr.filter(x=>x.k<=S.radius);
   const base=arr.slice();
+  if(S.trust)arr=arr.filter(x=>x.fi&&x.fi.w===S.trust);
   if(S.cats.size)arr=arr.filter(x=>S.cats.has(x.c));
-  const by={near:(a,b)=>a.k-b.k,cheap:(a,b)=>(PRICE_ORDER[a.p||""]-PRICE_ORDER[b.p||""])||a.k-b.k,name:(a,b)=>a.n.localeCompare(b.n,"th")};
+  const by={near:(a,b)=>a.k-b.k,trust:(a,b)=>(trustRank(a)-trustRank(b))||a.k-b.k,cheap:(a,b)=>(PRICE_ORDER[a.p||""]-PRICE_ORDER[b.p||""])||a.k-b.k,name:(a,b)=>a.n.localeCompare(b.n,"th")};
   arr.sort(by[S.sort]||by.near);
   return {arr,base};
 }
@@ -942,6 +1050,11 @@ function renderChips(base){
   for(const[k,l]of catsFor(S.tab)){
     if(S.tab==="fav"&&!cnt[k])continue;
     h+='<button class="chip" aria-pressed="'+S.cats.has(k)+'" data-cat="'+k+'">'+(S.cats.has(k)?"✓ ":"")+l+'<span class="n">'+(cnt[k]||0)+'</span></button>';
+  }
+  if(S.tab==="f"){
+    h+='<span class="chipsep" aria-hidden="true"></span>';
+    for(const k of ["award","legend"]){const t=TRUST[k];const n=base.filter(x=>x.fi&&x.fi.w===k).length;
+      h+='<button class="chip trustchip" aria-pressed="'+(S.trust===k)+'" data-trust="'+k+'">'+t[0]+' '+(k==="award"?"ร้านรางวัล":"ร้านเก่าแก่")+'<span class="n">'+n+'</span></button>';}
   }
   el.innerHTML=h;
 }
@@ -988,14 +1101,15 @@ function card(x){
     '<div class="meta"><span class="tag" style="color:'+cat.c+'">'+cat.l+'</span><span class="area">'+esc(x.a)+'</span>'+(x.p?'<span class="price" title="ระดับราคา">'+x.p+'</span>':'')+'</div>'+
     '<div class="c-desc">'+esc(x.d)+'</div>'+
     (x.tip?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+
-    (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+
+    (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+foodInfoHTML(x)+
     (x.t==="f"?'<div class="revlinks">เช็กรีวิวล่าสุด: <a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Google ↗</a> <a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Tabelog ↗</a></div>':'')+
     (S.selMode?'':routeMini(x)+
     (RT.open===x.id?'<div class="rt-inline" id="rt'+x.id+'">'+routeHTML(x)+'</div>':'')+
     '<div class="c-act"><button type="button" class="nav-go" data-nav="'+x.id+'">🧭 นำทาง</button>'+
     '<button type="button" class="go" data-route="'+x.id+'" aria-expanded="'+(RT.open===x.id)+'">'+(RT.open===x.id?"▲ ซ่อน":"🚆 วิธีเดินทาง")+'</button>'+
     '<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button>'+
-    (x.hx?'<a class="extbtn" href="'+bookUrl(x)+'" target="_blank" rel="noopener">เช็กห้องว่างคืนนี้ ↗</a>':'')+'</div>')+'</article>';
+    (x.hx?'<a class="extbtn" href="'+bookUrl(x)+'" target="_blank" rel="noopener">เช็กห้องว่างคืนนี้ ↗</a>':'')+
+'</div>')+'</article>';
 }
 function render(){
   renderLoc();
@@ -1008,11 +1122,11 @@ function render(){
   renderTabBox();
   const {arr,base}=filtered();
   renderChips(base);
-  $("#fsum").textContent=[S.q?"ค้นทั่วญี่ปุ่น":S.city!=="all"?S.city:(S.radius>=99999?"ทั่วญี่ปุ่น":fmtKm(S.radius)),S.price?"ราคา ≤ "+"¥".repeat(S.price):"",{near:"ใกล้สุด",cheap:"ถูกสุด",name:"ชื่อ ก-ฮ"}[S.sort]].filter(Boolean).join(" · ");
+  $("#fsum").textContent=[S.q?"ค้นทั่วญี่ปุ่น":S.city!=="all"?S.city:(S.radius>=99999?"ทั่วญี่ปุ่น":fmtKm(S.radius)),S.price?"ราคา ≤ "+"¥".repeat(S.price):"",{near:"ใกล้สุด",trust:"น่าเชื่อถือก่อน",cheap:"ถูกสุด",name:"ชื่อ ก-ฮ"}[S.sort]].filter(Boolean).join(" · ");
   const list=$("#list");
   CUR=arr;
   $("#resInfo").textContent=arr.length+" รายการ · "+scopeText();
-  $("#resetF").hidden=!(S.q||S.cats.size||S.city!=="all"||S.price||S.sort!=="near");
+  $("#resetF").hidden=!(S.q||S.cats.size||S.trust||S.city!=="all"||S.price||S.sort!=="near");
   $("#price").disabled=S.tab!=="f"&&S.tab!=="fav";
   renderSelBar();
   if(!arr.length){
@@ -1025,7 +1139,7 @@ function render(){
 }
 
 /* ---------- events ---------- */
-function goTab(t){S.tab=t;S.cats.clear();S.shown=20;RT.open=null;render();window.scrollTo({top:0});}
+function goTab(t){S.tab=t;S.cats.clear();S.trust="";S.shown=20;RT.open=null;render();window.scrollTo({top:0});}
 document.querySelectorAll(".bnav button").forEach(b=>b.addEventListener("click",()=>goTab(b.dataset.tab)));
 $("#moreView").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goTab(g.dataset.go);});
 $("#sosBtn").addEventListener("click",()=>{goTab("more");setTimeout(()=>$("#sos").scrollIntoView({behavior:"smooth",block:"start"}),50);});
@@ -1041,9 +1155,19 @@ function renderTabBox(){
   }else if(S.tab==="m"){
     b.innerHTML='<div class="tbox"><h3>🚑 ฉุกเฉินโทร 119 (รถพยาบาล ฟรี)</h3><div class="row2"><a class="primary" href="tel:119">📞 119 รถพยาบาล</a><a href="tel:110">📞 110 ตำรวจ</a><a href="tel:05038162787">📞 050-3816-2787 สายด่วนนักท่องเที่ยว</a><button type="button" data-go="sos">เบอร์สถานทูตไทย</button></div>'+
       '<p>โรงพยาบาลด้านล่างเรียงจากใกล้คุณ (เลือกจากรายชื่อที่หน่วยงานรัฐ/สถานทูตระบุว่ารับชาวต่างชาติ) ควรโทรถามก่อนไปถ้าไม่ใช่เหตุฉุกเฉิน พกพาสปอร์ตและบัตรประกันเดินทาง</p></div>';
+  }else if(S.tab==="f"){
+    b.innerHTML='<details class="tbox guide-trust"><summary>ร้านในไกด์คัดมาอย่างไร (ดูป้ายบนการ์ด)</summary>'+
+      '<ul><li><b>🏆 ร้านรางวัล</b> ติด Tabelog 百名店 (100 ร้านเด่นประจำหมวดของเว็บรีวิวที่คนญี่ปุ่นใช้มากที่สุด) ตรวจรายชื่อจาก award.tabelog.com เมื่อ พ.ย. 2026</li>'+
+      '<li><b>📜 ร้านเก่าแก่ / ต้นตำรับ</b> เปิดมานานหลายสิบถึงร้อยปี หรือเป็นต้นกำเนิดเมนูนั้น</li>'+
+      '<li><b>👍 ร้านดัง / เชนยอดนิยม</b> รู้จักกว้าง รสชาติคงที่ หาง่าย แต่<b>ไม่ใช่ร้านรางวัล</b> เหมาะเมื่ออยากได้ของชัวร์ใกล้ตัว</li>'+
+      '<li><b>🧭 ย่านอาหาร</b> ตลาดหรือซอยที่มีหลายร้าน เดินเลือกเอง ร้านที่คนญี่ปุ่นต่อคิวมักดี</li>'+
+      '<li>อยากเห็นคะแนนสด กดลิงก์ <b>Tabelog ↗</b> หรือ <b>Google ↗</b> ที่การ์ด (ต้องใช้เน็ต) คะแนน 3.5 ขึ้นไปถือว่าดีมากในญี่ปุ่น</li>'+
+      '<li>แตะชื่อ <b>เมนูเด็ด</b> เพื่อขึ้นชื่อญี่ปุ่นตัวใหญ่ ยื่นให้พนักงานดูตอนสั่งได้</li></ul></details>';
   }else b.innerHTML="";
 }
-$("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;const k=c.dataset.cat;
+$("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;
+  if(c.dataset.trust){S.trust=S.trust===c.dataset.trust?"":c.dataset.trust;S.shown=20;render();return;}
+  const k=c.dataset.cat;
   if(k==="all")S.cats.clear();else S.cats.has(k)?S.cats.delete(k):S.cats.add(k);S.shown=20;render();});
 let qT;
 $("#q").addEventListener("paste",()=>setTimeout(()=>{const v=$("#q").value;
@@ -1062,7 +1186,7 @@ $("#qClear").addEventListener("click",()=>{$("#q").value="";$("#qClear").hidden=
 $("#city").addEventListener("change",e=>{S.city=e.target.value;S.shown=20;render();});
 $("#price").addEventListener("change",e=>{S.price=+e.target.value;S.shown=20;render();});
 $("#sort").addEventListener("change",e=>{S.sort=e.target.value;render();});
-$("#resetF").addEventListener("click",()=>{S.q="";S.cats.clear();S.city="all";S.price=0;S.sort="near";
+$("#resetF").addEventListener("click",()=>{S.q="";S.cats.clear();S.trust="";S.city="all";S.price=0;S.sort="near";
   $("#q").value="";$("#qClear").hidden=true;$("#city").value="all";$("#price").value="0";$("#sort").value="near";S.shown=20;render();});
 
 /* multi-select */
@@ -1104,6 +1228,7 @@ $("#list").addEventListener("click",async e=>{
   const f=e.target.closest("[data-fav]");
   if(f){const id=+f.dataset.fav;S.fav.has(id)?S.fav.delete(id):S.fav.add(id);saveFav();render();return;}
   const nv=e.target.closest("[data-nav]");if(nv){openNav(+nv.dataset.nav);return;}
+  const ds=e.target.closest("[data-dish]");if(ds){showDish(ds);return;}
   const tb=e.target.closest("[data-rt]");
   if(tb){const id=+tb.dataset.pid;RT.tab[id]=tb.dataset.rt;const x=CUR.find(c=>c.id===id)||PLACES[id];$("#rt"+id).innerHTML=routeHTML(x);return;}
   const rt=e.target.closest("[data-route]");
@@ -1866,6 +1991,12 @@ $("#navCompassBtn").addEventListener("click",()=>startCompass(true));
 $("#askCopy").addEventListener("click",async e=>{const b=e.target;try{await navigator.clipboard.writeText(NAV.x.j);b.textContent="คัดลอกแล้ว ✓";}catch(err){b.textContent="คัดลอกไม่ได้";}setTimeout(()=>b.textContent="คัดลอกชื่อญี่ปุ่น",1600);});
 $("#navRoute").addEventListener("click",e=>{const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;$("#navRoute").innerHTML=routeHTML({...NAV.x,k:dist(S.pos.la,S.pos.lo,NAV.x.la,NAV.x.lo)});});
 
+/* แตะเมนูเด็ด = ขึ้นชื่อญี่ปุ่นตัวใหญ่ให้พนักงานดู */
+function showDish(b){
+  const d=$("#dishDlg");$("#dishJp").textContent=b.dataset.dish;$("#dishTh").textContent=b.querySelector("b").textContent;
+  try{d.showModal()}catch(e){d.setAttribute("open","")}
+}
+$("#dishClose").addEventListener("click",()=>{const d=$("#dishDlg");if(d.close)d.close();else d.removeAttribute("open");});
 /* ติดตั้งให้ใช้ออฟไลน์ */
 if("serviceWorker" in navigator&&location.protocol==="https:"&&!IN_FRAME){
   addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));

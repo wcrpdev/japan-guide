@@ -1464,7 +1464,7 @@ function routeHTML(x){
   if(!cur||!cur.ok){h+='<div class="pres warn"><div class="t">วิธีนี้ไม่เหมาะกับเส้นทางนี้</div><div class="s">'+esc(cur?cur.note:"")+'</div></div>';}
   else{
     h+='<div class="rt-sum"><span class="big">'+fmtT(cur.t)+'</span><span>'+cur.icon+' '+esc(cur.name)+' · '+esc(cur.costTxt)+'</span></div>';
-    if(cur.rec)h+='<div class="rt-why">✓ '+esc(cur.why)+' · ไม่รวมแท็กซี่</div>';
+    if(cur.rec&&cur.why)h+='<div class="rt-why">✓ '+esc(cur.why)+'</div>';
     else if(cur.note)h+='<div class="rt-why muted">'+esc(cur.note)+'</div>';
     h+='<ol class="rt-steps">'+cur.steps.map(s=>'<li><span class="ic" aria-hidden="true">'+s.i+'</span><div><div class="h">'+esc(s.h)+'</div><div class="d">'+s.d+'</div></div></li>').join("")+'</ol>';
   }

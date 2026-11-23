@@ -1,5 +1,5 @@
 /* ไกด์ญี่ปุ่น: เก็บไว้ใช้ออฟไลน์ */
-const V="1795427677",CORE="core-"+V,RUN="run-"+V,TILE="tiles-"+V;
+const V="1795435159",CORE="core-"+V,RUN="run-"+V,TILE="tiles-"+V;
 const FILES=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./apple-touch-icon.png",
  "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js","https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CORE).then(c=>Promise.all(FILES.map(f=>c.add(f).catch(()=>{})))).then(()=>self.skipWaiting()));});

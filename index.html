@@ -202,6 +202,14 @@ body[data-view="list"] #mapView{display:none}
 #map{height:calc(100vh - 290px);min-height:320px;border-radius:14px;border:1px solid var(--line);background:var(--accent-soft)}
 .map-me{position:absolute;right:10px;bottom:10px;z-index:500;font-size:1.2rem;padding:6px 12px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 #mapCard:empty{display:none}
+.pin{width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c,#C2402B);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);display:grid;place-items:center}
+.pin>*{transform:rotate(45deg)}
+.pin{font-size:16px;line-height:1}
+.pin.dest{--c:#C2402B}
+.me-dot{width:22px;height:22px;border-radius:50%;background:#2563EB;border:3px solid #fff;box-shadow:0 0 0 2px rgba(37,99,235,.35),0 2px 6px rgba(0,0,0,.3);position:relative}
+.me-dot span{position:absolute;inset:-10px;border-radius:50%;background:rgba(37,99,235,.25);animation:pulse 2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.me-dot span{animation:none}}
 #mapView .radar-box{grid-template-columns:1fr;justify-items:center;text-align:center}
 #mapView .radar-box svg{width:min(100%,340px);height:auto}
 #mapCard .card{margin-top:2px}
@@ -606,8 +614,8 @@ const CITIES = [
 /* city label for each place: big three by group, others by nearest preset point */
 const BIG=["โตเกียว","เกียวโต","โอซาก้า"];
 const CITY_ORDER=[];
-CITIES.forEach(([g,pts])=>{if(BIG.includes(g))CITY_ORDER.push(g);else pts.forEach(([n])=>CITY_ORDER.push(n));});
-PLACES.forEach(x=>{let best=null,bd=1e9;for(const[g,pts]of CITIES)for(const[n,a,b]of pts){const d=Math.hypot(x.la-a,(x.lo-b)*Math.cos(a*Math.PI/180));if(d<bd){bd=d;best=BIG.includes(g)?g:n;}}x.city=best;
+CITIES.forEach(([g,pts])=>{if(g==="สนามบิน")return;if(BIG.includes(g))CITY_ORDER.push(g);else pts.forEach(([n])=>CITY_ORDER.push(n));});
+PLACES.forEach(x=>{let best=null,bd=1e9;for(const[g,pts]of CITIES){if(g==="สนามบิน")continue;for(const[n,a,b]of pts){const d=Math.hypot(x.la-a,(x.lo-b)*Math.cos(a*Math.PI/180));if(d<bd){bd=d;best=BIG.includes(g)?g:n;}}}x.city=best;
   x.s=(x.n+" "+x.j+" "+x.a+" "+x.d+" "+x.tip+" "+best).toLowerCase();});
 
 /* ---------- helpers ---------- */
@@ -1520,6 +1528,7 @@ function ensureLeaflet(){
   });
   return LEAF;
 }
+function meIcon(L){return L.divIcon({className:"",html:'<div class="me-dot"><span></span></div>',iconSize:[22,22],iconAnchor:[11,11]});}
 function mapPlaces(){
   const p=S.pos;
   return PLACES.filter(x=>(MF.fav?S.fav.has(x.id):true)&&(x.t==="f"?MF.f:MF.s)).map(x=>({...x,k:dist(p.la,p.lo,x.la,x.lo)})).sort((a,b)=>a.k-b.k);
@@ -1533,13 +1542,13 @@ function renderMap(){
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(MAP);
       LAYER=L.layerGroup().addTo(MAP);
       MEACC=L.circle([S.pos.la,S.pos.lo],{radius:S.pos.acc||40,color:"#1F6FA8",weight:1,fillOpacity:.12}).addTo(MAP);
-      ME=L.circleMarker([S.pos.la,S.pos.lo],{radius:8,color:"#fff",weight:3,fillColor:"#1F6FA8",fillOpacity:1}).addTo(MAP).bindTooltip("คุณอยู่ที่นี่");
+      ME=L.marker([S.pos.la,S.pos.lo],{icon:meIcon(L),zIndexOffset:1000}).addTo(MAP).bindTooltip("คุณอยู่ที่นี่");
     }
     ME.setLatLng([S.pos.la,S.pos.lo]);MEACC.setLatLng([S.pos.la,S.pos.lo]).setRadius(S.pos.acc||40);
     LAYER.clearLayers();
     mapPlaces().forEach(x=>{
-      L.circleMarker([x.la,x.lo],{radius:9,color:"#fff",weight:2,fillColor:CAT[x.c].c,fillOpacity:1})
-        .bindTooltip(CAT_ICON[x.c]+" "+x.n,{direction:"top"}).on("click",()=>showMapCard(x)).addTo(LAYER);
+      L.marker([x.la,x.lo],{icon:L.divIcon({className:"",html:'<div class="pin" style="--c:'+CAT[x.c].c+'"><span>'+CAT_ICON[x.c]+'</span></div>',iconSize:[34,34],iconAnchor:[17,34]})})
+        .bindTooltip(x.n,{direction:"top",offset:[0,-30]}).on("click",()=>showMapCard(x)).addTo(LAYER);
     });
     setTimeout(()=>MAP.invalidateSize(),60);
   }).catch(()=>{
@@ -1622,8 +1631,8 @@ function openNav(id){
     if(!NAV.map){NAV.map=L.map("navMap",{zoomControl:false,attributionControl:true});
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(NAV.map);
       NAV.line=L.polyline([],{color:"#C2402B",weight:4,dashArray:"6 8"}).addTo(NAV.map);
-      NAV.me=L.circleMarker([0,0],{radius:8,color:"#fff",weight:3,fillColor:"#1F6FA8",fillOpacity:1}).addTo(NAV.map);
-      NAV.dest=L.circleMarker([0,0],{radius:10,color:"#fff",weight:3,fillColor:"#C2402B",fillOpacity:1}).addTo(NAV.map);}
+      NAV.me=L.marker([0,0],{icon:meIcon(L),zIndexOffset:1000}).addTo(NAV.map);
+      NAV.dest=L.marker([0,0],{icon:L.divIcon({className:"",html:'<div class="pin dest"><span>🏁</span></div>',iconSize:[34,34],iconAnchor:[17,34]})}).addTo(NAV.map);}
     NAV.dest.setLatLng([x.la,x.lo]);updateNav();
     setTimeout(()=>{NAV.map.invalidateSize();NAV.map.fitBounds([[S.pos.la,S.pos.lo],[x.la,x.lo]],{padding:[30,30],maxZoom:17});},80);
   }).catch(()=>{nm.hidden=true;});

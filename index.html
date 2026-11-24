@@ -115,6 +115,10 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:10px
 .c-desc{font-size:.92rem}
 .c-tip{font-size:.84rem;color:var(--muted);border-left:3px solid var(--torii);padding-left:8px}
 .c-act{display:flex;gap:8px;margin-top:2px;flex-wrap:wrap}
+.sh-apps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.sh-apps a,.sh-apps button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;font-weight:700;font-size:.8rem;white-space:nowrap;padding:0 4px;text-decoration:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.sh-apps .sh-line{background:#06C755;border-color:#06C755;color:#fff}.sh-apps .sh-msg{background:#0866FF;border-color:#0866FF;color:#fff}.sh-apps .sh-wa{background:#25D366;border-color:#25D366;color:#fff}
+#shText{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit;font-size:.85rem;background:var(--bg);color:var(--ink);resize:vertical}
 .c-act a,.c-act button{font-size:.84rem;text-decoration:none;border:1px solid var(--line);background:transparent;border-radius:9px;padding:5px 10px;color:var(--ink)}
 .c-act a.go{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
 .c-act button[aria-pressed="true"]{color:var(--torii);border-color:var(--torii)}
@@ -546,7 +550,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   <div class="bar">
     <span id="resInfo"></span>
     <span style="display:flex;gap:10px;align-items:center"><button type="button" class="linkbtn" id="resetF" hidden>ล้างตัวกรอง</button>
-    <button type="button" class="btn" id="selToggle" aria-pressed="false">☑ เลือกหลายรายการ</button></span>
+    <button type="button" class="btn" id="shareList" title="แชร์รายการที่กรองอยู่">📤 แชร์รายการ</button><button type="button" class="btn" id="selToggle" aria-pressed="false">☑ เลือกหลายรายการ</button></span>
   </div>
   <div id="tabBox"></div>
   <div class="list" id="list"></div>
@@ -556,7 +560,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     <div class="acts">
       <button type="button" class="btn primary" id="selSave">★ บันทึก</button>
       <button type="button" class="btn" id="selRemove">เอาออก</button>
-      <button type="button" class="btn" id="selCopy">คัดลอกรายการ</button>
+      <button type="button" class="btn" id="selCopy">📤 แชร์</button>
     </div>
   </div>
   </div>
@@ -705,6 +709,19 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   </div>
 </dialog>
 
+<dialog id="shareDlg" aria-labelledby="shT">
+  <div class="set-sec"><h3 id="shT">📤 แชร์</h3>
+    <div class="sh-apps">
+      <a id="shLine" target="_blank" rel="noopener" class="sh-line">LINE</a>
+      <a id="shMsg" target="_blank" rel="noopener" class="sh-msg">Messenger</a>
+      <a id="shWa" target="_blank" rel="noopener" class="sh-wa">WhatsApp</a>
+      <button type="button" id="shCopy">📋 คัดลอก</button>
+    </div>
+    <textarea id="shText" rows="8" readonly aria-label="ข้อความที่จะแชร์"></textarea>
+    <p class="rt-foot" id="shNote">กดแอปที่ต้องการ หรือคัดลอกข้อความไปวางเองได้</p>
+  </div>
+  <div class="set-sec"><button class="btn primary" id="shClose" type="button">ปิด</button></div>
+</dialog>
 <dialog id="uiDlg" aria-labelledby="uiT">
   <div class="set-sec"><h3 id="uiT">🎨 ธีมสี</h3>
     <div class="set-row" id="themeRow">
@@ -1642,6 +1659,7 @@ function card(x){
     '<div class="c-act"><button type="button" class="nav-go" data-nav="'+x.id+'">🧭 นำทาง</button>'+
     '<button type="button" class="go" data-route="'+x.id+'" aria-expanded="'+(RT.open===x.id)+'">'+(RT.open===x.id?"▲ ซ่อน":"🚆 วิธีเดินทาง")+'</button>'+
     (x.live?'':'<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button>')+
+    '<button type="button" data-share="'+x.id+'" aria-label="แชร์ '+esc(x.n)+'">📤 แชร์</button>'+
     (x.hx?'<a class="extbtn" href="'+bookUrl(x)+'" target="_blank" rel="noopener">เช็กห้องว่างคืนนี้ ↗</a>':'')+
 '</div>')+'</article>';
 }
@@ -2008,12 +2026,55 @@ $("#selSave").addEventListener("click",()=>{let a=0;S.sel.forEach(id=>{if(id<BAS
   toast(a?"บันทึกเพิ่ม "+a+" ที่ (รวม "+S.fav.size+")":"รายการที่เลือกบันทึกไว้แล้วทั้งหมด");S.sel.clear();render();});
 $("#selRemove").addEventListener("click",()=>{let r=0;S.sel.forEach(id=>{if(S.fav.delete(id))r++;});saveFav();
   toast(r?"เอาออกจากที่บันทึก "+r+" ที่":"รายการที่เลือกยังไม่ได้บันทึก");S.sel.clear();render();});
-$("#selCopy").addEventListener("click",async()=>{
-  const items=PLACES.filter(x=>S.sel.has(x.id));
-  const txt=items.map((x,i)=>(i+1)+". "+x.n+" ("+x.j+") · "+CAT[x.c].l+" · "+x.a+"\n   https://www.google.com/maps/search/?api=1&query="+x.la+","+x.lo).join("\n");
-  try{await navigator.clipboard.writeText("ไกด์ญี่ปุ่น · "+items.length+" ที่\n"+txt);toast("คัดลอก "+items.length+" รายการแล้ว วางใน LINE หรือโน้ตได้เลย");}
-  catch(e){toast("คัดลอกไม่ได้ในหน้านี้");}
-});
+/* ---------- 📤 แชร์ ไปยัง LINE / Messenger / แอปอื่น ---------- */
+function placeLink(x){return "https://www.google.com/maps/search/?api=1&query="+(x.live||!x.j?x.la.toFixed(6)+"%2C"+x.lo.toFixed(6):encodeURIComponent(x.j));}
+function priceTxt(x){
+  if(x.t!=="f")return x.hx&&x.hx.pr?"💴 "+x.hx.pr+" /คืน":"";
+  let r=null;if(x.tb)r=budget(x.tb[2])||budget(x.tb[3]);else if(x.p){const lv=x.p.length;r=[LV_MAX[lv-1],LV_MAX[lv]===Infinity?null:LV_MAX[lv]];}
+  return r?"💴 "+yenRange(r)+" (≈"+bahtRange(r)+") /คน":"";
+}
+function shareOne(x){
+  const L=[(CAT_ICON[x.c]||"📍")+" "+x.n+(x.j&&x.j!==x.n?" ("+x.j+")":""),CAT[x.c].l+" · "+x.a];
+  const pr=priceTxt(x);if(pr)L.push(pr);
+  if(x.tb&&x.tb[0])L.push("⭐ Tabelog "+x.tb[0].toFixed(2)+" ("+x.tb[1].toLocaleString("en-US")+" รีวิว)");
+  if(x.hx&&x.hx.sc)L.push("⭐ รีวิว "+x.hx.sc.toFixed(1)+"/10");
+  if(x.d&&x.d!==CAT[x.c].l)L.push(x.d);
+  if(x.tip)L.push(x.tip.replace(/^🕒 /,"🕒 "));
+  if(x.mx&&x.mx.tel)L.push("📞 "+x.mx.tel);
+  L.push("📍 "+placeLink(x));
+  return L.join("\n");
+}
+function shareList(items,title){
+  const MAX=15,top=items.slice(0,MAX);
+  const lines=top.map((x,i)=>(i+1)+". "+(CAT_ICON[x.c]||"")+" "+x.n+(x.j&&x.j!==x.n?" ("+x.j+")":"")+(S.pos?" · ห่างจากฉัน "+fmtKm(dist(S.pos.la,S.pos.lo,x.la,x.lo)):"")+
+    (x.tb&&x.tb[0]?" · ⭐"+x.tb[0].toFixed(2):"")+"\n   "+placeLink(x));
+  return title+"\n\n"+lines.join("\n")+(items.length>MAX?"\n\n…และอีก "+(items.length-MAX)+" ที่":"");
+}
+function listTitle(n){
+  const g=S.tab==="fav"?"ที่บันทึกไว้":S.tab==="m"?"โรงพยาบาลรับชาวต่างชาติ":GROUPS.filter(x=>S.groups.has(x.k)).map(x=>x.i+" "+x.l).join(", ");
+  const sub=S.tab==="x"&&S.cats.size?" ("+[...S.cats].map(subLabel).join(", ")+")":"";
+  const near=S.pos?describe(S.pos.la,S.pos.lo).head:"";
+  return "🇯🇵 "+g+sub+(near?" "+near:"")+" · "+n+" ที่";
+}
+let SH_TXT="";
+async function doShare(text,title){
+  SH_TXT=text;
+  if(navigator.share&&!IN_FRAME){try{await navigator.share({title:title||"ไกด์ญี่ปุ่นใกล้ฉัน",text});return;}catch(e){if(e&&e.name==="AbortError")return;}}
+  const url=(text.match(/https:\/\/\S+/)||[""])[0];
+  $("#shText").value=text;
+  $("#shLine").href="https://line.me/R/share?text="+encodeURIComponent(text);
+  $("#shWa").href="https://wa.me/?text="+encodeURIComponent(text);
+  const mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  $("#shMsg").href=mob?"fb-messenger://share/?link="+encodeURIComponent(url):"https://www.messenger.com/";
+  $("#shNote").textContent=mob?"Messenger แนบได้เฉพาะลิงก์แผนที่ ถ้าอยากส่งข้อความเต็มให้กด คัดลอก แล้ววางในแชต":"บนคอม: กด คัดลอก แล้ววางในแชต LINE/Messenger ได้เลย";
+  openDlgEl($("#shareDlg"));
+}
+$("#shCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(SH_TXT);toast("คัดลอกแล้ว วางในแชตได้เลย");}catch(e){const t=$("#shText");t.focus();t.select();try{document.execCommand("copy");toast("คัดลอกแล้ว");}catch(_){toast("กดค้างที่ข้อความเพื่อคัดลอก");}}});
+$("#shClose").addEventListener("click",()=>closeDlgEl($("#shareDlg")));
+$("#shareList").addEventListener("click",()=>{if(!CUR.length){toast("ยังไม่มีรายการให้แชร์");return;}doShare(shareList(CUR,listTitle(CUR.length)),"ไกด์ญี่ปุ่นใกล้ฉัน");});
+$("#selCopy").addEventListener("click",()=>{const items=CUR.filter(x=>S.sel.has(x.id));const rest=PLACES.filter(x=>S.sel.has(x.id)&&!items.some(y=>y.id===x.id));const all=items.concat(rest);
+  if(all.length===1)doShare(shareOne(all[0]),all[0].n);else doShare(shareList(all,"🇯🇵 ที่ที่เลือกไว้ · "+all.length+" ที่"),"ไกด์ญี่ปุ่นใกล้ฉัน");});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-share]");if(!b)return;e.stopPropagation();const x=PLACES[+b.dataset.share];if(x)doShare(shareOne(x),x.n);},true);
 function setRadius(km){S.radius=km>=99999?99999:Math.max(0.1,Math.round(km*1000)/1000);store.set("radius",S.radius);S.shown=20;renderRad();render();}
 function renderRad(){
   const all=S.radius>=99999;$("#radVal").textContent=all?"ทั้งญี่ปุ่น":fmtKm(S.radius);

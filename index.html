@@ -61,6 +61,8 @@ html[data-big] header.top{position:static}
 
 .chips{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
+.glinks{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.82rem}.glinks a{border:1px solid var(--line);border-radius:99px;padding:4px 10px;text-decoration:none;color:var(--ink);background:var(--bg)}
+@media (hover:hover) and (pointer:fine){.chips{flex-wrap:wrap;overflow:visible}}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:.86rem;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chip .n{opacity:.6;margin-left:4px;font-variant-numeric:tabular-nums}
@@ -234,7 +236,7 @@ body[data-view="list"] #moreView,body[data-view="map"] #moreView,body[data-view=
 :root{--bnav:62px}
 body{padding-bottom:calc(var(--bnav) + env(safe-area-inset-bottom))}
 .btn .sm{font-size:.78rem;margin-left:2px}
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
 .bnav button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:7px 0 6px;font-size:.74rem;color:var(--muted);position:relative;min-height:var(--bnav)}
 .bnav .i{font-size:1.25rem;line-height:1.2;filter:grayscale(1);opacity:.7}
 .bnav button[aria-current="page"]{color:var(--accent);font-weight:700}
@@ -619,6 +621,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <button type="button" class="chip" data-mf="s" aria-pressed="true">⛩️ ที่เที่ยว</button>
       <button type="button" class="chip" data-mf="h" aria-pressed="false">🏨 ที่พัก</button>
       <button type="button" class="chip" data-mf="m" aria-pressed="false">🏥 โรงพยาบาล</button>
+      <button type="button" class="chip" data-mf="n" aria-pressed="false">🏪 ร้านค้า</button>
       <button type="button" class="chip" data-mf="fav" aria-pressed="false">★ เฉพาะที่บันทึก</button>
     </div>
     <div class="chips" id="langChips" role="group" aria-label="ภาษาป้ายชื่อบนแผนที่" hidden>
@@ -649,6 +652,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   <button type="button" data-tab="f" aria-current="page"><span class="i">🍜</span><span>กิน</span></button>
   <button type="button" data-tab="s"><span class="i">⛩️</span><span>เที่ยว</span></button>
   <button type="button" data-tab="h"><span class="i">🏨</span><span>ที่พัก</span></button>
+  <button type="button" data-tab="n"><span class="i">🏪</span><span>ร้านค้า</span></button>
   <button type="button" data-tab="map"><span class="i">🗺️</span><span>แผนที่</span></button>
   <button type="button" data-tab="more"><span class="i">☰</span><span>อื่นๆ</span><b class="badge" id="favBadge" hidden></b></button>
 </nav>
@@ -800,6 +804,10 @@ const CATS = {
   ],
   m: [
     ["er","มีห้องฉุกเฉิน (ER)","#C2402B"],["hosp","โรงพยาบาลรับชาวต่างชาติ","#1F6FA8"]
+  ],
+  n: [
+    ["pharm","ร้านขายยา","#2E7D4F"],["conv","ร้านสะดวกซื้อ","#1F6FA8"],["shopg","ช็อปปิ้ง ดองกี้/ร้อยเยน","#B26A00"],
+    ["sbux","สตาร์บัคส์","#00704A"],["coffee","ร้านกาแฟอื่นๆ","#6F4E37"]
   ]
 };
 const CAT = {}; for (const t in CATS) for (const [k,l,c] of CATS[t]) CAT[k]={l,c,t};
@@ -1292,6 +1300,7 @@ const FOODINFO={
 const TRUST={award:["🏆","ติดรางวัล Tabelog 百名店","#B26A00"],legend:["📜","ร้านเก่าแก่ / ต้นตำรับ","#6A4FA3"],popular:["👍","ร้านดัง / เชนยอดนิยม","#1F6FA8"],area:["🧭","ย่านอาหาร เดินเลือกเอง","#2E7D4F"]};
 PLACES.forEach(x=>{const fi=FOODINFO[x.j];if(fi){x.fi=fi;x.s=(x.s||"")+" "+fi.m.map(m=>m[0]+" "+m[1]).join(" ")+" "+(fi.w==="award"?"รางวัล 百名店 award":"");}});
 PLACES.forEach(x=>{x.s=(x.s+" "+(SEARCH_AL[x.j]||"")+(x.tb?" tabelog "+x.tb[6]:"")).toLowerCase();x.s+=romajiOf(x.s);x.sc=normQ(x.s);});
+const BASE_N=PLACES.length;/* รายการหลังจากนี้ = ร้านค้ารอบตัวที่โหลดสด (ไม่ถาวร) */
 function trustRank(x){return x.fi?{award:0,legend:1,popular:2,area:3}[x.fi.w]:4;}
 function foodInfoHTML(x){
   const fi=x.fi;if(!fi)return "";
@@ -1413,6 +1422,7 @@ function catsFor(tab){return tab==="fav"?CATS.f.concat(CATS.s,CATS.h,CATS.m):CAT
 function scopeText(){
   if(S.tab==="fav")return "ที่บันทึกไว้";
   if(S.tab==="m"&&!S.q)return "เรียงจากใกล้ที่สุด";
+  if(S.tab==="n")return "ในรัศมี "+fmtKm(liveR())+(S.radius>liveR()?" (ร้านค้าแสดงไม่เกิน 2 กม.)":"");
   if(S.q)return "ผลค้นหาทั่วญี่ปุ่น";
   if(S.city!=="all")return "ใน"+S.city;
   return S.radius>=99999?"ทั่วญี่ปุ่น":"ในรัศมี "+fmtKm(S.radius);
@@ -1421,13 +1431,14 @@ function filtered(){
   const p=S.pos,q=S.q.trim().toLowerCase();
   let arr=PLACES.map(x=>({...x,k:p?dist(p.la,p.lo,x.la,x.lo):0}));
   arr=S.tab==="fav"?arr.filter(x=>S.fav.has(x.id)):arr.filter(x=>x.t===S.tab);
-  if(S.city!=="all")arr=arr.filter(x=>x.city===S.city);
+  if(S.city!=="all"&&S.tab!=="n")arr=arr.filter(x=>x.city===S.city);
   if(q){const terms=qTerms(q);if(terms.length){const hit=(x,t)=>x.s.includes(t)||x.sc.includes(normQ(t))||CAT[x.c].l.toLowerCase().includes(t);
     const full=arr.filter(x=>terms.every(t=>hit(x,t)));
     if(full.length||terms.length<2){arr=full;S.fuzzy=false;}
     else{const sc=x=>terms.filter(t=>hit(x,t)).length;const mx=Math.max(0,...arr.map(sc));arr=mx?arr.filter(x=>sc(x)===mx):[];S.fuzzy=!!arr.length;}}}else S.fuzzy=false;
   if(S.price)arr=arr.filter(x=>x.t!=="f"||!x.p||x.p.length<=S.price);
-  if(S.tab!=="fav"&&S.tab!=="m"&&!q&&S.city==="all")arr=arr.filter(x=>x.k<=S.radius);
+  if(S.tab==="n")arr=arr.filter(x=>x.k<=liveR()+0.05);
+  else if(S.tab!=="fav"&&S.tab!=="m"&&!q&&S.city==="all")arr=arr.filter(x=>x.k<=S.radius);
   const base=arr.slice();
   if(S.trust)arr=arr.filter(x=>x.fi&&x.fi.w===S.trust);
   if(S.cats.size)arr=arr.filter(x=>S.cats.has(x.c));
@@ -1447,6 +1458,7 @@ function renderChips(base){
     h+='<span class="chipsep" aria-hidden="true"></span>';
     for(const k of ["award","legend"]){const t=TRUST[k];const n=base.filter(x=>x.fi&&x.fi.w===k).length;
       h+='<button class="chip trustchip" aria-pressed="'+(S.trust===k)+'" data-trust="'+k+'">'+t[0]+' '+(k==="award"?"ร้านรางวัล":"ร้านเก่าแก่")+'<span class="n">'+n+'</span></button>';}
+    h+='<span class="chipsep" aria-hidden="true"></span><button class="chip" data-gocoffee="1" title="ร้านกาแฟรอบตัว (แท็บร้านค้า)">☕ ร้านกาแฟใกล้ฉัน ›</button>';
   }
   el.innerHTML=h;
 }
@@ -1522,14 +1534,81 @@ function card(x){
     '<div class="c-desc">'+esc(x.d)+'</div>'+
     (x.tip?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+
     (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+foodInfoHTML(x)+tabelogHTML(x)+photoTipHTML(x)+
+    (x.live?'<div class="revlinks">ข้อมูลจาก OpenStreetMap · <a href="https://www.google.com/maps/search/'+encodeURIComponent(x.j||x.n)+'/@'+x.la.toFixed(6)+','+x.lo.toFixed(6)+',18z" target="_blank" rel="noopener">ดูรีวิว/เวลาเปิดใน Google ↗</a></div>':'')+
     (x.t==="f"?'<div class="revlinks">เช็กรีวิวล่าสุด: <a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Google ↗</a> '+(x.tb?'':'<a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Tabelog ↗</a>')+'</div>':'')+
     (S.selMode?'':routeMini(x)+
     (RT.open===x.id?'<div class="rt-inline" id="rt'+x.id+'">'+routeHTML(x)+'</div>':'')+
     '<div class="c-act"><button type="button" class="nav-go" data-nav="'+x.id+'">🧭 นำทาง</button>'+
     '<button type="button" class="go" data-route="'+x.id+'" aria-expanded="'+(RT.open===x.id)+'">'+(RT.open===x.id?"▲ ซ่อน":"🚆 วิธีเดินทาง")+'</button>'+
-    '<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button>'+
+    (x.live?'':'<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button>')+
     (x.hx?'<a class="extbtn" href="'+bookUrl(x)+'" target="_blank" rel="noopener">เช็กห้องว่างคืนนี้ ↗</a>':'')+
 '</div>')+'</article>';
+}
+
+/* ================= ร้านค้ารอบตัว: ดึงสดจาก OpenStreetMap (Overpass) ================= */
+let LIVE={st:"",n:0,R:0,la:0,lo:0,seq:0};
+function liveR(){return Math.max(0.3,Math.min(S.radius,2));}
+const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://overpass.private.coffee/api/interpreter"];
+const BRAND_TH=[[/7-?eleven|セブン-?イレブン/i,"เซเว่น อีเลฟเว่น"],[/natural ?lawson|ナチュラルローソン/i,"เนเชอรัล ลอว์สัน"],[/lawson ?store ?100|ローソンストア100/i,"ลอว์สัน 100 เยน"],[/lawson|ローソン/i,"ลอว์สัน"],[/family ?mart|ファミリーマート/i,"แฟมิลี่มาร์ท"],
+ [/ministop|ミニストップ/i,"มินิสต็อป"],[/daily ?yamazaki|デイリーヤマザキ/i,"เดลี่ยามาซากิ"],[/newdays|ニューデイズ/i,"นิวเดย์ส"],[/seico ?mart|セイコーマート/i,"เซโกะมาร์ท"],[/poplar|ポプラ/i,"ป็อปลาร์"],
+ [/matsumoto ?kiyoshi|マツモトキヨシ|マツキヨ/i,"มัตสึโมโตะ คิโยชิ"],[/sugi|スギ薬局/i,"ร้านยาสึงิ"],[/welcia|ウエルシア/i,"เวลเซีย"],[/tsuruha|ツルハ/i,"สึรุฮะ"],[/sundrug|サンドラッグ/i,"ซันดรัก"],
+ [/cocokara|ココカラ/i,"โคโคคาระไฟน์"],[/kokumin|コクミン/i,"โคคุมิน"],[/daikoku|ダイコクドラッグ/i,"ไดโกกุดรัก"],[/tomod|トモズ/i,"โทโมซึ"],[/cosmos|コスモス/i,"คอสมอสดรัก"],[/sapporo ?drug|サッポロドラッグ|サツドラ/i,"ซัปโปโรดรัก"],
+ [/mega ?don|MEGAドン/i,"MEGA ดองกี้"],[/don ?quijote|ドン・?キホーテ|ドンキ/i,"ดองกี้ (ดอง กิโฮเต้)"],[/daiso|ダイソー/i,"ไดโซ"],[/seria|セリア/i,"เซเรีย"],[/can ?do|キャンドゥ/i,"แคนดู"],[/3 ?coins|スリーコインズ/i,"3COINS"],[/loft|ロフト/i,"ลอฟท์"],[/tokyu ?hands|東急ハンズ|hands|ハンズ/i,"แฮนด์ส"],
+ [/starbucks|スターバックス/i,"สตาร์บัคส์"],[/doutor|ドトール/i,"โดโทรู"],[/tully|タリーズ/i,"ทัลลีส์"],[/komeda|コメダ/i,"โคเมดะ"],[/excelsior|エクセルシオール/i,"เอ็กเซลซิเออร์"],[/blue ?bottle|ブルーボトル/i,"บลูบอทเทิล"],
+ [/arabica|アラビカ/i,"% Arabica"],[/st\.? ?marc|サンマルク/i,"ซันมาร์ค คาเฟ่"],[/veloce|ベローチェ/i,"เวโลเช่"],[/pronto|プロント/i,"พรอนโต"],[/renoir|ルノアール/i,"เรอนัวร์"],[/hoshino|星乃珈琲/i,"โฮชิโนะ คอฟฟี่"],[/ueshima|上島珈琲/i,"อุเอชิมะ คอฟฟี่"]];
+const OH_TH={Mo:"จ.",Tu:"อ.",We:"พ.",Th:"พฤ.",Fr:"ศ.",Sa:"ส.",Su:"อา.",PH:"วันหยุด",off:"ปิด"};
+function ohTH(o){if(!o)return "";if(/^24\/7/.test(o))return "🕒 เปิด 24 ชม.";return "🕒 "+o.replace(/\b(Mo|Tu|We|Th|Fr|Sa|Su|PH|off)\b/g,m=>OH_TH[m]).replace(/;\s*/g," · ");}
+function liveItem(e){
+  const T=e.tags||{},la=e.lat!=null?e.lat:e.center&&e.center.lat,lo=e.lon!=null?e.lon:e.center&&e.center.lon;if(la==null)return null;
+  const all=[T.brand,T["brand:en"],T["brand:ja"],T.name,T["name:en"],T["name:ja"]].filter(Boolean).join(" ");
+  let c;
+  if(T.amenity==="pharmacy"||T.shop==="chemist")c="pharm";
+  else if(T.shop==="convenience")c="conv";
+  else if(T.amenity==="cafe")c=/starbucks|スターバックス/i.test(all)?"sbux":"coffee";
+  else c="shopg";
+  const ja=T.name||T["name:ja"]||T.brand||"";
+  if(!ja&&(c==="coffee"||c==="shopg"))return null;
+  const bt=(BRAND_TH.find(([r])=>r.test(all))||[])[1];
+  const en=T["name:en"]||T["brand:en"]||"";
+  const branch=T["branch"]||T["branch:en"]||"";
+  let n=T["name:th"]||(bt?bt+(branch?" "+branch:""):en||ja)||CAT[c].l;
+  let d;
+  if(c==="pharm")d=T.shop==="chemist"?"ดรักสโตร์ ซื้อยาสามัญ เครื่องสำอาง ของใช้"+(T.dispensing==="yes"||T.amenity==="pharmacy"?" · มีเภสัชกร/รับใบสั่งยา":""):"ร้านยา (薬局) มีเภสัชกร ปรึกษาเรื่องยาได้";
+  else if(c==="conv")d="ร้านสะดวกซื้อ อาหารพร้อมทาน ATM เติม Suica";
+  else if(c==="shopg")d=/don ?quijote|ドン・?キホーテ|ドンキ/i.test(all)?"ร้านลดราคาของครบ ของฝาก ยา เครื่องสำอาง ขนม มักเปิดดึก ขอปลอดภาษีได้":
+    /daiso|seria|can ?do|ダイソー|セリア|キャンドゥ|100/i.test(all)||T.shop==="variety_store"?"ร้านร้อยเยน/ของใช้ราคาประหยัด":
+    T.shop==="department_store"?"ห้างสรรพสินค้า":T.shop==="mall"?"ศูนย์การค้า":"ร้านขายของ";
+  else d=c==="sbux"?"ร้านกาแฟสตาร์บัคส์":"ร้านกาแฟ"+(T.cuisine?" ("+T.cuisine.replace(/_/g," ").replace(/;/g,", ")+")":"");
+  if(T.atm==="yes")d+=" · มี ATM";
+  if(T["internet_access"]==="wlan"||T["internet_access"]==="yes")d+=" · มี Wi-Fi";
+  const na=nearestArea(la,lo);
+  const x={t:"n",c,n,j:ja,la,lo,a:na.n+", "+na.city,d,tip:ohTH(T.opening_hours),p:"",live:1,city:""};
+  x.s=(n+" "+ja+" "+en+" "+all+" "+CAT[c].l+" "+d).toLowerCase();x.sc=normQ(x.s);
+  return x;
+}
+async function overpass(q){
+  for(const ep of OVERPASS){
+    const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),25000);
+    try{const r=await fetch(ep,{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"},signal:ctl.signal});
+      clearTimeout(t);if(!r.ok)continue;const j=await r.json();if(j&&j.elements)return j.elements;}catch(e){clearTimeout(t);}
+  }
+  throw new Error("overpass");
+}
+function ensureLive(force){
+  const p=S.pos;if(!p)return;const R=liveR();
+  if(!force&&LIVE.st&&LIVE.R===R&&dist(p.la,p.lo,LIVE.la,LIVE.lo)<Math.max(0.15,R*0.25))return;
+  const seq=++LIVE.seq,Rm=Math.round(R*1000),a=p.la.toFixed(5)+","+p.lo.toFixed(5);
+  Object.assign(LIVE,{st:"loading",R,la:p.la,lo:p.lo});
+  const sel=f=>'nwr'+f+'(around:'+Rm+','+a+');';
+  const q='[out:json][timeout:25];('+sel('["amenity"="pharmacy"]')+sel('["shop"="chemist"]')+sel('["shop"="convenience"]')+
+    sel('["shop"~"^(variety_store|department_store|mall|discount)$"]')+sel('["amenity"="cafe"]')+');out center tags 1500;';
+  setTimeout(()=>{if(S.tab==="n")renderTabBox();},0);
+  overpass(q).then(els=>{
+    if(seq!==LIVE.seq)return;
+    PLACES.length=BASE_N;const seen=new Set();
+    els.forEach(e=>{const x=liveItem(e);if(!x)return;const k=x.c+"|"+x.j+"|"+x.la.toFixed(4)+","+x.lo.toFixed(4);if(seen.has(k))return;seen.add(k);x.id=PLACES.length;PLACES.push(x);});
+    LIVE.st="ok";LIVE.n=PLACES.length-BASE_N;
+  }).catch(()=>{if(seq===LIVE.seq)LIVE.st="err";}).then(()=>{if(seq===LIVE.seq&&(S.tab==="n"||S.tab==="map"))render();});
 }
 function render(){
   renderLoc();
@@ -1537,6 +1616,7 @@ function render(){
   document.body.dataset.view=S.tab==="map"?"map":S.tab==="more"?"more":"list";
   const fb=$("#favBadge");fb.hidden=!S.fav.size;fb.textContent=S.fav.size;$("#favCount").textContent=S.fav.size+" ที่";
   document.querySelectorAll(".bnav button").forEach(x=>{const on=x.dataset.tab===S.tab||(x.dataset.tab==="more"&&(S.tab==="fav"||S.tab==="m"));if(on)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
+  if(S.tab==="n"||(S.tab==="map"&&MF.n))ensureLive();
   if(S.tab==="map"){renderMap();return;}
   if(S.tab==="more")return;
   renderTabBox();
@@ -1549,6 +1629,7 @@ function render(){
   $("#resetF").hidden=!(S.q||S.cats.size||S.trust||S.city!=="all"||S.price||S.sort!=="near");
   $("#price").disabled=S.tab!=="f"&&S.tab!=="fav";
   renderSelBar();
+  if(!arr.length&&S.tab==="n"&&LIVE.st!=="ok"){list.innerHTML='<div class="empty">'+(LIVE.st==="err"?"โหลดร้านรอบตัวไม่สำเร็จ ลองกด ⟳ โหลดใหม่ด้านบน":"⏳ กำลังหาร้านรอบตัว…")+'</div>';$("#more").hidden=true;return;}
   if(!arr.length){
     list.innerHTML='<div class="empty">'+(S.tab==="fav"&&!S.fav.size?"ยังไม่มีที่บันทึกไว้ กด ☆ บันทึก ที่การ์ด หรือใช้ ☑ เลือกหลายรายการ เพื่อบันทึกทีเดียวหลายที่":S.q?"ไม่พบ \""+esc(S.q)+"\" ลองคำอื่น หรือล้างตัวกรอง":"ไม่มีรายการที่ตรงตัวกรอง ลองขยายระยะ เลือกเมือง หรือล้างตัวกรอง")+'</div>';
     if(S.q)list.insertAdjacentHTML("beforeend",onlineHTML());
@@ -1564,7 +1645,7 @@ function goTab(t){S.tab=t;S.cats.clear();S.trust="";S.shown=20;RT.open=null;rend
 document.querySelectorAll(".bnav button").forEach(b=>b.addEventListener("click",()=>goTab(b.dataset.tab)));
 $("#moreView").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goTab(g.dataset.go);});
 $("#sosBtn").addEventListener("click",()=>{goTab("more");setTimeout(()=>$("#sos").scrollIntoView({behavior:"smooth",block:"start"}),50);});
-$("#tabBox").addEventListener("click",e=>{const cg=e.target.closest("[data-cat-go]");if(cg){S.cats.clear();S.cats.add(cg.dataset.catGo);S.shown=20;render();return;}const g=e.target.closest("[data-go]");if(g){if(g.dataset.go==="sos")$("#sosBtn").click();else goTab(g.dataset.go);}});
+$("#tabBox").addEventListener("click",e=>{if(e.target.closest("#liveRe")){ensureLive(true);return;}const cg=e.target.closest("[data-cat-go]");if(cg){S.cats.clear();S.cats.add(cg.dataset.catGo);S.shown=20;render();return;}const g=e.target.closest("[data-go]");if(g){if(g.dataset.go==="sos")$("#sosBtn").click();else goTab(g.dataset.go);}});
 function renderTabBox(){
   const b=$("#tabBox"),p=S.pos;
   if(S.tab==="h"){
@@ -1573,6 +1654,18 @@ function renderTabBox(){
       '<div class="row2"><a class="primary" href="https://www.google.com/maps/search/hotels/@'+p.la.toFixed(5)+','+p.lo.toFixed(5)+',15z" target="_blank" rel="noopener">โรงแรมรอบตัวใน Google Maps ↗</a>'+
       '<a href="https://www.booking.com/searchresults.html?ss='+encodeURIComponent(nearestArea(p.la,p.lo).n+", Japan")+'&checkin='+f(d)+'&checkout='+f(d2)+'&group_adults=2&no_rooms=1&order=distance_from_search" target="_blank" rel="noopener">ห้องว่างคืนนี้ใน Booking ↗</a></div>'+
       '<p>ต้องใช้เน็ตเพื่อดูห้องว่างและราคาสด · รายการด้านล่างคือโรงแรมที่รีวิวดีใกล้สถานีหลัก (คะแนนและราคาจากเว็บจองปี 2026 ราคาจริงขึ้นกับวัน) · ทางเลือกฉุกเฉินราคาถูก: โรงแรมแคปซูล, Toyoko Inn/APA/Super Hotel ที่มีแทบทุกสถานีใหญ่ · คืนนี้มีห้องว่างไหม = <span lang="ja">今夜、空いている部屋はありますか？</span></p></div>';
+  }else if(S.tab==="n"){
+    const g=q=>"https://www.google.com/maps/search/"+encodeURIComponent(q)+"/@"+p.la.toFixed(5)+","+p.lo.toFixed(5)+",16z";
+    const st=LIVE.st==="loading"?"⏳ กำลังโหลดร้านรอบตัว…":LIVE.st==="err"?"⚠️ โหลดไม่สำเร็จ (เน็ตหรือเซิร์ฟเวอร์แผนที่ไม่ว่าง)":LIVE.st==="ok"?"พบ "+LIVE.n+" ร้าน ในรัศมี "+fmtKm(LIVE.R):"";
+    b.innerHTML='<div class="tbox"><h3>🏪 ร้านค้ารอบตัว (ข้อมูลสด)</h3>'+
+      '<p style="margin:0 0 8px">'+esc(st)+' <button type="button" class="linkbtn" id="liveRe">⟳ โหลดใหม่</button></p>'+
+      '<div class="glinks"><span class="muted">หาเพิ่มใน Google:</span><a href="'+g("ドラッグストア")+'" target="_blank" rel="noopener">💊 ร้านยา ↗</a><a href="'+g("コンビニ")+'" target="_blank" rel="noopener">🏪 สะดวกซื้อ ↗</a><a href="'+g("ドン・キホーテ")+'" target="_blank" rel="noopener">🛒 ดองกี้ ↗</a><a href="'+g("カフェ")+'" target="_blank" rel="noopener">☕ กาแฟ ↗</a></div>'+
+      '<details class="guide-trust" style="margin-top:6px"><summary>เกร็ดซื้อของในญี่ปุ่น</summary><ul>'+
+      '<li><b>ดรักสโตร์</b> (ドラッグストア เช่น มัตสึคิโย, สึรุฮะ) ซื้อยาสามัญ เครื่องสำอาง ขนมได้ · <b>薬局</b> = ร้านยามีเภสัชกร รับใบสั่งยา</li>'+
+      '<li>ยาแก้ปวด/ลดไข้: 頭痛薬 · ยาแก้หวัด: 風邪薬 · ยาแก้ท้องเสีย: 下痢止め · ยาแก้แพ้: アレルギー薬</li>'+
+      '<li>ร้านยาใหญ่และดองกี้ซื้อเกิน ¥5,000 (ไม่รวมภาษี) ขอ <b>ปลอดภาษี (免税)</b> ได้ ใช้พาสปอร์ต</li>'+
+      '<li>เซเว่น/ลอว์สัน/แฟมิลี่มาร์ท มี ATM รับบัตรต่างประเทศ (เซเว่นรับเกือบทุกบัตร) เติมบัตร Suica ได้</li></ul></details>'+
+      '<p class="rt-foot">ร้านจาก OpenStreetMap (ชุมชนช่วยกันบันทึก) อาจขาดบางร้านหรือเวลาเปิดไม่ล่าสุด · แสดงไม่เกิน 2 กม. รอบตัว</p></div>';
   }else if(S.tab==="m"){
     b.innerHTML='<div class="tbox"><h3>🚑 ฉุกเฉินโทร 119 (รถพยาบาล ฟรี)</h3><div class="row2"><a class="primary" href="tel:119">📞 119 รถพยาบาล</a><a href="tel:110">📞 110 ตำรวจ</a><a href="tel:05038162787">📞 050-3816-2787 สายด่วนนักท่องเที่ยว</a><button type="button" data-go="sos">เบอร์สถานทูตไทย</button></div>'+
       '<p>โรงพยาบาลด้านล่างเรียงจากใกล้คุณ (เลือกจากรายชื่อที่หน่วยงานรัฐ/สถานทูตระบุว่ารับชาวต่างชาติ) ควรโทรถามก่อนไปถ้าไม่ใช่เหตุฉุกเฉิน พกพาสปอร์ตและบัตรประกันเดินทาง</p></div>';
@@ -1593,6 +1686,7 @@ function renderTabBox(){
   }else b.innerHTML="";
 }
 $("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;
+  if(c.dataset.gocoffee){goTab("n");S.cats.add("sbux");S.cats.add("coffee");render();return;}
   if(c.dataset.trust){S.trust=S.trust===c.dataset.trust?"":c.dataset.trust;S.shown=20;render();return;}
   const k=c.dataset.cat;
   if(k==="all")S.cats.clear();else S.cats.has(k)?S.cats.delete(k):S.cats.add(k);S.shown=20;render();});
@@ -1634,7 +1728,7 @@ $("#selToggle").addEventListener("click",()=>{S.selMode=!S.selMode;if(!S.selMode
 $("#selDone").addEventListener("click",()=>{S.selMode=false;S.sel.clear();render();});
 $("#selAll").addEventListener("click",()=>{const allIn=CUR.length&&CUR.every(x=>S.sel.has(x.id));
   if(allIn)CUR.forEach(x=>S.sel.delete(x.id));else CUR.forEach(x=>S.sel.add(x.id));render();});
-$("#selSave").addEventListener("click",()=>{let a=0;S.sel.forEach(id=>{if(!S.fav.has(id)){S.fav.add(id);a++;}});saveFav();
+$("#selSave").addEventListener("click",()=>{let a=0;S.sel.forEach(id=>{if(id<BASE_N&&!S.fav.has(id)){S.fav.add(id);a++;}});saveFav();
   toast(a?"บันทึกเพิ่ม "+a+" ที่ (รวม "+S.fav.size+")":"รายการที่เลือกบันทึกไว้แล้วทั้งหมด");S.sel.clear();render();});
 $("#selRemove").addEventListener("click",()=>{let r=0;S.sel.forEach(id=>{if(S.fav.delete(id))r++;});saveFav();
   toast(r?"เอาออกจากที่บันทึก "+r+" ที่":"รายการที่เลือกยังไม่ได้บันทึก");S.sel.clear();render();});
@@ -1819,7 +1913,7 @@ function parseLoc(raw){
   if(short)return {short:true};
   return null;
 }
-function nearestPlace(la,lo){let b=null,bd=1e9;PLACES.forEach(x=>{const d=dist(la,lo,x.la,x.lo);if(d<bd){bd=d;b=x;}});return {x:b,d:bd};}
+function nearestPlace(la,lo){let b=null,bd=1e9;PLACES.slice(0,BASE_N).forEach(x=>{const d=dist(la,lo,x.la,x.lo);if(d<bd){bd=d;b=x;}});return {x:b,d:bd};}
 function describe(la,lo){
   const na=nearestArea(la,lo),np=nearestPlace(la,lo);
   AREAS.forEach(([kw,n,city,a,b,rank])=>{if(rank>1)return;const d=dist(la,lo,a,b);if(d<=na.d){na.d=d;na.n=n;na.city=city;}});
@@ -2267,7 +2361,7 @@ function routeHTML(x){
 /* ================= ภาพ แผนที่ และหน้านำทาง ================= */
 const IN_FRAME=(()=>{try{return window.self!==window.top}catch(e){return true}})();
 const CAN_NET=!IN_FRAME&&/^https?:$/.test(location.protocol);
-const CAT_ICON={budget:"🛏️",mid:"🏨",premium:"✨",er:"🚑",hosp:"🏥",ramen:"🍜",sushi:"🍣",beef:"🥩",fried:"🍤",local:"🍱",market:"🏮",sweet:"🍡",izakaya:"🍶",temple:"⛩️",view:"🌄",photo:"📸",shop:"🛍️",sight:"🏯"};
+const CAT_ICON={budget:"🛏️",mid:"🏨",premium:"✨",er:"🚑",hosp:"🏥",ramen:"🍜",sushi:"🍣",beef:"🥩",fried:"🍤",local:"🍱",market:"🏮",sweet:"🍡",izakaya:"🍶",temple:"⛩️",view:"🌄",photo:"📸",shop:"🛍️",sight:"🏯",pharm:"💊",conv:"🏪",shopg:"🛒",sbux:"☕",coffee:"☕"};
 const WIKI_T={"日枝神社 山王鳥居":"日枝神社 (千代田区)","思い出横丁":"思い出横丁","夕やけだんだん":"谷中銀座商店街","数寄屋橋交差点":"数寄屋橋","巽橋 祇園白川":"祇園新橋","八坂庚申堂":"八坂庚申堂","キモノフォレスト (嵐山駅)":"嵐山駅 (京福電気鉄道)","法善寺横丁":"法善寺","大阪城 西の丸庭園":"大阪城公園","下吉田 本町通り":"富士吉田市","河口湖 天上山公園":"天上山公園","白川郷 城山展望台":"白川郷","鎌倉大仏 (高徳院)":"高徳院","八坂の塔 (法観寺)":"法観寺","嵐山 竹林の小径":"嵐山","新倉山浅間公園 忠霊塔":"新倉山浅間公園","厳島神社 大鳥居":"厳島神社","東京都庁 展望室":"東京都庁舎","渋谷スカイ":"渋谷スクランブルスクエア","チームラボプラネッツ":"チームラボプラネッツ TOKYO DMM","ユニコーンガンダム立像":"ダイバーシティ東京","グリコサイン":"グリコサイン","梅田スカイビル 空中庭園":"梅田スカイビル","あべのハルカス 展望台":"あべのハルカス","HEP FIVE 観覧車":"HEP FIVE","ローソン 河口湖駅前店":"河口湖","大石公園":"大石公園 (富士河口湖町)","将軍塚青龍殿":"将軍塚","皇居東御苑":"皇居東御苑","さっぽろテレビ塔":"さっぽろテレビ塔","第一牧志公設市場":"第一牧志公設市場","築地場外市場":"築地場外市場","横浜中華街":"横浜中華街","中洲屋台":"屋台","宮島":"厳島"};
 let PHOTO=store.get("photo2",{});
 function wikiTitle(x){return WIKI_T[x.j]||x.j.replace(/\s*\(.*\)$/,"").split(" ")[0];}
@@ -2307,7 +2401,7 @@ function watchThumbs(root){
 }
 
 /* ---- แผนที่ (MapLibre + OpenFreeMap ป้ายชื่อเลือกภาษาได้ เมื่อเปิดบนเว็บของตัวเอง) ---- */
-let MAP=null,ME=null,MARKS=[],MLP=null;const MF={f:true,s:true,h:false,m:false,fav:false};
+let MAP=null,ME=null,MARKS=[],MLP=null;const MF={f:true,s:true,h:false,m:false,n:false,fav:false};
 const MAP_STYLE="https://tiles.openfreemap.org/styles/liberty";
 let MAPLANG=store.get("maplang","th");
 let NO_GL=null;
@@ -2404,7 +2498,7 @@ function showMapCard(x){
   watchThumbs($("#mapCard"));
   $("#mapCard").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
-$("#mapChips").addEventListener("click",e=>{const b=e.target.closest("[data-mf]");if(!b)return;MF[b.dataset.mf]=!MF[b.dataset.mf];if(!MF.f&&!MF.s&&!MF.h&&!MF.m)MF[b.dataset.mf]=true;renderMap();});
+$("#mapChips").addEventListener("click",e=>{const b=e.target.closest("[data-mf]");if(!b)return;MF[b.dataset.mf]=!MF[b.dataset.mf];if(!MF.f&&!MF.s&&!MF.h&&!MF.m&&!MF.n)MF[b.dataset.mf]=true;renderMap();});
 $("#langChips").addEventListener("click",e=>{const b=e.target.closest("[data-lang]");if(!b)return;MAPLANG=b.dataset.lang;store.set("maplang",MAPLANG);
   document.querySelectorAll("#langChips [data-lang]").forEach(c=>c.setAttribute("aria-pressed",c.dataset.lang===MAPLANG));
   if(MAP)applyLang(MAP);if(NAV.map)applyLang(NAV.map);});

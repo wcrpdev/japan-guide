@@ -157,6 +157,7 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:10px
 .c-act{display:flex;gap:8px;margin-top:2px;flex-wrap:wrap}
 .meta .rate{background:#FFF1E6;color:#B4380F;border-radius:6px;padding:1px 6px;font-weight:700}
 .meta .trustb{font-size:.9rem}
+.sx-shin{margin-top:4px;font-size:.8rem;color:var(--ink);background:color-mix(in srgb,#f5b400 18%,var(--surface));border-radius:8px;padding:5px 8px}
 .sx-op{display:block;font-size:.75rem;color:var(--accent);margin-top:2px}
 .c-more{margin:6px 0 2px;border-top:1px dashed var(--line)}
 .c-more>summary{cursor:pointer;list-style:none;font-size:.82rem;color:var(--accent);font-weight:600;padding:7px 0 3px}
@@ -2161,7 +2162,10 @@ function sxCol(l){
 }
 const SX_TYPE=[[/limited express|特急/i,"ด่วนพิเศษ (จอดน้อย บางขบวนต้องซื้อตั๋วเพิ่ม)"],[/commuter rapid|通勤快速/i,"เร็วช่วงเร่งด่วน (ข้ามบางสถานี)"],[/special rapid|新快速|特別快速/i,"เร็วพิเศษ (ข้ามหลายสถานี)"],[/semi.?express|準急/i,"กึ่งด่วน (ข้ามบางสถานี)"],[/express|急行/i,"ด่วน (ข้ามบางสถานี)"],[/rapid|快速/i,"เร็ว (ข้ามบางสถานี)"],[/local|普通|各駅|各停/i,"ธรรมดา (จอดทุกสถานี)"]];
 function sxHead(l){const h=l.headsign||(l.tripTo&&l.tripTo.name)||"",m=h.match(/^\((.*?)\)\s*/);const ty=m?(SX_TYPE.find(([r])=>r.test(m[1]))||[])[1]||m[1]:"";return {to:sxTitle(m?h.slice(m[0].length):h),ty};}
-function sxLineName(l){const n=(l.routeLongName||"").trim(),s=(l.routeShortName||"").trim();return (n||s||l.agencyName||"รถไฟ")+(l.lineJa&&l.lineJa!==n?" · "+l.lineJa:"");}
+const SX_SHIN={"のぞみ":"Nozomi","ひかり":"Hikari","こだま":"Kodama","みずほ":"Mizuho","さくら":"Sakura","つばめ":"Tsubame","はやぶさ":"Hayabusa","はやて":"Hayate","やまびこ":"Yamabiko","なすの":"Nasuno","こまち":"Komachi","つばさ":"Tsubasa","かがやき":"Kagayaki","はくたか":"Hakutaka","あさま":"Asama","つるぎ":"Tsurugi","とき":"Toki","たにがわ":"Tanigawa","かもめ":"Kamome","はやま":"Hayama"};
+function sxShin(l){const t=(l.routeShortName||l.routeLongName||l.displayName||"").trim(),m=t.match(/^(のぞみ|ひかり|こだま|みずほ|さくら|つばめ|はやぶさ|はやて|やまびこ|なすの|こまち|つばさ|かがやき|はくたか|あさま|つるぎ|とき|たにがわ|かもめ)\s*(\d+)?号?/);
+  if(!m&&!/HIGHSPEED/.test(l.mode||""))return null;return {name:"ชินคันเซ็น "+(m?SX_SHIN[m[1]]+(m[2]?" "+m[2]:""):""),ja:t,chip:"🚄"};}
+function sxLineName(l){const sh=sxShin(l);if(sh)return sh.name.trim()+(sh.ja?" · "+sh.ja:"");const n=(l.routeLongName||"").trim(),s=(l.routeShortName||"").trim();return (n||s||l.agencyName||"รถไฟ")+(l.lineJa&&l.lineJa!==n?" · "+l.lineJa:"");}
 function sxCode(s){return s.stopCode&&/^[A-Z]{1,3}\d{1,3}$/.test(s.stopCode)?'<span class="sx-code">'+esc(s.stopCode)+'</span>':"";}
 function sxStn(s,cls,note){
   return '<li class="sx-st '+(cls||"")+'"><span class="sx-dot"></span><div class="sx-nm"><b>'+esc(s.th||s.en||s.ja)+'</b>'+sxCode(s)+
@@ -2189,8 +2193,8 @@ function sxItHTML(it){
       return;
     }
     const c=sxCol(l),mid=l.intermediateStops||[],n=mid.length+1;
-    h+='<li class="sx-leg" style="--c:'+c+'"><div class="sx-lh"><span class="sx-chip" style="background:'+c+'">'+esc(l.routeShortName||l.displayName||"🚆")+'</span> <b>'+esc(sxLineName(l))+'</b>'+
-      '<div class="muted">'+esc(l.agencyName||"")+' · มุ่งหน้า <b>'+esc(sxHead(l).to)+'</b>'+(l.headJa?' (<span lang="ja">'+esc(l.headJa.replace(/^[（(【].*?[)）】]\s*/,""))+'</span>)':"")+(sxHead(l).ty?' · รถ'+esc(sxHead(l).ty):"")+' · นั่ง <b>'+n+' สถานี</b> ~'+Math.round(l.duration/60)+' นาที</div></div><ul class="sx-sts">'+
+    h+='<li class="sx-leg" style="--c:'+c+'"><div class="sx-lh"><span class="sx-chip" style="background:'+c+'">'+esc(sxShin(l)?"🚄":(l.routeShortName||l.displayName||"🚆"))+'</span> <b>'+esc(sxLineName(l))+'</b>'+
+      '<div class="muted">'+esc(l.agencyName||"")+' · มุ่งหน้า <b>'+esc(sxHead(l).to)+'</b>'+(l.headJa?' (<span lang="ja">'+esc(l.headJa.replace(/^[（(【].*?[)）】]\s*/,""))+'</span>)':"")+(sxShin(l)?'<div class="sx-shin">🎫 ชินคันเซ็นต้องมี<b>ตั๋วชินคันเซ็น</b> (ซื้อที่เครื่อง/เคาน์เตอร์ JR หรือแอป เช่น smartEX) · บัตร IC อย่างเดียวมักผ่านประตูชินคันเซ็นไม่ได้ · ใช้ JR Pass ได้แต่ Nozomi/Mizuho ต้องจ่ายเพิ่ม</div>':(sxHead(l).ty?' · รถ'+esc(sxHead(l).ty):""))+' · นั่ง <b>'+n+' สถานี</b> ~'+Math.round(l.duration/60)+' นาที</div></div><ul class="sx-sts">'+
       sxStn(l.from,"on","🟢 ขึ้นรถที่นี่ · ออก "+hhmm(l.startTime)+(l.from.track?" · ชานชาลา "+esc(l.from.track):""))+
       (mid.length>6?mid.slice(0,2).map(s=>sxStn(s,"mid")).join("")+'<li class="sx-more"><details><summary>ผ่านอีก '+(mid.length-4)+' สถานี ▾</summary><ul class="sx-sts">'+mid.slice(2,-2).map(s=>sxStn(s,"mid")).join("")+'</ul></details></li>'+mid.slice(-2).map(s=>sxStn(s,"mid")).join(""):mid.map(s=>sxStn(s,"mid")).join(""))+
       sxStn(l.to,"off","🔴 ลงที่นี่ · ถึง "+hhmm(l.endTime))+'</ul></li>';
@@ -2329,7 +2333,7 @@ async function sxStopsArea(la,lo,r){
     if(!(s.modes||[]).some(m=>SX_RAIL.test(m)))return;
     const k=s.parentId||s.stopId,n1=sxSplitName(s.name),n2=sxSplitName(JA[s.stopId]||"");
     let g=G.get(k);if(!g){g={id:k,en:"",ja:"",la:s.lat,lo:s.lon,codes:[],modes:[],lines:[]};G.set(k,g);}
-    g.en=g.en||sxTitle(n1.en||n2.en||"");g.ja=g.ja||sxJa(n2.ja||n1.ja||"");
+    g.en=g.en||sxTitle(n1.en||n2.en||"");g.ja=g.ja||sxJa(n2.ja||n1.ja||"").replace(/[(（][^)）]*(都|道|府|県|市営|線|電鉄|鉄道)[)）]$/,"");
     const sc=(s.stopCode||"").replace(/-/g,"");if(sc&&!g.codes.includes(sc))g.codes.push(sc);
     (s.modes||[]).forEach(m=>{if(!g.modes.includes(m))g.modes.push(m);});
     const lm=/^jp-tokyo-rail_([^.]+)\.([^.]+)\./.exec(s.stopId);if(lm&&!g.lines.includes(lm[2]))g.lines.push(lm[2]);

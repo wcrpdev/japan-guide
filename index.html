@@ -196,6 +196,7 @@ body[data-view="list"] #moreView,body[data-view="map"] #moreView,body[data-view=
 .selbar .btn:disabled{opacity:.45}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:99px;font-size:.86rem;z-index:20;max-width:calc(100% - 32px)}
 .toast[hidden]{display:none}
+#langChips[hidden],.map-wrap[hidden]{display:none}
 .rt-mini{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;border:1px dashed var(--line);background:var(--bg);border-radius:10px;padding:6px 10px;text-align:left;font-size:.8rem;font-variant-numeric:tabular-nums;color:var(--ink)}
 .rt-mini .rec{font-weight:700;color:var(--ok)}
 .rt-mini .all{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted)}
@@ -248,6 +249,7 @@ body[data-view="list"] #mapView{display:none}
 .thumb.has{font-size:0}
 .thumb.pban:not(.has){height:54px!important;font-size:1.6rem}
 .thumb.pban{width:auto;height:190px;margin:-2px -2px 10px;font-size:2.4rem;border-radius:12px}
+.thumb.pban.has{font-size:0}
 .thumb.pban.has::after{content:"ภาพ: Wikipedia";position:absolute;right:6px;bottom:5px;font-size:.62rem;color:#fff;background:#0008;padding:1px 6px;border-radius:6px}
 .ptip{border:1px solid #A0457A55;background:color-mix(in srgb,#A0457A 7%,var(--bg));border-radius:12px;padding:9px 11px;font-size:.85rem;display:grid;gap:4px;margin-top:6px}
 .ptip .pt-h{font-weight:700;color:#A0457A}
@@ -491,7 +493,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     <div id="mapCard"></div>
   </section>
   <div class="toast" id="toast" role="status" hidden></div>
-  <footer>ข้อมูลและวิธีเดินทางคำนวณในหน้านี้ ใช้ได้แม้ไม่มีเน็ต เวลาและราคาเป็นค่าประมาณ · ลิงก์ "เทียบกับ Google Maps" ต้องใช้เน็ต<br>ทางออกสถานีดูจากป้ายสีเหลือง 出口 (Exit) ในสถานี · ค่าแท็กซี่: โตเกียว ¥500 กม.แรก แล้ว ¥100 ทุก 232 ม. · เกียวโต ¥500 900 ม.แรก แล้ว ¥100 ทุก 255 ม. · 22:00–05:00 บวก 20%<br>เวลาเปิด-ปิดและวันหยุดร้านเปลี่ยนได้ ควรเช็กก่อนไป<br>ภาพสถานที่จาก Wikipedia / Wikimedia Commons · แผนที่ © OpenStreetMap contributors</footer>
+  <footer>ข้อมูลและวิธีเดินทางคำนวณในหน้านี้ ใช้ได้แม้ไม่มีเน็ต เวลาและราคาเป็นค่าประมาณ · แผนที่ เส้นทางตามถนน และปุ่ม Google Maps ต้องใช้เน็ต<br>ทางออกสถานีดูจากป้ายสีเหลือง 出口 (Exit) ในสถานี · ค่าแท็กซี่: โตเกียว ¥500 กม.แรก แล้ว ¥100 ทุก 232 ม. · เกียวโต ¥500 900 ม.แรก แล้ว ¥100 ทุก 255 ม. · 22:00–05:00 บวก 20%<br>เวลาเปิด-ปิดและวันหยุดร้านเปลี่ยนได้ ควรเช็กก่อนไป<br>ภาพสถานที่จาก Wikipedia / Wikimedia Commons · แผนที่ © OpenStreetMap contributors · OpenFreeMap · เส้นทาง FOSSGIS OSRM</footer>
 </main>
 <nav class="bnav" aria-label="เมนูหลัก">
   <button type="button" data-tab="f" aria-current="page"><span class="i">🍜</span><span>กิน</span></button>
@@ -1981,9 +1983,11 @@ function watchThumbs(root){
 let MAP=null,ME=null,MARKS=[],MLP=null;const MF={f:true,s:true,h:false,m:false,fav:false};
 const MAP_STYLE="https://tiles.openfreemap.org/styles/liberty";
 let MAPLANG=store.get("maplang","th");
+let NO_GL=null;
+function hasGL(){if(NO_GL===null){try{const c=document.createElement("canvas");NO_GL=!(c.getContext("webgl2")||c.getContext("webgl"));}catch(e){NO_GL=true;}}return !NO_GL;}
 function ensureML(){
   if(window.maplibregl)return Promise.resolve(window.maplibregl);
-  if(!CAN_NET)return Promise.reject();
+  if(!CAN_NET||!hasGL())return Promise.reject();
   if(MLP)return MLP;
   MLP=new Promise((ok,no)=>{
     const css=document.createElement("link");css.rel="stylesheet";css.href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";document.head.appendChild(css);
@@ -2034,7 +2038,7 @@ function renderMap(){
     setTimeout(()=>MAP.resize(),60);
   }).catch(()=>{
     $(".map-wrap").hidden=true;$("#mapFallback").hidden=false;$("#langChips").hidden=true;
-    $("#mapMsg").innerHTML=IN_FRAME?"แผนที่จริงใช้ได้เมื่อเปิดไกด์บนเว็บของคุณเอง (wcrpdev.github.io/japan-guide) ตอนนี้แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ":"โหลดแผนที่ไม่ได้ (ไม่มีเน็ต) แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ";
+    $("#mapMsg").innerHTML=IN_FRAME?"แผนที่จริงใช้ได้เมื่อเปิดไกด์บนเว็บของคุณเอง (wcrpdev.github.io/japan-guide) ตอนนี้แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ":NO_GL?"เบราว์เซอร์นี้ปิดการวาดกราฟิก (WebGL) จึงแสดงแผนที่ไม่ได้ ลองเปิดใน Safari/Chrome บนมือถือ ตอนนี้แสดงเป็นเรดาร์รอบตัวแทน":"โหลดแผนที่ไม่ได้ (ไม่มีเน็ต) แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ";
     renderRadar(mapPlaces().filter(x=>x.k<=Math.max(3,S.radius)).slice(0,60));
   });
 }
@@ -2059,18 +2063,25 @@ $("#mapCard").addEventListener("click",e=>{
 /* ---- เส้นทางจริงตามถนน (OSRM ของ FOSSGIS: เดิน จักรยาน รถยนต์) ---- */
 const ROUTERS={walk:"routed-foot",bike:"routed-bike",car:"routed-car"};
 const MODES=[["walk","🚶","เดิน","walking"],["transit","🚆","รถไฟ/บัส","transit"],["car","🚕","รถ/แท็กซี่","driving"],["bike","🚲","จักรยาน","bicycling"]];
+const ROAD_EN={"東大路通":"Higashioji-dori","四条通":"Shijo-dori","河原町通":"Kawaramachi-dori","烏丸通":"Karasuma-dori","堀川通":"Horikawa-dori","五条通":"Gojo-dori","七条通":"Shichijo-dori","三条通":"Sanjo-dori","今出川通":"Imadegawa-dori","丸太町通":"Marutamachi-dori","御池通":"Oike-dori","八坂通":"Yasaka-dori","花見小路通":"Hanamikoji-dori","白川通":"Shirakawa-dori","千本通":"Senbon-dori","西大路通":"Nishioji-dori","九条通":"Kujo-dori","御堂筋":"Midosuji","堺筋":"Sakaisuji","四つ橋筋":"Yotsubashi-suji","松屋町筋":"Matsuyamachi-suji","長堀通":"Nagahori-dori","千日前通":"Sennichimae-dori","中央大通":"Chuo-odori","土佐堀通":"Tosabori-dori","明治通り":"Meiji-dori","靖国通り":"Yasukuni-dori","青山通り":"Aoyama-dori","中央通り":"Chuo-dori","晴海通り":"Harumi-dori","外堀通り":"Sotobori-dori","甲州街道":"Koshu-kaido","山手通り":"Yamate-dori","表参道":"Omotesando","井の頭通り":"Inokashira-dori","昭和通り":"Showa-dori","日比谷通り":"Hibiya-dori","桜田通り":"Sakurada-dori","六本木通り":"Roppongi-dori","玉川通り":"Tamagawa-dori","目白通り":"Mejiro-dori","春日通り":"Kasuga-dori","不忍通り":"Shinobazu-dori","言問通り":"Kototoi-dori","浅草通り":"Asakusa-dori","江戸通り":"Edo-dori","新宿通り":"Shinjuku-dori","文化村通り":"Bunkamura-dori","公園通り":"Koen-dori","道玄坂":"Dogenzaka","竹下通り":"Takeshita-dori","仲見世通り":"Nakamise-dori","大通":"Odori","駅前通":"Ekimae-dori","渡月橋":"Togetsukyo Bridge"};
+function roadName(n){
+  if(!n)return "";
+  const parts=n.split(/;\s*/).map(x=>{const r=x.match(/国道(\d+)号/);if(r)return "ถนนหลวงหมายเลข "+r[1];if(ROAD_EN[x])return ROAD_EN[x]+" ("+x+")";
+    const k=Object.keys(ROAD_EN).find(z=>x.startsWith(z));return k?ROAD_EN[k]+" ("+x+")":x;});
+  return parts.join(" / ");
+}
 function turnText(st){
-  const m=st.maneuver||{},t=m.type,mod=m.modifier||"",nm=st.name?"เข้า "+st.name:"";
-  const side={left:"ซ้าย",right:"ขวา","slight left":"เบี่ยงซ้าย","slight right":"เบี่ยงขวา","sharp left":"หักซ้าย","sharp right":"หักขวา",straight:"ตรงไป",uturn:"กลับรถ"}[mod]||"";
-  if(t==="depart")return "เริ่มออกเดิน"+(st.name?"ตาม "+st.name:"");
+  const m=st.maneuver||{},t=m.type,mod=m.modifier||"",rn=roadName(st.name),nm=rn?"เข้า "+rn:"";
+  const side={left:"ซ้าย",right:"ขวา","slight left":"เบี่ยงซ้าย","slight right":"เบี่ยงขวา","sharp left":"หักศอกซ้าย","sharp right":"หักศอกขวา",straight:"ตรงไป",uturn:"กลับรถ"}[mod]||"";
+  if(t==="depart")return "เริ่มออกเดินทาง"+(rn?" ตาม "+rn:"");
   if(t==="arrive")return "ถึงจุดหมาย"+(mod==="left"?" (อยู่ทางซ้าย)":mod==="right"?" (อยู่ทางขวา)":"");
   if(t==="roundabout"||t==="rotary")return "เข้าวงเวียน ออกทางที่ "+(m.exit||1)+" "+nm;
-  if(t==="fork")return "ทางแยก ชิด"+(side||"ตามป้าย")+" "+nm;
+  if(t==="fork")return "ทางแยก ชิด"+(/left/.test(mod)?"ซ้าย":/right/.test(mod)?"ขวา":"ทางตามป้าย")+" "+nm;
   if(t==="end of road")return "สุดทาง เลี้ยว"+side+" "+nm;
   if(t==="merge")return "รวมเส้นทาง "+nm;
   if(mod==="uturn")return "กลับรถ "+nm;
   if(mod==="straight"||t==="new name"||t==="continue"&&!/left|right/.test(mod))return "ตรงไป "+nm;
-  if(/left|right/.test(mod))return (mod.startsWith("slight")?"":"เลี้ยว")+side+" "+nm;
+  if(/left|right/.test(mod))return (/^(slight|sharp)/.test(mod)?"":"เลี้ยว")+side+" "+nm;
   return "ไปต่อ "+nm;
 }
 function turnIcon(st){const m=st.maneuver||{},mod=m.modifier||"";if(m.type==="arrive")return "🏁";if(m.type==="depart")return "🟢";if(m.type==="roundabout"||m.type==="rotary")return "🔄";if(mod==="uturn")return "↩️";if(mod.includes("left"))return "⬅️";if(mod.includes("right"))return "➡️";return "⬆️";}
@@ -2123,7 +2134,7 @@ function renderTurns(){
   if(NAV.busy){box.innerHTML='<div class="muted">กำลังหาเส้นทางตามถนน…</div>';return;}
   if(!r){box.innerHTML='<div class="pres warn"><div class="t">หาเส้นทางตามถนนไม่ได้</div><div class="s">'+(CAN_NET?"อาจไม่มีเน็ตหรือระบบเส้นทางไม่ตอบ ใช้ลูกศรด้านบนเดินตามทิศได้ หรือกดเปิดใน Google Maps":"ในหน้านี้ใช้เส้นทางจริงไม่ได้ เปิดไกด์บนเว็บของคุณเองเพื่อใช้")+'</div></div>';return;}
   const cur=r.steps[NAV.step];
-  box.innerHTML='<div class="turn-sum"><b>'+fmtKm(r.dist/1000)+'</b> · '+fmtDur(r.dur)+' <span class="muted">('+MODES.find(m=>m[0]===mode)[2]+' ตามถนนจริง)</span></div>'+
+  box.innerHTML='<div class="turn-sum"><b>'+fmtKm(r.dist/1000)+'</b> · '+fmtDur(r.dur)+' <span class="muted">('+MODES.find(m=>m[0]===mode)[2]+' ตามถนนจริง'+(mode==="car"?' ไม่รวมรถติด':'')+')</span></div>'+
     (cur?'<div class="turn-next"><span class="ti">'+cur.icon+'</span><div><div class="muted">ถัดไป · อีก '+fmtKm(dist(S.pos.la,S.pos.lo,cur.la,cur.lo))+'</div><b>'+esc(cur.text)+'</b></div></div>':'')+
     '<ol class="turn-list">'+r.steps.map((s,i)=>'<li class="'+(i<NAV.step?"done":i===NAV.step?"cur":"")+'"><span class="ti">'+s.icon+'</span><span>'+esc(s.text)+(s.dist>0&&i<r.steps.length-1?' <small class="muted">แล้วไปต่อ '+fmtKm(s.dist/1000)+'</small>':'')+'</span></li>').join("")+'</ol>'+
     '<p class="rt-foot">เส้นทางจาก OpenStreetMap (FOSSGIS) · ชื่อถนนเป็นภาษาท้องถิ่น · ระวังถนนจริงและป้ายจราจรเสมอ</p>';

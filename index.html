@@ -331,6 +331,9 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
 .rad-row{display:grid;grid-template-columns:44px 1fr 44px;gap:6px;align-items:center}
 .rad-row button{height:40px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:1.3rem;font-weight:700}
 .rad-in{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:0 10px;height:40px}
+.rad-unit{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
+.rad-unit button{border:0;background:transparent;padding:4px 8px;font-size:.8rem;color:var(--muted)}
+.rad-unit button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .rad-in input{border:0;background:transparent;width:100%;min-width:0;font-size:1.05rem;font-weight:700;text-align:center;outline:none}
 .rad-pre{display:flex;gap:6px;flex-wrap:wrap}
 .rad-pre .chip{padding:4px 10px;font-size:.8rem}
@@ -400,7 +403,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     <div class="rad-h"><span>ระยะค้นหารอบตัว</span><b id="radVal">10 กม.</b></div>
     <div class="rad-row">
       <button type="button" data-rstep="-1" aria-label="ลดระยะ">−</button>
-      <label class="rad-in"><input id="radIn" type="number" inputmode="numeric" min="100" step="100" aria-label="ระยะค้นหาเป็นเมตร"><span class="muted">ม.</span></label>
+      <div class="rad-in"><input id="radIn" type="number" inputmode="decimal" min="0.1" step="any" aria-label="ระยะค้นหา"><span class="rad-unit" id="radUnit" role="group" aria-label="หน่วยระยะ"><button type="button" data-u="m">ม.</button><button type="button" data-u="km">กม.</button></span></div>
       <button type="button" data-rstep="1" aria-label="เพิ่มระยะ">+</button>
     </div>
     <div class="rad-pre" id="radPre">
@@ -1181,6 +1184,7 @@ const S = {
   pos:store.get("pos",null), // {la,lo,src,label,ts,acc}
   fav:new Set(store.get("fav",[]))
 };
+let RUNIT=store.get("radunit","m");
 renderRad();
 $("#city").innerHTML+=CITY_ORDER.filter(c=>PLACES.some(x=>x.city===c)).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join("");
 
@@ -1500,7 +1504,9 @@ $("#selCopy").addEventListener("click",async()=>{
 function setRadius(km){S.radius=km>=99999?99999:Math.max(0.1,Math.round(km*1000)/1000);store.set("radius",S.radius);S.shown=20;renderRad();render();}
 function renderRad(){
   const all=S.radius>=99999;$("#radVal").textContent=all?"ทั้งญี่ปุ่น":fmtKm(S.radius);
-  const inp=$("#radIn");if(document.activeElement!==inp){inp.value=all?"":Math.round(S.radius*1000);}inp.placeholder=all?"ทั้งญี่ปุ่น":"";
+  const inp=$("#radIn");if(document.activeElement!==inp){inp.value=all?"":RUNIT==="km"?+S.radius.toFixed(3):Math.round(S.radius*1000);}inp.placeholder=all?"ทั้งญี่ปุ่น":"";
+  inp.setAttribute("aria-label","ระยะค้นหาเป็น"+(RUNIT==="km"?"กิโลเมตร":"เมตร"));
+  document.querySelectorAll("#radUnit [data-u]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.u===RUNIT));
   document.querySelectorAll("#radPre [data-r]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.r===S.radius));
 }
 function rStep(m){return m<1000?100:m<5000?500:m<20000?1000:m<100000?5000:20000;}
@@ -1511,7 +1517,8 @@ document.querySelectorAll("[data-rstep]").forEach(b=>b.addEventListener("click",
   let m=Math.round(S.radius*1000);m=dir>0?m+rStep(m):m-rStep(m-1);
   if(m>300000){setRadius(99999);return;}setRadius(Math.max(100,m)/1000);
 }));
-$("#radIn").addEventListener("change",e=>{const v=parseFloat(String(e.target.value).replace(/,/g,""));if(!(v>0)){renderRad();return;}setRadius(v>300000?99999:Math.max(100,v)/1000);e.target.blur();});
+$("#radIn").addEventListener("change",e=>{let v=parseFloat(String(e.target.value).replace(/,/g,""));if(!(v>0)){renderRad();return;}if(RUNIT==="km")v*=1000;setRadius(v>300000?99999:Math.max(100,v)/1000);e.target.blur();});
+$("#radUnit").addEventListener("click",e=>{const b=e.target.closest("[data-u]");if(!b)return;RUNIT=b.dataset.u;store.set("radunit",RUNIT);renderRad();});
 $("#more").addEventListener("click",()=>{S.shown+=20;render();});
 $("#list").addEventListener("keydown",e=>{if(S.selMode&&(e.key===" "||e.key==="Enter")){const c=e.target.closest(".card");if(c){e.preventDefault();c.click();}}});
 $("#list").addEventListener("click",async e=>{

@@ -246,6 +246,13 @@ body[data-view="list"] #mapView{display:none}
 .fbox .filters{padding:0 12px 12px}
 .thumb{width:64px;height:64px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:1.7rem;background:var(--accent-soft) center/cover no-repeat;position:relative;overflow:hidden}
 .thumb.has{font-size:0}
+.thumb.pban:not(.has){height:54px!important;font-size:1.6rem}
+.thumb.pban{width:auto;height:190px;margin:-2px -2px 10px;font-size:2.4rem;border-radius:12px}
+.thumb.pban.has::after{content:"ภาพ: Wikipedia";position:absolute;right:6px;bottom:5px;font-size:.62rem;color:#fff;background:#0008;padding:1px 6px;border-radius:6px}
+.ptip{border:1px solid #A0457A55;background:color-mix(in srgb,#A0457A 7%,var(--bg));border-radius:12px;padding:9px 11px;font-size:.85rem;display:grid;gap:4px;margin-top:6px}
+.ptip .pt-h{font-weight:700;color:#A0457A}
+.ptip .pt-src{color:var(--muted);font-size:.78rem}
+.ptip .pt-more a{font-weight:600}
 .c-head{display:flex;gap:12px;align-items:flex-start;min-width:0}
 .c-head>div{min-width:0}
 .c-act .nav-go{background:var(--torii);border-color:var(--torii);color:#fff;font-weight:700}
@@ -280,7 +287,20 @@ dialog.full{width:100%;max-width:640px;height:100%;max-height:100%;margin:0 auto
 .nav-dist .muted,.muted{color:var(--muted);font-size:.86rem}
 .nav-hint{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:.9rem}
 .nav-hint.arrived{background:var(--ok);color:#fff;font-weight:700;font-size:1.05rem;text-align:center}
-#navMap{height:220px;border-radius:14px;border:1px solid var(--line)}
+#navMap{height:260px;border-radius:14px;border:1px solid var(--line);overflow:hidden}
+.nav-modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.nav-modes button{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 2px;display:grid;justify-items:center;gap:2px;font-size:1.2rem}
+.nav-modes button span{font-size:.74rem;font-weight:600}
+.nav-modes button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.turn-sum{font-size:1rem;margin-bottom:6px}
+.turn-next{display:flex;gap:10px;align-items:center;background:var(--accent-soft);border-radius:12px;padding:10px;margin-bottom:8px}
+.turn-next .ti{font-size:1.8rem}
+.turn-list{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-height:260px;overflow:auto;font-size:.86rem}
+.turn-list li{display:flex;gap:8px;padding:5px 4px;border-bottom:1px dashed var(--line)}
+.turn-list li.done{opacity:.45}
+.turn-list li.cur{background:var(--accent-soft);border-radius:8px}
+.gm-btn{display:block;text-align:center;text-decoration:none;margin-top:10px}
+.maplibregl-map{font-family:var(--font-body)}
 .nav-sec h3{margin:0 0 6px;font-size:.92rem}
 .ask{border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px}
 .ask-jp{font-family:var(--font-jp);font-size:1.9rem;font-weight:700;line-height:1.3}
@@ -451,6 +471,12 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <button type="button" class="chip" data-mf="m" aria-pressed="false">🏥 โรงพยาบาล</button>
       <button type="button" class="chip" data-mf="fav" aria-pressed="false">★ เฉพาะที่บันทึก</button>
     </div>
+    <div class="chips" id="langChips" role="group" aria-label="ภาษาป้ายชื่อบนแผนที่" hidden>
+      <span class="muted" style="align-self:center;font-size:.8rem">ภาษาแผนที่</span>
+      <button type="button" class="chip" data-lang="th" aria-pressed="true">ไทย</button>
+      <button type="button" class="chip" data-lang="en" aria-pressed="false">English</button>
+      <button type="button" class="chip" data-lang="ja" aria-pressed="false">日本語</button>
+    </div>
     <div class="map-wrap">
       <div id="map" role="application" aria-label="แผนที่ร้านและที่เที่ยว"></div>
       <button type="button" class="btn map-me" id="mapMe" aria-label="กลับมาที่ตำแหน่งฉัน">◎</button>
@@ -503,14 +529,21 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     </div>
     <div class="nav-hint" id="navHint"></div>
     <button type="button" class="btn primary" id="navCompassBtn">🧭 เปิดเข็มทิศ (ลูกศรหมุนตามมือถือ)</button>
+    <div class="nav-modes" id="navModes" role="group" aria-label="เลือกวิธีเดินทาง">
+      <button type="button" data-mode="walk" aria-pressed="true">🚶<span>เดิน</span></button>
+      <button type="button" data-mode="transit" aria-pressed="false">🚆<span>รถไฟ/บัส</span></button>
+      <button type="button" data-mode="car" aria-pressed="false">🚕<span>รถ/แท็กซี่</span></button>
+      <button type="button" data-mode="bike" aria-pressed="false">🚲<span>จักรยาน</span></button>
+    </div>
     <div id="navMap" hidden></div>
-    <section class="nav-sec"><h3>วิธีเดินทาง</h3><div id="navRoute" class="rt-inline"></div></section>
+    <section class="nav-sec"><div id="navTurns"></div>
+      <a class="btn primary gm-btn" id="navGmBtn" target="_blank" rel="noopener">เปิดนำทางเสียงใน Google Maps ↗</a></section>
     <section class="nav-sec ask">
       <h3>ถามทางคนญี่ปุ่น · ยื่นจอให้ดู</h3>
       <div class="ask-jp" id="askJp" lang="ja"></div>
       <div class="ask-phrase"><span lang="ja">すみません、ここに行きたいです。</span><small>Sumimasen, koko ni ikitai desu · ขอโทษครับ/ค่ะ อยากไปที่นี่</small></div>
       <div class="ask-phrase"><span lang="ja">駅はどこですか？</span><small>Eki wa doko desu ka · สถานีรถไฟอยู่ที่ไหน</small></div>
-      <div class="c-act"><button type="button" id="askCopy">คัดลอกชื่อญี่ปุ่น</button><a id="navGm" target="_blank" rel="noopener">เทียบกับ Google Maps</a></div>
+      <div class="c-act"><button type="button" id="askCopy">คัดลอกชื่อญี่ปุ่น</button></div>
     </section>
   </div>
 </dialog>
@@ -811,6 +844,82 @@ const HOSP=[
 ["Naha City Hospital","那覇市立病院",26.2290,127.6990,"นาฮะ, โอกินาว่า","",0,"รพ.ประจำเมืองนาฮะ"]
 ];
 HOSP.forEach(([n,j,la,lo,a,tel,er,note])=>PLACES.push({id:PLACES.length,t:"m",c:er?"er":"hosp",n,j,la,lo,a,d:note,tip:"",p:"",mx:{tel,er}}));
+/* ---------- จุดถ่ายรูปเพิ่มเติม คัดจากคู่มือ/รีวิวถ่ายภาพหลายแหล่ง (พ.ย. 2026) ---------- */
+const PHOTOSPOTS=[
+["ศาลเจ้าฮิเอะ อุโมงค์โทริอิ","日枝神社 山王鳥居",35.6743,139.7396,"อากาซากะ, โตเกียว","บันไดใต้อุโมงค์โทริอิแดงกลางเมือง ได้ฟีลฟุชิมิอินาริแต่คนน้อยกว่ามาก"],
+["โอโมอิเดะโยโกโจ","思い出横丁",35.6930,139.6994,"ชินจูกุ, โตเกียว","ซอยร้านยากิโทริเล็กๆ โคมแดงเรียงแน่น บรรยากาศโตเกียวยุคโชวะ"],
+["สะพานอาซึมะ (วิวสกายทรี)","吾妻橋",35.7106,139.7988,"อาซากุสะ, โตเกียว","สะพานแดงที่เห็นโตเกียวสกายทรีคู่ตึกอาซาฮีไอคอนิก"],
+["วัดโซโจจิ + โตเกียวทาวเวอร์","増上寺",35.6575,139.7484,"ชิบะ, โตเกียว","วัดเก่าที่มีโตเกียวทาวเวอร์ตั้งตระหง่านด้านหลัง ภาพเก่า-ใหม่ในเฟรมเดียว"],
+["สะพานฮิจิริ (รถไฟ 3 สาย)","聖橋",35.7006,139.7650,"โอชาโนมิซึ, โตเกียว","จุดที่เห็นรถไฟสายมารุโนะอุจิสีแดงโผล่จากอุโมงค์ตัดกับรถไฟ JR บนแม่น้ำ"],
+["แม่น้ำเมงุโระ นากาเมงุโระ","目黒川",35.6444,139.6985,"นากาเมงุโระ, โตเกียว","ริมคลองซากุระดังสุดของโตเกียว ฤดูหนาวมีไฟสีชมพู"],
+["ยูยาเกะดันดัน ยานากะ","夕やけだんだん",35.7276,139.7658,"ยานากะ, โตเกียว","บันไดชมพระอาทิตย์ตกเหนือถนนยานากะกินซ่า บรรยากาศย่านเก่า"],
+["สี่แยกสุกิยะบาชิ กินซ่า","数寄屋橋交差点",35.6727,139.7633,"กินซ่า, โตเกียว","ทางม้าลายใหญ่ล้อมด้วยตึกกระจก ได้ภาพคล้ายชิบุยะแต่คนน้อยกว่า"],
+["สวนริมทะเลโอไดบะ","お台場海浜公園",35.6297,139.7758,"โอไดบะ, โตเกียว","หาดเล็กที่เห็นสะพานเรนโบว์และตึกโตเกียวยามค่ำ"],
+["สะพานทัตสึมิ กิออนชิราคาวะ","巽橋 祇園白川",35.0055,135.7747,"กิออน, เกียวโต","คลองต้นหลิวกับบ้านไม้ โอกาสเห็นไมโกะเดินผ่านสะพาน"],
+["ยาซากะโคชินโด (ลูกบอลผ้าสีรุ้ง)","八坂庚申堂",34.9990,135.7786,"ฮิงาชิยามะ, เกียวโต","วัดเล็กที่แขวนคุคุริซารุ ลูกบอลผ้าหลากสีเต็มลาน มองเห็นเจดีย์ยาซากะ"],
+["ป่ากิโมโน สถานีอาราชิยามะ","キモノフォレスト (嵐山駅)",35.0155,135.6780,"อาราชิยามะ, เกียวโต","เสาอะคริลิกลายผ้ากิโมโน 600 ต้น กลางคืนเปิดไฟสวยมาก เข้าฟรี"],
+["สะพานโทเก็ตสึ","渡月橋",35.0127,135.6778,"อาราชิยามะ, เกียวโต","สะพานไม้ยาวข้ามแม่น้ำ ฉากหลังเป็นภูเขาอาราชิยามะ"],
+["ศาลเจ้าคิฟุเนะ บันไดโคมแดง","貴船神社",35.1219,135.7629,"คิฟุเนะ, เกียวโต","บันไดหินขนาบด้วยโคมไม้แดงในหุบเขา ฤดูหนาวมีหิมะ"],
+["วัดโอตางิเน็มบุตสึจิ (ตุ๊กตาหิน 1,200 ตัว)","愛宕念仏寺",35.0284,135.6606,"ซากาโนะ, เกียวโต","รูปปั้นราคันหน้าตาตลกนับพันตัวคลุมมอส คนน้อยมาก"],
+["ซอยโฮเซ็นจิโยโกโจ","法善寺横丁",34.6683,135.5030,"นัมบะ, โอซาก้า","ตรอกหินโคมไฟเก่าใกล้โดทงโบริ กับพระฟุโดเมียวโอที่คลุมด้วยมอส"],
+["ปราสาทโอซาก้า มุมสวนนิชิโนะมารุ","大阪城 西の丸庭園",34.6868,135.5236,"ชูโอ, โอซาก้า","สนามหญ้ากว้างที่เห็นปราสาทเต็มตัว ฤดูใบไม้ผลิซากุระ 300 ต้น"],
+["ถนนฮอนโจ ฟูจิโยชิดะ","下吉田 本町通り",35.4876,138.8048,"ฟูจิโยชิดะ","ถนนร้านค้าเก่าที่ปลายทางเป็นภูเขาฟูจิลูกใหญ่ ภาพดังในอินสตาแกรม"],
+["หมู่บ้านโอชิโนะฮักไก","忍野八海",35.4603,138.8331,"โอชิโนะ, ยามานาชิ","บ่อน้ำใสจากหิมะละลาย บ้านหลังคาฟาง และฟูจิเป็นฉากหลัง"],
+["กระเช้าคาจิคาจิ (ยอดเขาเท็นโจ)","河口湖 天上山公園",35.5040,138.7713,"คาวากุจิโกะ","จุดชมวิวบนเขาเห็นฟูจิอยู่เหนือทะเลสาบคาวากุจิ"],
+["จุดชมวิวหมู่บ้านชิราคาวาโกะ","白川郷 城山展望台",36.2635,136.9061,"ชิราคาวาโกะ, กิฟุ","มองลงไปเห็นบ้านหลังคาฟางทรงมือพนมทั้งหมู่บ้าน มรดกโลก"]
+];
+PHOTOSPOTS.forEach(([n,j,la,lo,a,d])=>PLACES.push({id:PLACES.length,t:"s",c:"photo",n,j,la,lo,a,d,tip:"",p:""}));
+
+/* มุมถ่าย / เวลาดีสุด / แหล่งที่แนะนำ (คีย์ = ชื่อญี่ปุ่น)  w=เวลา  a=ยืนตรงไหน/มุม  x=ข้อควรรู้  s=แหล่งที่แนะนำ */
+const PTIP={
+"日枝神社 山王鳥居":{w:"เช้าวันธรรมดา",a:"ขึ้นทางบันไดฝั่ง Sanno-bashi (ฝั่งตึก Sanno Park Tower) ยืนกลางบันไดหันขึ้น ใช้ความสมมาตรของโทริอิ",x:"เป็นศาลเจ้า แต่งกายสุภาพ ไม่ขวางทางคนไหว้",s:["JRailPass Blog","Rexby (Tabimawari)","Locationscout"]},
+"思い出横丁":{w:"หัวค่ำ 18:00–20:00 โคมเปิดไฟ",a:"ยืนปากซอยฝั่งสถานีชินจูกุ ถ่ายยาวเข้าซอย",x:"ร้านส่วนใหญ่ไม่ชอบให้ถ่ายลูกค้าใกล้ๆ ถ่ายบรรยากาศจากทางเดินพอ",s:["Rexby (Tabimawari)","Magical Trip"]},
+"吾妻橋":{w:"Blue hour หลังพระอาทิตย์ตก ~20 นาที",a:"ยืนริมสะพานฝั่งอาซากุสะ หันไปฝั่งตะวันออก จะเห็นสกายทรี + ตึกอาซาฮีทองคำ",s:["LIVE JAPAN"]},
+"増上寺":{w:"บ่ายแก่ถึงหัวค่ำ (โตเกียวทาวเวอร์เปิดไฟ)",a:"ยืนหน้าประตูซังมงหรือลานหน้าโบสถ์ใหญ่ ให้ทาวเวอร์อยู่ด้านหลังหลังคาวัด · มุมลับ: บันไดในสวนชิบะเฟรมทาวเวอร์พอดี",s:["Rexby (Tabimawari)"]},
+"聖橋":{w:"กลางวัน ช่วง 10:00–16:00 รถไฟถี่",a:"ยืนบนสะพาน Hijiribashi มองลงแม่น้ำคันดะ รอจังหวะรถไฟแดงสายมารุโนะอุจิกับ JR สีเหลือง/ส้มวิ่งตัดกัน",s:["Rexby (Tabimawari)"]},
+"目黒川":{w:"ปลาย มี.ค.–ต้น เม.ย. (ซากุระ) · ธ.ค. ไฟประดับสีชมพู",a:"ถ่ายจากสะพานเล็กๆ ข้ามคลองใกล้สถานีนากาเมงุโระ ให้กิ่งซากุระโน้มลงกลางเฟรม",x:"ช่วงซากุระคนแน่นมาก ไปเช้าตรู่",s:["JRailPass Blog"]},
+"夕やけだんだん":{w:"ก่อนพระอาทิตย์ตก",a:"ยืนบนสุดของบันได มองลงไปถนนยานากะกินซ่า",s:[]},
+"数寄屋橋交差点":{w:"หัวค่ำ ตึกเปิดไฟ",a:"ถ่ายจากดาดฟ้า Tokyu Plaza Ginza หรือมุมทางเท้าทแยงสี่แยก",s:["Tokyo Weekender"]},
+"お台場海浜公園":{w:"หลังพระอาทิตย์ตก สะพานเรนโบว์เปิดไฟ",a:"ยืนริมหาดถ่ายสะพาน + ตึกฝั่งชิบะ ใช้โหมดกลางคืน/วางมือถือนิ่งๆ",s:["Skylum Blog"]},
+"巽橋 祇園白川":{w:"เช้าตรู่ หรือหัวค่ำตอนโคมเปิด · ซากุระต้น เม.ย.",a:"ยืนริมคลองฝั่งถนนชิราคาวะ ถ่ายสะพานทัตสึมิกับต้นหลิว",x:"ห้ามตามหรือถ่ายไมโกะ/เกโกะใกล้ๆ โดยไม่ขออนุญาต มีค่าปรับในซอยส่วนตัวของกิออน",s:["AFLO Blog","Japan Wonder Travel","TheTravel","Flytographer"]},
+"八坂庚申堂":{w:"เช้า 9:00 ก่อนคนเยอะ",a:"ยืนในลานให้ลูกบอลผ้าเต็มด้านหน้า แล้วถอยออกนอกประตูเพื่อเห็นเจดีย์ยาซากะด้านหลัง",s:["JW Web Magazine"]},
+"キモノフォレスト (嵐山駅)":{w:"หลังพระอาทิตย์ตก เสาเปิดไฟ",a:"เดินเข้าทางเดินกลางเสา ถ่ายแนวยาวให้เสาเรียงลึก",s:["The Creative Adventurer"]},
+"渡月橋":{w:"เช้าตรู่ หรือปลาย พ.ย. ใบไม้แดง",a:"ยืนริมแม่น้ำฝั่งใต้ (นากาโนชิมะ) ถ่ายสะพานเต็มตัวกับภูเขา",s:["JW Web Magazine"]},
+"貴船神社":{w:"กลางวันหน้าฝน/หิมะ หรือคืนเปิดไฟฤดูหนาว",a:"ยืนล่างสุดของบันไดหน้าประตูโทริอิ ถ่ายขึ้นให้โคมแดงนำสายตา",x:"ใช้เวลาจากใจกลางเมือง ~1 ชม. (รถไฟเอซัน + บัส)",s:["kyoto.travel (ท่องเที่ยวเกียวโตทางการ)","JW Web Magazine","Rakuten Travel"]},
+"愛宕念仏寺":{w:"กลางวัน แสงลอดต้นไม้",a:"ก้มต่ำระดับรูปปั้น ถ่ายใกล้ๆ หน้าตาแต่ละตัวไม่เหมือนกัน",s:["Locationscout"]},
+"法善寺横丁":{w:"หัวค่ำ โคมและป้ายร้านเปิดไฟ",a:"ยืนต้นตรอกหินถ่ายยาวเข้าไป · ไปที่พระฟุโดเมียวโอมอส",s:[]},
+"大阪城 西の丸庭園":{w:"Blue hour หรือปลาย มี.ค.–ต้น เม.ย. (ซากุระ)",a:"ยืนกลางสนามหญ้าให้ปราสาทอยู่หลังแนวต้นไม้ · มุมคูน้ำก็ได้เงาสะท้อนสวย",x:"สวนนิชิโนะมารุเสียค่าเข้า ปิดวันจันทร์",s:["Veltra","Rakuten Travel"]},
+"下吉田 本町通り":{w:"เช้าตรู่ ฟ้าใส (ฤดูหนาวเห็นฟูจิชัดสุด)",a:"ยืนบนทางเท้าแถว Shimoyoshida 3-chome ถ่ายตามแนวถนนให้ฟูจิอยู่ปลายถนน",x:"ห้ามยืนกลางถนน ทางการติดป้ายเตือนแล้ว ใช้ทางเท้าหรือทางม้าลายเท่านั้น",s:["Islands.com","Adorama","OneDayAway Travel","Klook","Wanderlog"]},
+"忍野八海":{w:"ก่อน 10:00 คนน้อย ฟ้ายังใส",a:"ยืนข้างบ่อน้ำ Waku-ike ให้น้ำใสอยู่หน้า ฟูจิและบ้านหลังคาฟางด้านหลัง",x:"นั่งบัสจากสถานีคาวากุจิโกะหรือฟูจิซัง",s:["LIVE JAPAN","Japlanease","CDJapan","Klook","OneDayAway Travel"]},
+"河口湖 天上山公園":{w:"เช้า ก่อนเมฆลอยมาบังฟูจิ",a:"บนจุดชมวิวยอดกระเช้า ถ่ายฟูจิเหนือทะเลสาบ",s:["Adorama","Klook"]},
+"白川郷 城山展望台":{w:"เช้าหรือคืนเปิดไฟฤดูหนาว (ม.ค.–ก.พ. ต้องจองล่วงหน้า)",a:"ยืนที่จุดชมวิว Shiroyama มองลงหมู่บ้าน",x:"มีบัสตรงจากคานาซาวะ/ทาคายามะ",s:["Planetware"]},
+/* จุดเดิมในไกด์ */
+"渋谷スクランブル交差点":{w:"18:00–21:00 คนเลิกงานข้ามพร้อมกัน",a:"ถ่ายจากที่สูง: Mag's Park ชั้นดาดฟ้า MAGNET by Shibuya109 หรือ Shibuya Sky · ภาคพื้นดินยืนหน้าฮาจิโกะ",x:"ตั้งชัตเตอร์ช้าบนที่สูงจะได้คนเป็นเส้นพลิ้ว",s:["Shotkit","Hotels.com","TokyoTourism.org","Magical Trip","Yahoo Style"]},
+"浅草寺":{w:"เช้าตรู่ก่อน 8:00 หรือกลางคืนวัดเปิดไฟ",a:"ยืนหน้าประตูคามินาริมงให้โคมแดงยักษ์เต็มเฟรม · เดินถนนนากามิเซะไปเจดีย์ 5 ชั้น",s:["Hotels.com","Planetware","TokyoTourism.org"]},
+"根津神社":{w:"ต้นถึงปลาย เม.ย. ทุ่งอาซาเลีย หรือเช้าวันธรรมดา",a:"อุโมงค์โทริอิเล็กๆ ด้านข้างศาลเจ้า ถ่ายจากปลายทางให้เส้นนำสายตา",s:["Hotels.com","Locationscout"]},
+"伏見稲荷大社":{w:"ก่อน 7:00 หรือหลังมืด (เปิด 24 ชม. ฟรี)",a:"เดินผ่าน Senbon Torii ขึ้นไปช่วงกลางเขา คนบางลงมาก ถ่ายในช่วงโทริอิเรียงชิด",x:"ทางขึ้นยอดใช้ 2–3 ชม. ไม่ต้องไปถึงยอดก็ได้ภาพสวย",s:["Planetware","JW Web Magazine","Fstoppers","TheTravel","Rakuten Travel","Magical Trip"]},
+"嵐山 竹林の小径":{w:"ก่อน 8:00 (เปิด 24 ชม. ไม่เสียเงิน)",a:"ยืนช่วงทางโค้งกลางป่าไผ่ หันกล้องเงยขึ้นเล็กน้อย",s:["TheTravel","JW Web Magazine","Rakuten Travel","kyoto.travel (ท่องเที่ยวเกียวโตทางการ)","Trip To Japan"]},
+"三年坂・二年坂":{w:"พระอาทิตย์ขึ้น ถนนว่าง แสงอุ่น",a:"ถ่ายจากขั้นบนลงมาตามบันไดหิน · เดินต่อขึ้นวัดคิโยมิสึ",s:["Universidad de Sevilla (เส้นทางถ่ายภาพเกียวโต)","Japan Wonder Travel"]},
+"八坂の塔 (法観寺)":{w:"พระอาทิตย์ขึ้น หรือ Blue hour",a:"ยืนบนถนนยาซากะโดริช่วงทางลาดด้านล่าง (Yasaka-dori) ให้เจดีย์อยู่ปลายตรอก",s:["JW Web Magazine","TheTravel","Universidad de Sevilla (เส้นทางถ่ายภาพเกียวโต)"]},
+"祇園 花見小路":{w:"หลังพระอาทิตย์ตก โคมเปิด",a:"ถ่ายตามแนวถนนหลักเท่านั้น",x:"ซอยแยกบางซอยเป็นทางส่วนตัว ห้ามถ่ายรูป มีค่าปรับ",s:["Japan Wonder Travel","Universidad de Sevilla (เส้นทางถ่ายภาพเกียวโต)"]},
+"清水寺":{w:"เปิด 6:00 ไปตอนเปิด · ปลาย พ.ย. คืนเปิดไฟใบไม้แดง",a:"ถ่ายระเบียงไม้จากจุดชมวิวฝั่งเจดีย์โคยาสุ (ทางเดินด้านใต้) จะเห็นระเบียง + เมืองเกียวโต",s:["Japan Wonder Travel","Universidad de Sevilla (เส้นทางถ่ายภาพเกียวโต)"]},
+"金閣寺":{w:"ตอนเปิด 9:00 แดดเช้าส่องตัวศาลา",a:"จุดแรกริมสระหลังทางเข้า ได้เงาสะท้อนในน้ำ",s:["JW Web Magazine","Magical Trip"]},
+"新倉山浅間公園 忠霊塔":{w:"ช่วงพระอาทิตย์ขึ้น ฤดูหนาวฟ้าใสสุด · ต้น–กลาง เม.ย. ซากุระ",a:"ขึ้นบันได 398 ขั้นไปจุดชมวิวด้านหลังเจดีย์ ให้เจดีย์อยู่หน้า ฟูจิอยู่หลัง",x:"จุดชมวิวมีจำกัดเวลายืนถ่ายช่วงคนเยอะ",s:["Magical Trip","CDJapan","Klook","TokyoTourism.org"]},
+"ローソン 河口湖駅前店":{w:"เช้าตรู่",a:"ถ่ายจากทางเท้าฝั่งตรงข้ามร้าน",x:"ทางการติดตั้งฉากกั้นบางช่วง ห้ามข้ามถนนนอกทางม้าลาย",s:["Klook","Locationscout"]},
+"大石公園":{w:"เช้าตรู่ลมสงบ ได้เงาสะท้อน · ก.ค. ลาเวนเดอร์ · ต้น–กลาง พ.ย. ใบไม้แดง",a:"ริมทะเลสาบฝั่งเหนือ ย่อตัวต่ำ ถือกล้องขนานผิวน้ำ",s:["OneDayAway Travel","Klook","Veltra"]},
+"箱根神社":{w:"เช้าก่อน 9:00",a:"ต่อคิวถ่ายที่โทริอิแห่งสันติภาพริมทะเลสาบอาชิ หรือถ่ายจากเรือโจรสลัดกลางทะเลสาบ",x:"ช่วงสายคิวยาวมาก",s:["Wanderlog","Locationscout"]},
+"厳島神社 大鳥居":{w:"น้ำขึ้น = โทริอิลอยน้ำ · น้ำลง = เดินไปถึงโทริอิ (ดูตารางน้ำขึ้นลงก่อนไป)",a:"ริมชายฝั่งหน้าศาลเจ้า หรือช่วงพระอาทิตย์ตกจากฝั่งตะวันตก",s:["Planetware","Yahoo Style","Locationscout"]},
+"奈良公園":{w:"พระอาทิตย์ขึ้น มีหมอกและแสงลอด",a:"ถ่ายกวางใต้ต้นเมเปิ้ลช่วงใบไม้แดง ปลาย พ.ย.–ต้น ธ.ค.",s:["Veltra"]},
+"グリコサイン":{w:"หลังมืด ป้ายเปิดไฟ",a:"สะพานเอบิสึบาชิคือจุดคลาสสิก · มุมลับ: ระเบียงด้านหลังป้ายกูลิโกะ",s:["Rexby (Tabimawari)","Rakuten Travel"]}
+};
+function photoTipHTML(x){
+  const t=PTIP[x.j];if(!t)return "";
+  return '<div class="ptip"><div class="pt-h">📸 วิธีถ่ายให้ได้ภาพเหมือนในรีวิว</div>'+
+    '<div><b>🕐 เวลาดีสุด</b> '+esc(t.w)+'</div><div><b>📍 ยืนตรงไหน</b> '+esc(t.a)+'</div>'+(t.x?'<div><b>⚠️ ควรรู้</b> '+esc(t.x)+'</div>':'')+
+    (t.s.length?'<div class="pt-src">👍 แนะนำโดย '+t.s.length+' แหล่ง: '+t.s.map(esc).join(" · ")+'</div>':'')+
+    '<div class="pt-more"><a href="https://www.google.com/search?tbm=isch&q='+encodeURIComponent(x.j+" 撮影スポット")+'" target="_blank" rel="noopener">ดูภาพตัวอย่างจากรีวิวเพิ่ม ↗</a></div></div>';
+}
+
 const PRICE_ORDER={"":9,"¥":1,"¥¥":2,"¥¥¥":3,"¥¥¥¥":4};
 
 /* Cities / preset points for "suppose I'm at…" */
@@ -979,7 +1088,7 @@ function startWatch(){
     const moved=dist(S.pos.la,S.pos.lo,la,lo);
     S.pos.la=la;S.pos.lo=lo;
     if(NAV.x)updateNav();
-    if(MAP&&ME)ME.setLatLng([la,lo]);
+    if(MAP&&ME)ME.setLngLat([lo,la]);
     if(moved<0.06){renderLoc();return;}
     store.set("pos",S.pos);
     if(!NAV.x&&S.tab!=="map"){const y=scrollY;render();scrollTo(0,y);}
@@ -1096,12 +1205,13 @@ function card(x){
   const fav=S.fav.has(x.id),sel=S.sel.has(x.id);
   return '<article class="card'+(S.selMode?' selectable':'')+(sel?' sel':'')+'" id="p'+x.id+'" data-id="'+x.id+'"'+(S.selMode?' role="checkbox" aria-checked="'+sel+'" tabindex="0"':'')+'>'+
     (S.selMode?'<span class="cbx" aria-hidden="true">'+(sel?'✓':'')+'</span>':'')+
-    '<div class="c-top"><div class="c-head">'+thumbHTML(x)+'<div><div class="c-name">'+(fav?'<span style="color:var(--torii)" title="บันทึกไว้">★ </span>':'')+esc(x.n)+'</div><div class="c-jp" lang="ja">'+esc(x.j)+'</div></div></div>'+
+    (PTIP[x.j]?'<div class="thumb pban" data-ph="'+x.id+'"'+(PHOTO[x.id]?' style="background-image:url(\''+esc(PHOTO[x.id])+'\')"':'')+' aria-hidden="true">📸</div>':'')+
+    '<div class="c-top"><div class="c-head">'+(PTIP[x.j]?'':thumbHTML(x))+'<div><div class="c-name">'+(fav?'<span style="color:var(--torii)" title="บันทึกไว้">★ </span>':'')+esc(x.n)+'</div><div class="c-jp" lang="ja">'+esc(x.j)+'</div></div></div>'+
     '<div class="dist"><div class="km">'+ARR[di]+' '+fmtKm(x.k)+'</div><div class="walk">'+(x.k<=2.5?"เดิน ~"+walkMin(x.k)+" นาที":"ทาง"+DIRS[di])+'</div></div></div>'+
     '<div class="meta"><span class="tag" style="color:'+cat.c+'">'+cat.l+'</span><span class="area">'+esc(x.a)+'</span>'+(x.p?'<span class="price" title="ระดับราคา">'+x.p+'</span>':'')+'</div>'+
     '<div class="c-desc">'+esc(x.d)+'</div>'+
     (x.tip?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+
-    (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+foodInfoHTML(x)+
+    (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+foodInfoHTML(x)+photoTipHTML(x)+
     (x.t==="f"?'<div class="revlinks">เช็กรีวิวล่าสุด: <a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Google ↗</a> <a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Tabelog ↗</a></div>':'')+
     (S.selMode?'':routeMini(x)+
     (RT.open===x.id?'<div class="rt-inline" id="rt'+x.id+'">'+routeHTML(x)+'</div>':'')+
@@ -1143,7 +1253,7 @@ function goTab(t){S.tab=t;S.cats.clear();S.trust="";S.shown=20;RT.open=null;rend
 document.querySelectorAll(".bnav button").forEach(b=>b.addEventListener("click",()=>goTab(b.dataset.tab)));
 $("#moreView").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goTab(g.dataset.go);});
 $("#sosBtn").addEventListener("click",()=>{goTab("more");setTimeout(()=>$("#sos").scrollIntoView({behavior:"smooth",block:"start"}),50);});
-$("#tabBox").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g){if(g.dataset.go==="sos")$("#sosBtn").click();else goTab(g.dataset.go);}});
+$("#tabBox").addEventListener("click",e=>{const cg=e.target.closest("[data-cat-go]");if(cg){S.cats.clear();S.cats.add(cg.dataset.catGo);S.shown=20;render();return;}const g=e.target.closest("[data-go]");if(g){if(g.dataset.go==="sos")$("#sosBtn").click();else goTab(g.dataset.go);}});
 function renderTabBox(){
   const b=$("#tabBox"),p=S.pos;
   if(S.tab==="h"){
@@ -1163,6 +1273,12 @@ function renderTabBox(){
       '<li><b>🧭 ย่านอาหาร</b> ตลาดหรือซอยที่มีหลายร้าน เดินเลือกเอง ร้านที่คนญี่ปุ่นต่อคิวมักดี</li>'+
       '<li>อยากเห็นคะแนนสด กดลิงก์ <b>Tabelog ↗</b> หรือ <b>Google ↗</b> ที่การ์ด (ต้องใช้เน็ต) คะแนน 3.5 ขึ้นไปถือว่าดีมากในญี่ปุ่น</li>'+
       '<li>แตะชื่อ <b>เมนูเด็ด</b> เพื่อขึ้นชื่อญี่ปุ่นตัวใหญ่ ยื่นให้พนักงานดูตอนสั่งได้</li></ul></details>';
+  }else if(S.tab==="s"){
+    b.innerHTML='<details class="tbox guide-trust"><summary>📸 จุดถ่ายรูปคัดจากรีวิวหลายแหล่ง ('+PLACES.filter(x=>PTIP[x.j]).length+' จุดมีวิธีถ่าย)</summary>'+
+      '<ul><li>รวบรวมจากคู่มือถ่ายภาพและรีวิวหลายเว็บ เช่น LIVE JAPAN, Magical Trip, Klook, JW Web Magazine, kyoto.travel, Planetware (ค้นเมื่อ พ.ย. 2026) การ์ดจะบอกว่ามีกี่แหล่งแนะนำ</li>'+
+      '<li>ทุกจุดมี <b>เวลาที่ดีสุด</b> + <b>ยืนตรงไหน</b> + ข้อห้ามที่ควรรู้ ภาพบนการ์ดมาจาก Wikipedia</li>'+
+      '<li>กด <b>ดูภาพตัวอย่างจากรีวิวเพิ่ม ↗</b> เพื่อเห็นภาพจริงที่คนถ่ายจากจุดนั้น</li>'+
+      '<li><button type="button" class="linkbtn" data-cat-go="photo">แสดงเฉพาะ 📸 จุดถ่ายรูป</button></li></ul></details>';
   }else b.innerHTML="";
 }
 $("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;
@@ -1823,7 +1939,7 @@ function routeHTML(x){
 const IN_FRAME=(()=>{try{return window.self!==window.top}catch(e){return true}})();
 const CAN_NET=!IN_FRAME&&/^https?:$/.test(location.protocol);
 const CAT_ICON={budget:"🛏️",mid:"🏨",premium:"✨",er:"🚑",hosp:"🏥",ramen:"🍜",sushi:"🍣",beef:"🥩",fried:"🍤",local:"🍱",market:"🏮",sweet:"🍡",izakaya:"🍶",temple:"⛩️",view:"🌄",photo:"📸",shop:"🛍️",sight:"🏯"};
-const WIKI_T={"鎌倉大仏 (高徳院)":"高徳院","八坂の塔 (法観寺)":"法観寺","嵐山 竹林の小径":"嵐山","新倉山浅間公園 忠霊塔":"新倉山浅間公園","厳島神社 大鳥居":"厳島神社","東京都庁 展望室":"東京都庁舎","渋谷スカイ":"渋谷スクランブルスクエア","チームラボプラネッツ":"チームラボプラネッツ TOKYO DMM","ユニコーンガンダム立像":"ダイバーシティ東京","グリコサイン":"グリコサイン","梅田スカイビル 空中庭園":"梅田スカイビル","あべのハルカス 展望台":"あべのハルカス","HEP FIVE 観覧車":"HEP FIVE","ローソン 河口湖駅前店":"河口湖","大石公園":"大石公園 (富士河口湖町)","将軍塚青龍殿":"将軍塚","皇居東御苑":"皇居東御苑","さっぽろテレビ塔":"さっぽろテレビ塔","第一牧志公設市場":"第一牧志公設市場","築地場外市場":"築地場外市場","横浜中華街":"横浜中華街","中洲屋台":"屋台","宮島":"厳島"};
+const WIKI_T={"日枝神社 山王鳥居":"日枝神社 (千代田区)","思い出横丁":"思い出横丁","夕やけだんだん":"谷中銀座商店街","数寄屋橋交差点":"数寄屋橋","巽橋 祇園白川":"祇園新橋","八坂庚申堂":"八坂庚申堂","キモノフォレスト (嵐山駅)":"嵐山駅 (京福電気鉄道)","法善寺横丁":"法善寺","大阪城 西の丸庭園":"大阪城公園","下吉田 本町通り":"富士吉田市","河口湖 天上山公園":"天上山公園","白川郷 城山展望台":"白川郷","鎌倉大仏 (高徳院)":"高徳院","八坂の塔 (法観寺)":"法観寺","嵐山 竹林の小径":"嵐山","新倉山浅間公園 忠霊塔":"新倉山浅間公園","厳島神社 大鳥居":"厳島神社","東京都庁 展望室":"東京都庁舎","渋谷スカイ":"渋谷スクランブルスクエア","チームラボプラネッツ":"チームラボプラネッツ TOKYO DMM","ユニコーンガンダム立像":"ダイバーシティ東京","グリコサイン":"グリコサイン","梅田スカイビル 空中庭園":"梅田スカイビル","あべのハルカス 展望台":"あべのハルカス","HEP FIVE 観覧車":"HEP FIVE","ローソン 河口湖駅前店":"河口湖","大石公園":"大石公園 (富士河口湖町)","将軍塚青龍殿":"将軍塚","皇居東御苑":"皇居東御苑","さっぽろテレビ塔":"さっぽろテレビ塔","第一牧志公設市場":"第一牧志公設市場","築地場外市場":"築地場外市場","横浜中華街":"横浜中華街","中洲屋台":"屋台","宮島":"厳島"};
 let PHOTO=store.get("photo",{});
 function wikiTitle(x){return WIKI_T[x.j]||x.j.replace(/\s*\(.*\)$/,"").split(" ")[0];}
 function photoable(x){return x.t==="s"||x.c==="market";}
@@ -1861,46 +1977,64 @@ function watchThumbs(root){
   if(need)fetchAllPhotos();
 }
 
-/* ---- แผนที่ (Leaflet + OpenStreetMap เมื่อเปิดบนเว็บของตัวเอง) ---- */
-let MAP=null,LAYER=null,ME=null,MEACC=null,LEAF=null;const MF={f:true,s:true,h:false,m:false,fav:false};
-function ensureLeaflet(){
-  if(window.L)return Promise.resolve(window.L);
+/* ---- แผนที่ (MapLibre + OpenFreeMap ป้ายชื่อเลือกภาษาได้ เมื่อเปิดบนเว็บของตัวเอง) ---- */
+let MAP=null,ME=null,MARKS=[],MLP=null;const MF={f:true,s:true,h:false,m:false,fav:false};
+const MAP_STYLE="https://tiles.openfreemap.org/styles/liberty";
+let MAPLANG=store.get("maplang","th");
+function ensureML(){
+  if(window.maplibregl)return Promise.resolve(window.maplibregl);
   if(!CAN_NET)return Promise.reject();
-  if(LEAF)return LEAF;
-  LEAF=new Promise((ok,no)=>{
-    const css=document.createElement("link");css.rel="stylesheet";css.href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";document.head.appendChild(css);
-    const js=document.createElement("script");js.src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
-    js.onload=()=>ok(window.L);js.onerror=()=>{LEAF=null;no();};document.head.appendChild(js);
-    setTimeout(()=>{if(!window.L){LEAF=null;no();}},9000);
+  if(MLP)return MLP;
+  MLP=new Promise((ok,no)=>{
+    const css=document.createElement("link");css.rel="stylesheet";css.href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";document.head.appendChild(css);
+    const js=document.createElement("script");js.src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
+    js.onload=()=>ok(window.maplibregl);js.onerror=()=>{MLP=null;no();};document.head.appendChild(js);
+    setTimeout(()=>{if(!window.maplibregl){MLP=null;no();}},12000);
   });
-  return LEAF;
+  return MLP;
 }
-function meIcon(L){return L.divIcon({className:"",html:'<div class="me-dot"><span></span></div>',iconSize:[22,22],iconAnchor:[11,11]});}
+function langExpr(){
+  const g=k=>["get",k];
+  const c=MAPLANG==="ja"?[g("name:ja"),g("name")]:MAPLANG==="en"?[g("name:en"),g("name_en"),g("name:latin"),g("name")]:[g("name:th"),g("name:en"),g("name_en"),g("name:latin"),g("name")];
+  return ["coalesce",...c];
+}
+function applyLang(map){
+  try{map.getStyle().layers.forEach(l=>{
+    if(l.type!=="symbol")return;const tf=map.getLayoutProperty(l.id,"text-field");
+    if(!tf||!JSON.stringify(tf).includes("name"))return;map.setLayoutProperty(l.id,"text-field",langExpr());
+  });}catch(e){}
+}
+function newMap(ML,el,opt){
+  const m=new ML.Map(Object.assign({container:el,style:MAP_STYLE,center:[S.pos.lo,S.pos.la],zoom:15,attributionControl:{compact:true}},opt||{}));
+  m.on("styledata",()=>applyLang(m));
+  return m;
+}
+function meEl(){const d=document.createElement("div");d.className="me-dot";d.innerHTML="<span></span>";d.title="คุณอยู่ที่นี่";return d;}
+function pinEl(x){const d=document.createElement("div");d.className="pin";d.style.setProperty("--c",CAT[x.c].c);d.innerHTML="<span>"+CAT_ICON[x.c]+"</span>";d.title=x.n;return d;}
 function mapPlaces(){
   const p=S.pos;
   return PLACES.filter(x=>(MF.fav?S.fav.has(x.id):true)&&MF[x.t]).map(x=>({...x,k:dist(p.la,p.lo,x.la,x.lo)})).sort((a,b)=>a.k-b.k);
 }
 function renderMap(){
   document.querySelectorAll("#mapChips [data-mf]").forEach(b=>b.setAttribute("aria-pressed",MF[b.dataset.mf]));
-  ensureLeaflet().then(L=>{
-    $("#mapFallback").hidden=true;$(".map-wrap").hidden=false;
+  document.querySelectorAll("#langChips [data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===MAPLANG));
+  ensureML().then(ML=>{
+    $("#mapFallback").hidden=true;$(".map-wrap").hidden=false;$("#langChips").hidden=false;
     if(!MAP){
-      MAP=L.map("map",{zoomControl:true,attributionControl:true}).setView([S.pos.la,S.pos.lo],15);
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(MAP);
-      LAYER=L.layerGroup().addTo(MAP);
-      MEACC=L.circle([S.pos.la,S.pos.lo],{radius:S.pos.acc||40,color:"#1F6FA8",weight:1,fillOpacity:.12}).addTo(MAP);
-      ME=L.marker([S.pos.la,S.pos.lo],{icon:meIcon(L),zIndexOffset:1000}).addTo(MAP).bindTooltip("คุณอยู่ที่นี่");
+      MAP=newMap(ML,"map");
+      MAP.addControl(new ML.NavigationControl({showCompass:true}),"top-left");
+      ME=new ML.Marker({element:meEl()}).setLngLat([S.pos.lo,S.pos.la]).addTo(MAP);
     }
-    ME.setLatLng([S.pos.la,S.pos.lo]);MEACC.setLatLng([S.pos.la,S.pos.lo]).setRadius(S.pos.acc||40);
-    LAYER.clearLayers();
+    ME.setLngLat([S.pos.lo,S.pos.la]);
+    MARKS.forEach(m=>m.remove());MARKS=[];
     mapPlaces().forEach(x=>{
-      L.marker([x.la,x.lo],{icon:L.divIcon({className:"",html:'<div class="pin" style="--c:'+CAT[x.c].c+'"><span>'+CAT_ICON[x.c]+'</span></div>',iconSize:[34,34],iconAnchor:[17,34]})})
-        .bindTooltip(x.n,{direction:"top",offset:[0,-30]}).on("click",()=>showMapCard(x)).addTo(LAYER);
+      const el=pinEl(x);el.addEventListener("click",ev=>{ev.stopPropagation();showMapCard(x);});
+      MARKS.push(new ML.Marker({element:el,anchor:"bottom"}).setLngLat([x.lo,x.la]).addTo(MAP));
     });
-    setTimeout(()=>MAP.invalidateSize(),60);
+    setTimeout(()=>MAP.resize(),60);
   }).catch(()=>{
-    $(".map-wrap").hidden=true;$("#mapFallback").hidden=false;
-    $("#mapMsg").innerHTML=IN_FRAME?"แผนที่จริงใช้ได้เมื่อเปิดไกด์บนเว็บของคุณเอง (GitHub Pages) ตอนนี้แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ":"โหลดแผนที่ไม่ได้ (ไม่มีเน็ต) แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ";
+    $(".map-wrap").hidden=true;$("#mapFallback").hidden=false;$("#langChips").hidden=true;
+    $("#mapMsg").innerHTML=IN_FRAME?"แผนที่จริงใช้ได้เมื่อเปิดไกด์บนเว็บของคุณเอง (wcrpdev.github.io/japan-guide) ตอนนี้แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ":"โหลดแผนที่ไม่ได้ (ไม่มีเน็ต) แสดงเป็นเรดาร์รอบตัวแทน ด้านบนคือทิศเหนือ";
     renderRadar(mapPlaces().filter(x=>x.k<=Math.max(3,S.radius)).slice(0,60));
   });
 }
@@ -1911,15 +2045,46 @@ function showMapCard(x){
   $("#mapCard").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 $("#mapChips").addEventListener("click",e=>{const b=e.target.closest("[data-mf]");if(!b)return;MF[b.dataset.mf]=!MF[b.dataset.mf];if(!MF.f&&!MF.s&&!MF.h&&!MF.m)MF[b.dataset.mf]=true;renderMap();});
-$("#mapMe").addEventListener("click",()=>{if(MAP)MAP.setView([S.pos.la,S.pos.lo],16);});
+$("#langChips").addEventListener("click",e=>{const b=e.target.closest("[data-lang]");if(!b)return;MAPLANG=b.dataset.lang;store.set("maplang",MAPLANG);
+  document.querySelectorAll("#langChips [data-lang]").forEach(c=>c.setAttribute("aria-pressed",c.dataset.lang===MAPLANG));
+  if(MAP)applyLang(MAP);if(NAV.map)applyLang(NAV.map);});
+$("#mapMe").addEventListener("click",()=>{if(MAP)MAP.flyTo({center:[S.pos.lo,S.pos.la],zoom:16});});
 $("#mapCard").addEventListener("click",e=>{
   const nv=e.target.closest("[data-nav]");if(nv){openNav(+nv.dataset.nav);return;}
   const rt=e.target.closest("[data-route]");if(rt){openNav(+rt.dataset.route);return;}
+  const ds=e.target.closest("[data-dish]");if(ds){showDish(ds);return;}
   const f=e.target.closest("[data-fav]");if(f){const id=+f.dataset.fav;S.fav.has(id)?S.fav.delete(id):S.fav.add(id);saveFav();showMapCard(PLACES[id]);const fb=$("#favBadge");fb.hidden=!S.fav.size;fb.textContent=S.fav.size;}
 });
 
-/* ---- หน้านำทาง: เข็มทิศ + ระยะสด + ขั้นตอน + ถามทาง ---- */
-const NAV={x:null,heading:null,arrived:false,map:null,line:null,me:null};
+/* ---- เส้นทางจริงตามถนน (OSRM ของ FOSSGIS: เดิน จักรยาน รถยนต์) ---- */
+const ROUTERS={walk:"routed-foot",bike:"routed-bike",car:"routed-car"};
+const MODES=[["walk","🚶","เดิน","walking"],["transit","🚆","รถไฟ/บัส","transit"],["car","🚕","รถ/แท็กซี่","driving"],["bike","🚲","จักรยาน","bicycling"]];
+function turnText(st){
+  const m=st.maneuver||{},t=m.type,mod=m.modifier||"",nm=st.name?"เข้า "+st.name:"";
+  const side={left:"ซ้าย",right:"ขวา","slight left":"เบี่ยงซ้าย","slight right":"เบี่ยงขวา","sharp left":"หักซ้าย","sharp right":"หักขวา",straight:"ตรงไป",uturn:"กลับรถ"}[mod]||"";
+  if(t==="depart")return "เริ่มออกเดิน"+(st.name?"ตาม "+st.name:"");
+  if(t==="arrive")return "ถึงจุดหมาย"+(mod==="left"?" (อยู่ทางซ้าย)":mod==="right"?" (อยู่ทางขวา)":"");
+  if(t==="roundabout"||t==="rotary")return "เข้าวงเวียน ออกทางที่ "+(m.exit||1)+" "+nm;
+  if(t==="fork")return "ทางแยก ชิด"+(side||"ตามป้าย")+" "+nm;
+  if(t==="end of road")return "สุดทาง เลี้ยว"+side+" "+nm;
+  if(t==="merge")return "รวมเส้นทาง "+nm;
+  if(mod==="uturn")return "กลับรถ "+nm;
+  if(mod==="straight"||t==="new name"||t==="continue"&&!/left|right/.test(mod))return "ตรงไป "+nm;
+  if(/left|right/.test(mod))return (mod.startsWith("slight")?"":"เลี้ยว")+side+" "+nm;
+  return "ไปต่อ "+nm;
+}
+function turnIcon(st){const m=st.maneuver||{},mod=m.modifier||"";if(m.type==="arrive")return "🏁";if(m.type==="depart")return "🟢";if(m.type==="roundabout"||m.type==="rotary")return "🔄";if(mod==="uturn")return "↩️";if(mod.includes("left"))return "⬅️";if(mod.includes("right"))return "➡️";return "⬆️";}
+async function fetchRoute(mode,from,to){
+  const u="https://routing.openstreetmap.de/"+ROUTERS[mode]+"/route/v1/driving/"+from.lo.toFixed(6)+","+from.la.toFixed(6)+";"+to.lo.toFixed(6)+","+to.la.toFixed(6)+"?overview=full&geometries=geojson&steps=true";
+  const r=await fetch(u);if(!r.ok)throw new Error("route");const j=await r.json();
+  if(j.code!=="Ok"||!j.routes||!j.routes.length)throw new Error("noroute");
+  const rt=j.routes[0];
+  return {dist:rt.distance,dur:rt.duration,geom:rt.geometry,steps:rt.legs[0].steps.map(s=>({text:turnText(s),icon:turnIcon(s),dist:s.distance,la:s.maneuver.location[1],lo:s.maneuver.location[0]}))};
+}
+function offRoute(geom){if(!geom)return 0;let best=1e9;for(const c of geom.coordinates){const d=dist(S.pos.la,S.pos.lo,c[1],c[0]);if(d<best)best=d;}return best;}
+
+/* ---- หน้านำทาง: เข็มทิศ + เส้นทางจริง + ขั้นตอน + ถามทาง ---- */
+const NAV={x:null,heading:null,arrived:false,map:null,me:null,dest:null,mode:"walk",route:null,step:0,lastRoute:0,busy:false};
 function onOri(e){
   let h=null;
   if(typeof e.webkitCompassHeading==="number")h=e.webkitCompassHeading;
@@ -1940,56 +2105,109 @@ function startCompass(user){
     D.requestPermission().then(r=>{if(r==="granted")go();else toast("ไม่ได้รับสิทธิ์เข็มทิศ ใช้ทิศเหนือด้านบนแทน");}).catch(()=>toast("เปิดเข็มทิศไม่ได้ในหน้านี้"));
   }else go();
 }
+/* ลูกศรชี้ไปยังจุดเลี้ยวถัดไปเมื่อมีเส้นทางจริง ไม่งั้นชี้ไปที่หมาย */
+function arrowTarget(){
+  const r=NAV.route;if(r&&r.steps[NAV.step])return r.steps[NAV.step];
+  return NAV.x;
+}
 function drawCompass(){
-  const x=NAV.x;if(!x)return;
-  const b=bearing(S.pos.la,S.pos.lo,x.la,x.lo),h=NAV.heading;
+  const x=NAV.x;if(!x)return;const t=arrowTarget();
+  const b=bearing(S.pos.la,S.pos.lo,t.la,t.lo),h=NAV.heading;
   $("#cRing").style.transform="rotate("+(h==null?0:-h)+"deg)";
   $("#cArrow").style.transform="rotate("+(h==null?b:b-h)+"deg)";
+}
+function fmtDur(sec){const m=Math.max(1,Math.round(sec/60));return m<60?m+" นาที":Math.floor(m/60)+" ชม. "+(m%60?m%60+" นาที":"");}
+function renderTurns(){
+  const box=$("#navTurns"),r=NAV.route,mode=NAV.mode;
+  if(mode==="transit"){box.innerHTML='<div class="rt-inline">'+routeHTML({...NAV.x,k:dist(S.pos.la,S.pos.lo,NAV.x.la,NAV.x.lo)})+'</div>';return;}
+  if(NAV.busy){box.innerHTML='<div class="muted">กำลังหาเส้นทางตามถนน…</div>';return;}
+  if(!r){box.innerHTML='<div class="pres warn"><div class="t">หาเส้นทางตามถนนไม่ได้</div><div class="s">'+(CAN_NET?"อาจไม่มีเน็ตหรือระบบเส้นทางไม่ตอบ ใช้ลูกศรด้านบนเดินตามทิศได้ หรือกดเปิดใน Google Maps":"ในหน้านี้ใช้เส้นทางจริงไม่ได้ เปิดไกด์บนเว็บของคุณเองเพื่อใช้")+'</div></div>';return;}
+  const cur=r.steps[NAV.step];
+  box.innerHTML='<div class="turn-sum"><b>'+fmtKm(r.dist/1000)+'</b> · '+fmtDur(r.dur)+' <span class="muted">('+MODES.find(m=>m[0]===mode)[2]+' ตามถนนจริง)</span></div>'+
+    (cur?'<div class="turn-next"><span class="ti">'+cur.icon+'</span><div><div class="muted">ถัดไป · อีก '+fmtKm(dist(S.pos.la,S.pos.lo,cur.la,cur.lo))+'</div><b>'+esc(cur.text)+'</b></div></div>':'')+
+    '<ol class="turn-list">'+r.steps.map((s,i)=>'<li class="'+(i<NAV.step?"done":i===NAV.step?"cur":"")+'"><span class="ti">'+s.icon+'</span><span>'+esc(s.text)+(s.dist>0&&i<r.steps.length-1?' <small class="muted">แล้วไปต่อ '+fmtKm(s.dist/1000)+'</small>':'')+'</span></li>').join("")+'</ol>'+
+    '<p class="rt-foot">เส้นทางจาก OpenStreetMap (FOSSGIS) · ชื่อถนนเป็นภาษาท้องถิ่น · ระวังถนนจริงและป้ายจราจรเสมอ</p>';
+}
+function drawRouteLine(){
+  const m=NAV.map;if(!m||!m.isStyleLoaded())return;
+  const coords=NAV.route&&NAV.mode!=="transit"?NAV.route.geom.coordinates:[[S.pos.lo,S.pos.la],[NAV.x.lo,NAV.x.la]];
+  const data={type:"Feature",geometry:{type:"LineString",coordinates:coords}};
+  if(m.getSource("rt"))m.getSource("rt").setData(data);
+  else{m.addSource("rt",{type:"geojson",data});
+    m.addLayer({id:"rt-casing",type:"line",source:"rt",paint:{"line-color":"#ffffff","line-width":9}});
+    m.addLayer({id:"rt",type:"line",source:"rt",paint:{"line-color":"#1F6FA8","line-width":5}});}
+  m.setPaintProperty("rt","line-dasharray",NAV.route&&NAV.mode!=="transit"?[1]:[2,2]);
+}
+async function loadRoute(force){
+  if(!NAV.x)return;
+  if(NAV.mode==="transit"||!CAN_NET||!navigator.onLine){NAV.route=null;renderTurns();drawRouteLine();return;}
+  if(NAV.busy||(!force&&Date.now()-NAV.lastRoute<20000))return;
+  NAV.busy=true;renderTurns();NAV.lastRoute=Date.now();
+  try{NAV.route=await fetchRoute(NAV.mode,S.pos,NAV.x);NAV.step=1;}catch(e){NAV.route=null;}
+  NAV.busy=false;renderTurns();drawRouteLine();drawCompass();fitNav();
+}
+function fitNav(){const m=NAV.map;if(!m)return;const c=NAV.route&&NAV.mode!=="transit"?NAV.route.geom.coordinates:[[S.pos.lo,S.pos.la],[NAV.x.lo,NAV.x.la]];
+  let a=[180,90],b=[-180,-90];c.forEach(p=>{a=[Math.min(a[0],p[0]),Math.min(a[1],p[1])];b=[Math.max(b[0],p[0]),Math.max(b[1],p[1])];});
+  try{m.fitBounds([a,b],{padding:40,maxZoom:17,duration:0});}catch(e){}}
+function setMode(md){
+  NAV.mode=md;document.querySelectorAll("#navModes [data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===md));
+  const gm=MODES.find(m=>m[0]===md)[3];
+  $("#navGmBtn").href=gmUrl(NAV.x,gm)+"&hl=th";$("#navGmBtn").textContent="เปิดนำทางเสียงใน Google Maps ("+MODES.find(m=>m[0]===md)[2]+") ↗";
+  NAV.route=null;loadRoute(true);
 }
 function updateNav(){
   const x=NAV.x;if(!x)return;
   const k=dist(S.pos.la,S.pos.lo,x.la,x.lo),b=bearing(S.pos.la,S.pos.lo,x.la,x.lo);
   $("#navKm").textContent=fmtKm(k);
-  $("#navEta").textContent=k<=2.5?"เดิน ~"+walkMin(k)+" นาที":"ระยะเส้นตรง · ดูวิธีเดินทางด้านล่าง";
-  $("#navDir").textContent="ไปทาง"+DIRS[Math.round(b/45)%8]+" ("+Math.round(b)+"°)";
+  $("#navEta").textContent=k<=2.5?"เดิน ~"+walkMin(k)+" นาที":"ระยะเส้นตรง";
+  $("#navDir").textContent="ที่หมายอยู่ทาง"+DIRS[Math.round(b/45)%8]+" ("+Math.round(b)+"°)";
   const hint=$("#navHint"),live=S.pos.src==="gps";
+  /* ขยับไปขั้นถัดไปเมื่อเข้าใกล้จุดเลี้ยว และคำนวณเส้นทางใหม่เมื่อหลงเส้นทาง */
+  const r=NAV.route;
+  if(live&&r){
+    while(NAV.step<r.steps.length-1&&dist(S.pos.la,S.pos.lo,r.steps[NAV.step].la,r.steps[NAV.step].lo)<0.025)NAV.step++;
+    if(offRoute(r.geom)>0.07){toast("ออกนอกเส้นทาง กำลังหาเส้นทางใหม่…");loadRoute(false);}
+    renderTurns();
+  }
   if(live&&k<0.04){hint.className="nav-hint arrived";hint.textContent="🎉 ถึงแล้ว! "+x.n+" อยู่ตรงนี้";if(!NAV.arrived&&navigator.vibrate)navigator.vibrate([120,60,120]);NAV.arrived=true;}
-  else{hint.className="nav-hint";hint.innerHTML=live?(NAV.heading==null?"ลูกศรอ้างอิง <b>ทิศเหนือด้านบน</b> · กดเปิดเข็มทิศเพื่อให้ลูกศรหมุนตามมือถือ":"ถือมือถือแนวราบ หมุนตัวจนลูกศรชี้ขึ้น แล้วเดินตามลูกศร ระยะจะลดลงเรื่อยๆ"):
+  else{hint.className="nav-hint";hint.innerHTML=live?(r?"ลูกศรชี้ไป<b>จุดเลี้ยวถัดไป</b> ":"ลูกศรชี้ไปที่หมาย ")+(NAV.heading==null?"· อ้างอิงทิศเหนือด้านบน กดเปิดเข็มทิศเพื่อให้หมุนตามมือถือ":"· หมุนตัวจนลูกศรชี้ขึ้นแล้วเดินตาม"):
     "ตำแหน่งตอนนี้เป็นจุดที่ตั้งเอง ระยะและลูกศรจะไม่ขยับตามคุณ"+(IN_FRAME?" (เปิดบนเว็บของคุณเองเพื่อใช้ GPS สด)":" · กด 📍 GPS ด้านบนเพื่อใช้ตำแหน่งจริง");}
   drawCompass();
-  if(NAV.map&&NAV.me){NAV.me.setLatLng([S.pos.la,S.pos.lo]);NAV.line.setLatLngs([[S.pos.la,S.pos.lo],[x.la,x.lo]]);}
+  if(NAV.me)NAV.me.setLngLat([S.pos.lo,S.pos.la]);
+  if(!r)drawRouteLine();
 }
 function openNav(id){
-  const x=PLACES[id];NAV.x=x;NAV.arrived=false;
+  const x=PLACES[id];NAV.x=x;NAV.arrived=false;NAV.route=null;NAV.step=0;
   $("#navName").textContent=x.n;$("#navJp").textContent=x.j;$("#askJp").textContent=x.j;
-  $("#navGm").href=gmUrl(x,dist(S.pos.la,S.pos.lo,x.la,x.lo)<=2.5?"walking":"transit");
-  $("#navRoute").innerHTML=routeHTML({...x,k:dist(S.pos.la,S.pos.lo,x.la,x.lo)});
   const ph=$("#navPhoto");ph.hidden=true;
   fetchPhoto(id).then(u=>{if(u&&NAV.x===x){ph.style.backgroundImage="url('"+u+"')";ph.hidden=false;}});
   const d=$("#nav");try{d.showModal()}catch(e){d.setAttribute("open","")}
   d.querySelector(".nav-body").scrollTop=0;
   $("#navCompassBtn").hidden=ORI_ON;$("#navCompassBtn").disabled=false;$("#navCompassBtn").textContent="🧭 เปิดเข็มทิศ (ลูกศรหมุนตามมือถือ)";
   startCompass(false);
+  const k=dist(S.pos.la,S.pos.lo,x.la,x.lo);
+  setMode(k<=2.5?"walk":"transit");
   updateNav();
   if(S.pos.src==="gps")startWatch();
   const nm=$("#navMap");
-  ensureLeaflet().then(L=>{
+  ensureML().then(ML=>{
     nm.hidden=false;
-    if(!NAV.map){NAV.map=L.map("navMap",{zoomControl:false,attributionControl:true});
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(NAV.map);
-      NAV.line=L.polyline([],{color:"#C2402B",weight:4,dashArray:"6 8"}).addTo(NAV.map);
-      NAV.me=L.marker([0,0],{icon:meIcon(L),zIndexOffset:1000}).addTo(NAV.map);
-      NAV.dest=L.marker([0,0],{icon:L.divIcon({className:"",html:'<div class="pin dest"><span>🏁</span></div>',iconSize:[34,34],iconAnchor:[17,34]})}).addTo(NAV.map);}
-    NAV.dest.setLatLng([x.la,x.lo]);updateNav();
-    setTimeout(()=>{NAV.map.invalidateSize();NAV.map.fitBounds([[S.pos.la,S.pos.lo],[x.la,x.lo]],{padding:[30,30],maxZoom:17});},80);
+    if(!NAV.map){NAV.map=newMap(ML,"navMap",{zoom:14,interactive:true});NAV.map.addControl(new ML.NavigationControl({showCompass:false}),"top-right");
+      NAV.me=new ML.Marker({element:meEl()}).setLngLat([S.pos.lo,S.pos.la]).addTo(NAV.map);
+      const de=document.createElement("div");de.className="pin dest";de.innerHTML="<span>🏁</span>";
+      NAV.dest=new ML.Marker({element:de,anchor:"bottom"}).setLngLat([x.lo,x.la]).addTo(NAV.map);
+      NAV.map.on("load",()=>{drawRouteLine();fitNav();});}
+    else{NAV.dest.setLngLat([x.lo,x.la]);NAV.me.setLngLat([S.pos.lo,S.pos.la]);}
+    setTimeout(()=>{NAV.map.resize();drawRouteLine();fitNav();},120);
   }).catch(()=>{nm.hidden=true;});
 }
 function closeNav(){NAV.x=null;const d=$("#nav");if(d.close)d.close();else d.removeAttribute("open");}
 $("#navClose").addEventListener("click",closeNav);
 $("#nav").addEventListener("close",()=>{NAV.x=null;});
 $("#navCompassBtn").addEventListener("click",()=>startCompass(true));
+$("#navModes").addEventListener("click",e=>{const b=e.target.closest("[data-mode]");if(b&&NAV.x)setMode(b.dataset.mode);});
 $("#askCopy").addEventListener("click",async e=>{const b=e.target;try{await navigator.clipboard.writeText(NAV.x.j);b.textContent="คัดลอกแล้ว ✓";}catch(err){b.textContent="คัดลอกไม่ได้";}setTimeout(()=>b.textContent="คัดลอกชื่อญี่ปุ่น",1600);});
-$("#navRoute").addEventListener("click",e=>{const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;$("#navRoute").innerHTML=routeHTML({...NAV.x,k:dist(S.pos.la,S.pos.lo,NAV.x.la,NAV.x.lo)});});
+$("#navTurns").addEventListener("click",e=>{const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;renderTurns();});
 
 /* แตะเมนูเด็ด = ขึ้นชื่อญี่ปุ่นตัวใหญ่ให้พนักงานดู */
 function showDish(b){

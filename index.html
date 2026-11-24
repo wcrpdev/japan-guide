@@ -715,7 +715,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <a id="shLine" target="_blank" rel="noopener" class="sh-line">LINE</a>
       <a id="shMsg" target="_blank" rel="noopener" class="sh-msg">Messenger</a>
       <a id="shWa" target="_blank" rel="noopener" class="sh-wa">WhatsApp</a>
-      <button type="button" id="shCopy">📋 คัดลอก</button>
+      <button type="button" id="shCopy">📋 คัดลอกอีกครั้ง</button>
     </div>
     <textarea id="shText" rows="8" readonly aria-label="ข้อความที่จะแชร์"></textarea>
     <p class="rt-foot" id="shNote">กดแอปที่ต้องการ หรือคัดลอกข้อความไปวางเองได้</p>
@@ -2056,18 +2056,29 @@ function listTitle(n){
   const near=S.pos?describe(S.pos.la,S.pos.lo).head:"";
   return "🇯🇵 "+g+sub+(near?" "+near:"")+" · "+n+" ที่";
 }
-let SH_TXT="";
+let SH_TXT="",SH_OK=false;
+function copyNow(text){
+  /* คัดลอกทันทีตอนกด (ต้องทำในจังหวะเดียวกับการแตะ เบราว์เซอร์ถึงจะยอม) */
+  const legacy=()=>{try{const t=document.createElement("textarea");t.value=text;t.setAttribute("readonly","");t.style.cssText="position:fixed;top:-1000px;opacity:0";document.body.appendChild(t);t.select();t.setSelectionRange(0,text.length);const ok=document.execCommand("copy");t.remove();return ok;}catch(e){return false;}};
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text).then(()=>true,()=>legacy());
+  return Promise.resolve(legacy());
+}
 async function doShare(text,title){
   SH_TXT=text;
-  if(navigator.share&&!IN_FRAME){try{await navigator.share({title:title||"ไกด์ญี่ปุ่นใกล้ฉัน",text});return;}catch(e){if(e&&e.name==="AbortError")return;}}
+  const copied=copyNow(text);
+  copied.then(ok=>{SH_OK=ok;const n=$("#shNote");if(n&&$("#shareDlg").open)n.textContent=ok?"✓ คัดลอกข้อความแล้ว เลือกแอปด้านบน หรือไปวางในแชตได้เลย":"คัดลอกอัตโนมัติไม่ได้ในเบราว์เซอร์นี้ กดปุ่ม 📋 คัดลอก";});
+  if(navigator.share&&!IN_FRAME){try{toast("✓ คัดลอกแล้ว · เลือกแอปที่จะแชร์");await navigator.share({title:title||"ไกด์ญี่ปุ่นใกล้ฉัน",text});return;}catch(e){if(e&&e.name==="AbortError")return;}}
   const url=(text.match(/https:\/\/\S+/)||[""])[0];
   $("#shText").value=text;
   $("#shLine").href="https://line.me/R/share?text="+encodeURIComponent(text);
   $("#shWa").href="https://wa.me/?text="+encodeURIComponent(text);
   const mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   $("#shMsg").href=mob?"fb-messenger://share/?link="+encodeURIComponent(url):"https://www.messenger.com/";
-  $("#shNote").textContent=mob?"Messenger แนบได้เฉพาะลิงก์แผนที่ ถ้าอยากส่งข้อความเต็มให้กด คัดลอก แล้ววางในแชต":"บนคอม: กด คัดลอก แล้ววางในแชต LINE/Messenger ได้เลย";
+  $("#shNote").textContent="⏳ กำลังคัดลอก…";
   openDlgEl($("#shareDlg"));
+  const ok=await copied;SH_OK=ok;
+  $("#shNote").textContent=ok?"✓ คัดลอกข้อความแล้ว เลือกแอปด้านบน หรือไปวางในแชตได้เลย"+(mob?" (Messenger: วางข้อความที่คัดลอกไว้ในแชต)":""):"คัดลอกอัตโนมัติไม่ได้ในเบราว์เซอร์นี้ กดปุ่ม 📋 คัดลอก";
+  if(ok)toast("✓ คัดลอกแล้ว");
 }
 $("#shCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(SH_TXT);toast("คัดลอกแล้ว วางในแชตได้เลย");}catch(e){const t=$("#shText");t.focus();t.select();try{document.execCommand("copy");toast("คัดลอกแล้ว");}catch(_){toast("กดค้างที่ข้อความเพื่อคัดลอก");}}});
 $("#shClose").addEventListener("click",()=>closeDlgEl($("#shareDlg")));

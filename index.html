@@ -2149,7 +2149,7 @@ async function sxPlan(a,b){
   const base="/v5/plan?numItineraries=4&transitModes=RAIL,SUBWAY,TRAM,FUNICULAR&fromPlace="+encodeURIComponent(a.id)+"&toPlace="+encodeURIComponent(b.id);
   const [en,ja]=await Promise.all([sxGet(base+"&language=en"),sxGet(base+"&language=ja").catch(()=>new Promise(r=>setTimeout(r,800)).then(()=>sxGet(base+"&language=ja")).catch(()=>null))]);
   const JA={},HJ={};
-  if(ja)(ja.itineraries||[]).forEach(it=>it.legs.forEach(l=>{[l.from,l.to,...(l.intermediateStops||[])].forEach(s=>{if(s&&s.stopId)JA[s.stopId]=sxJa(s.name);});if(l.tripId){HJ[l.tripId]={h:l.headsign,n:l.routeLongName||l.routeShortName};}}));
+  if(ja)(ja.itineraries||[]).forEach(it=>it.legs.forEach(l=>{[l.from,l.to,...(l.intermediateStops||[])].forEach(s=>{if(s&&s.stopId)JA[s.stopId]=sxJa(s.name).replace(/[(（][^)）]*(都|道|府|県|市営|線|電鉄|鉄道|メトロ|Metro)[)）]$/,"");});if(l.tripId){HJ[l.tripId]={h:l.headsign,n:l.routeLongName||l.routeShortName};}}));
   const its=(en.itineraries||[]).filter(it=>it.legs.some(l=>l.mode!=="WALK"));
   its.forEach(it=>it.legs.forEach(l=>{[l.from,l.to,...(l.intermediateStops||[])].forEach(s=>{if(!s)return;s.en=sxTitle(s.name);s.ja=JA[s.stopId]||"";s.th=sxThai(s.en,s.ja);});if(HJ[l.tripId]){l.headJa=HJ[l.tripId].h;l.lineJa=HJ[l.tripId].n;}}));
   return its;

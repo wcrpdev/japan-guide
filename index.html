@@ -76,7 +76,9 @@ html[data-big] header.top{position:static}
 .tr-opt{display:flex;gap:6px;align-items:center;font-size:.85rem;margin:4px 0}
 .tr-l{display:block;font-size:.85rem;margin:8px 0 4px}
 #trJa{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:1.05rem;background:var(--bg);color:var(--ink);box-sizing:border-box}
-#trImg{max-width:100%;max-height:300px;border-radius:10px;display:block;margin:6px 0}
+.trcv{border-radius:10px;overflow:auto;margin:6px 0;max-height:70vh;border:1px solid var(--line)}
+.trcv canvas{display:block;width:100%;height:auto;cursor:pointer}.trcv.zoom canvas{width:auto;max-width:none}
+.trp .no{display:inline-block;min-width:20px;height:20px;border-radius:10px;background:#C2402B;color:#fff;font-size:.75rem;font-weight:700;text-align:center;line-height:20px;margin-right:6px}
 .tr-res{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);margin-top:6px}
 .tr-res .th{font-size:1.15rem;line-height:1.5;white-space:pre-wrap}
 .tr-hit{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.9rem;margin-top:6px}
@@ -115,7 +117,7 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:10px
 .c-desc{font-size:.92rem}
 .c-tip{font-size:.84rem;color:var(--muted);border-left:3px solid var(--torii);padding-left:8px}
 .c-act{display:flex;gap:8px;margin-top:2px;flex-wrap:wrap}
-.tbl-a a.tbth{opacity:.75;font-weight:400}
+.tbl-a .tbapp{font:inherit;font-size:.82rem;border:1px solid #E8A87C;background:#FFF3E8;color:#A3470F;border-radius:8px;padding:3px 9px;cursor:pointer}
 .sh-apps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
 .sh-apps a,.sh-apps button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;font-weight:700;font-size:.8rem;white-space:nowrap;padding:0 4px;text-decoration:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
 .sh-apps .sh-line{background:#06C755;border-color:#06C755;color:#fff}.sh-apps .sh-msg{background:#0866FF;border-color:#0866FF;color:#fff}.sh-apps .sh-wa{background:#25D366;border-color:#25D366;color:#fff}
@@ -574,7 +576,8 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
         <button type="button" class="btn" id="trDemo">ลองกับป้ายตัวอย่าง</button>
       </div>
       <label class="tr-opt"><input type="checkbox" id="trVert"> ตัวหนังสือเรียงแนวตั้ง (縦書き)</label>
-      <div id="trImgWrap" hidden><img id="trImg" alt="รูปที่ใช้แปล"></div>
+      <div id="trImgWrap" hidden><div class="trcv" id="trCvWrap"><canvas id="trCanvas" aria-label="รูปป้ายพร้อมคำแปลทับ"></canvas></div>
+        <div class="tr-act" style="margin:4px 0"><button type="button" class="btn" id="trToggle">👁 ดูต้นฉบับ</button><button type="button" class="btn" id="trZoom">🔍 ขยายรูป</button></div></div>
       <div id="trStat" class="muted" aria-live="polite"></div>
       <label for="trJa" class="tr-l">ข้อความญี่ปุ่น <span class="muted">(แก้ได้ หรือพิมพ์/วางเองก็ได้)</span></label>
       <textarea id="trJa" rows="3" lang="ja" placeholder="เช่น 出口はこちら"></textarea>
@@ -710,6 +713,15 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   </div>
 </dialog>
 
+<dialog id="tbAppDlg" aria-labelledby="tbaT">
+  <div class="set-sec"><h3 id="tbaT">📱 เปิดร้านนี้ในแอป Tabelog</h3>
+    <p style="margin:0 0 6px">คัดลอกชื่อร้านแล้ว: <b id="tbAppName" lang="ja"></b></p>
+    <ol style="margin:0 0 8px;padding-left:20px;font-size:.9rem"><li>เปิดแอป Tabelog</li><li>แตะช่องค้นหา แล้ว <b>วาง</b> ชื่อร้าน</li></ol>
+    <p class="rt-foot">ปุ่มนี้คัดลอกชื่อให้ เพราะเว็บสั่งเปิดแอป Tabelog เวอร์ชันนักท่องเที่ยวเองไม่ได้ · ยังไม่มีแอป:
+      <a href="https://apps.apple.com/app/id6752922875" target="_blank" rel="noopener">iPhone ↗</a></p>
+  </div>
+  <div class="set-sec"><button class="btn primary" type="button" onclick="closeDlgEl(document.getElementById('tbAppDlg'))">เข้าใจแล้ว</button></div>
+</dialog>
 <dialog id="shareDlg" aria-labelledby="shT">
   <div class="set-sec"><h3 id="shT">📤 แชร์</h3>
     <div class="sh-apps">
@@ -1630,9 +1642,7 @@ function priceHTML(x){
 }
 function usdBaht(t){const n=(String(t).match(/\d[\d,]*/g)||[]).map(v=>+v.replace(/,/g,""));if(!/US\$/.test(t)||!n.length||!FX.ju)return "";
   const k=FX.jt/FX.ju;return " ≈ ฿"+n.slice(0,2).map(v=>fmtB(v*k)).join("–");}
-/* ลิงก์แบบปกติ (ไม่มี /th/) แอป Tabelog รับเปิดเองถ้าติดตั้งไว้ · /th/ = หน้าเว็บภาษาไทย */
-function tbUrl(x,sub){return "https://tabelog.com/"+x.tb[5]+"/"+(sub||"");}
-function tbUrlTh(x){return "https://tabelog.com/th/"+x.tb[5]+"/";}
+function tbUrl(x,sub){return "https://tabelog.com/th/"+x.tb[5]+"/"+(sub||"");}
 function tabelogHTML(x){
   const t=x.tb;if(!t)return "";
   const d=budget(t[2]),l=budget(t[3]);
@@ -1641,7 +1651,7 @@ function tabelogHTML(x){
     '<div class="tbl-b">'+(d?'<span>🌙 งบมื้อเย็น <b>'+yenRange(d)+'</b> <small class="muted">≈ '+bahtRange(d)+'</small></span>':'')+(l?'<span>☀️ งบมื้อกลางวัน <b>'+yenRange(l)+'</b> <small class="muted">≈ '+bahtRange(l)+'</small></span>':'')+'</div>'+
     (t[4]?'<div class="tbl-n">ℹ️ '+esc(t[4])+'</div>':'')+
     (t[6]?'<div class="tbl-s">💬 <b>สรุปจากรีวิว:</b> '+esc(t[6])+'</div>':'')+
-    '<div class="tbl-a">'+(t[5]?'<a href="'+tbUrl(x)+'" target="_blank" rel="noopener">หน้าร้าน ↗</a><a href="'+tbUrl(x,"dtlrvwlst/")+'" target="_blank" rel="noopener">รีวิวทั้งหมด ↗</a><a href="'+tbUrl(x,"dtlphotolst/")+'" target="_blank" rel="noopener">รูปอาหาร ↗</a><a href="'+tbUrl(x,"dtlmenu/")+'" target="_blank" rel="noopener">เมนู ↗</a><a class="tbth" href="'+tbUrlTh(x)+'" target="_blank" rel="noopener">เว็บภาษาไทย ↗</a>':'<a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">ค้นร้านใน Tabelog ↗</a>')+'<span class="muted">ข้อมูล ณ '+TBL_DATE+' · มีแอป Tabelog จะเปิดในแอป</span></div></div>';
+    '<div class="tbl-a">'+(t[5]?'<a href="'+tbUrl(x)+'" target="_blank" rel="noopener">หน้าร้าน ↗</a><a href="'+tbUrl(x,"dtlrvwlst/")+'" target="_blank" rel="noopener">รีวิวทั้งหมด ↗</a><a href="'+tbUrl(x,"dtlphotolst/")+'" target="_blank" rel="noopener">รูปอาหาร ↗</a><a href="'+tbUrl(x,"dtlmenu/")+'" target="_blank" rel="noopener">เมนู ↗</a><button type="button" class="tbapp" data-tbcopy="'+x.id+'">📱 เปิดในแอป</button>':'<a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">ค้นร้านใน Tabelog ↗</a>')+'<span class="muted">ข้อมูล ณ '+TBL_DATE+'</span></div></div>';
 }
 function card(x){
   const cat=CAT[x.c],p=S.pos,b=bearing(p.la,p.lo,x.la,x.lo),di=Math.round(b/45)%8;
@@ -1846,27 +1856,74 @@ async function tessWorker(lang){
   TESS_LANG=lang;return TESS;
 }
 const JA_RE=/[぀-ヿ㐀-鿿ｦ-ﾟ]/;
-function cleanOcr(t){
-  return t.split(/\n+/).map(l=>l.replace(/(?<=[　-鿿＀-￯])\s+(?=[　-鿿＀-￯])/g,"").replace(/\s{2,}/g," ").trim())
-    .filter(l=>l&&(JA_RE.test(l)||/[A-Za-z0-9]{2,}/.test(l))&&!/^[\s\p{P}\p{S}_|]+$/u.test(l)).join("\n");
+function cleanLine(l){return (l||"").replace(/(?<=[　-鿿＀-￯])\s+(?=[　-鿿＀-￯])/g,"").replace(/\s{2,}/g," ").trim();}
+function keepLine(l){return !!l&&(JA_RE.test(l)||/[A-Za-z0-9]{2,}/.test(l))&&!/^[\s\p{P}\p{S}_|ー一ｰ-]+$/u.test(l);}
+function cleanOcr(t){return t.split(/\n+/).map(cleanLine).filter(keepLine).join("\n");}
+/* รวมบรรทัดที่เป็นประโยคเดียวกัน (ตัดบรรทัดเพราะป้ายแคบ) ให้แปลเป็นประโยคเต็ม */
+const END_RE=/[。．.！!？?）)」』円¥\d%]$/;
+function ocrSegments(data,vert){
+  const L=[];let pi=0;const bl=data.blocks||[];
+  if(bl.length)bl.forEach(b=>(b.paragraphs||[]).forEach(pg=>{(pg.lines||[]).forEach(l=>L.push({t:cleanLine(l.text),b:l.bbox,p:pi}));pi++;}));
+  else(data.lines||[]).forEach(l=>L.push({t:cleanLine(l.text),b:l.bbox,p:0}));
+  const lines=L.filter(l=>keepLine(l.t)&&l.b),len=b=>vert?b.y1-b.y0:b.x1-b.x0,thick=b=>vert?b.x1-b.x0:b.y1-b.y0;
+  const maxLen={};lines.forEach(l=>maxLen[l.p]=Math.max(maxLen[l.p]||0,len(l.b)));
+  const segs=[];
+  for(const l of lines){
+    const s=segs[segs.length-1],last=s&&s.last;
+    const gap=last?(vert?last.b.x0-l.b.x1:l.b.y0-last.b.y1):1e9;
+    if(s&&last.p===l.p&&!END_RE.test(last.t)&&len(last.b)>=0.7*maxLen[l.p]&&gap<thick(last.b)*1.2){
+      s.ja+=l.t;s.b={x0:Math.min(s.b.x0,l.b.x0),y0:Math.min(s.b.y0,l.b.y0),x1:Math.max(s.b.x1,l.b.x1),y1:Math.max(s.b.y1,l.b.y1)};s.n++;s.last=l;
+    }else segs.push({ja:l.t,b:{...l.b},n:1,last:l,th:""});
+  }
+  return segs.slice(0,25);
+}
+function textSegments(t){
+  const out=[];t.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const s=out[out.length-1];if(s&&!END_RE.test(s.ja)&&s.ja.length>=10)s.ja+=l;else out.push({ja:l,th:""});});
+  return out.slice(0,25);
 }
 function imgToCanvas(src,max){
   return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);ok(c);};im.onerror=no;im.src=src;});
 }
+let TR_CV=null,TR_SEGS=[],TR_SHOW=true;
+const TH_SEG=window.Intl&&Intl.Segmenter?new Intl.Segmenter("th",{granularity:"word"}):null;
+function wrapTh(ctx,text,maxW){
+  const parts=TH_SEG?[...TH_SEG.segment(text)].map(x=>x.segment):[...text];
+  const lines=[];let cur="";
+  for(const w of parts){const t=cur+w;if(cur&&ctx.measureText(t).width>maxW){lines.push(cur.trim());cur=w.trimStart();}else cur=t;}
+  if(cur.trim())lines.push(cur.trim());return lines;
+}
+function drawOverlay(){
+  const c=$("#trCanvas");if(!TR_CV)return;c.width=TR_CV.width;c.height=TR_CV.height;
+  const x=c.getContext("2d");x.drawImage(TR_CV,0,0);
+  if(!TR_SHOW)return;
+  const shown=c.getBoundingClientRect().width||c.width,k=c.width/shown,minF=Math.max(11*k,10),vert=$("#trVert").checked;
+  TR_SEGS.forEach((s,i)=>{
+    if(!s.b)return;const txt=s.th||"…";
+    let bx=s.b.x0-4,by=s.b.y0-4,bw=s.b.x1-s.b.x0+8,bh=s.b.y1-s.b.y0+8;
+    if(vert||bw<120*k){const nw=Math.max(bw,Math.min(260*k,c.width*0.45));bx=Math.max(0,Math.min(c.width-nw,bx+bw/2-nw/2));bw=nw;}
+    let f=Math.min(bh/s.n*0.75,46*k),lines;
+    for(;;){x.font="600 "+f+"px 'Sukhumvit Set','Noto Sans Thai','Thonburi',sans-serif";lines=wrapTh(x,txt,bw-8*k);if(lines.length*f*1.3<=bh||f<=minF)break;f=Math.max(minF,f*0.9);}
+    const need=lines.length*f*1.3+6*k;if(need>bh)bh=need;if(by+bh>c.height)by=Math.max(0,c.height-bh);
+    x.fillStyle="rgba(255,255,255,.93)";x.strokeStyle="rgba(194,64,43,.85)";x.lineWidth=Math.max(1.5,2*k);
+    x.beginPath();x.roundRect?x.roundRect(bx,by,bw,bh,6*k):x.rect(bx,by,bw,bh);x.fill();x.stroke();
+    x.fillStyle="#111";x.textBaseline="top";lines.forEach((l,j)=>x.fillText(l,bx+5*k,by+3*k+j*f*1.3));
+    const r=9*k;x.fillStyle="#C2402B";const cx=Math.max(r+1,bx),cy=Math.max(r+1,by);x.beginPath();x.arc(cx,cy,r,0,7);x.fill();x.fillStyle="#fff";x.font="700 "+(11*k)+"px sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(String(i+1),cx,cy+0.5);x.textAlign="left";
+  });
+}
 async function runOcr(src){
   if(TR_BUSY)return;TR_BUSY=true;
-  $("#trImg").src=src;$("#trImgWrap").hidden=false;$("#trOut").innerHTML="";
+  $("#trOut").innerHTML="";TR_SEGS=[];TR_SHOW=true;$("#trToggle").textContent="👁 ดูต้นฉบับ";
   try{
+    TR_CV=await imgToCanvas(src,1600);$("#trImgWrap").hidden=false;drawOverlay();
     if(!navigator.onLine&&!TESS){trStat("⚠️ ครั้งแรกต้องต่อเน็ตเพื่อโหลดตัวอ่านภาษาญี่ปุ่น · ดู 📖 คำบนป้ายที่เจอบ่อย ด้านล่างแทนได้");return;}
     trStat("⏳ กำลังเตรียม…");
-    const cv=await imgToCanvas(src,1600);
-    const w=await tessWorker($("#trVert").checked?"jpn_vert":"jpn");
-    const {data}=await w.recognize(cv);
-    const raw=(data.text||"").trim(),txt=cleanOcr(raw);
-    if(!txt&&raw){$("#trJa").value=raw;trStat("อ่านได้แต่ไม่ชัด (ความมั่นใจ "+Math.round(data.confidence||0)+"%) ตรวจ/แก้ข้อความด้านล่างก่อนกดแปล");return;}
-    if(!txt){trStat("ไม่เจอตัวอักษรญี่ปุ่นในรูป ลองถ่ายใกล้ขึ้น ให้ตัวหนังสือตรงและชัด หรือติ๊ก แนวตั้ง ถ้าป้ายเขียนลงมาเป็นแถว");return;}
-    $("#trJa").value=txt;trStat("✓ อ่านได้ "+txt.split("\n").length+" บรรทัด (แก้ข้อความได้ถ้าอ่านผิด)");
-    TR_BUSY=false;await translateJa();
+    const vert=$("#trVert").checked,w=await tessWorker(vert?"jpn_vert":"jpn");
+    const {data}=await w.recognize(TR_CV,{},{blocks:true,text:true});
+    const segs=ocrSegments(data,vert);
+    if(!segs.length){const raw=(data.text||"").trim();if(raw){$("#trJa").value=raw;trStat("อ่านได้แต่ไม่ชัด ตรวจ/แก้ข้อความด้านล่างก่อนกดแปล");}else trStat("ไม่เจอตัวอักษรญี่ปุ่นในรูป ลองถ่ายใกล้ขึ้น ให้ตัวหนังสือตรงและชัด หรือติ๊ก แนวตั้ง ถ้าป้ายเขียนลงมาเป็นแถว");return;}
+    TR_SEGS=segs;$("#trJa").value=segs.map(s=>s.ja).join("\n");
+    trStat("✓ อ่านได้ "+segs.length+" ส่วน · กำลังแปลแล้วเขียนทับบนรูป…");drawOverlay();
+    TR_BUSY=false;await translateSegs(true);
   }catch(e){trStat("⚠️ อ่านรูปไม่สำเร็จ ("+esc(String(e&&e.message||e))+") ลองใหม่ หรือใช้ Google แปลภาษาด้านล่าง");}
   finally{TR_BUSY=false;}
 }
@@ -1877,32 +1934,42 @@ async function mmTranslate(q){
   if(!t||j.responseStatus&&+j.responseStatus!==200||/MYMEMORY WARNING|QUERY LENGTH/i.test(t))throw new Error(t||"translate");
   return t.replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&amp;/g,"&");
 }
-async function translateJa(){
-  const txt=$("#trJa").value.trim(),out=$("#trOut");if(!txt){out.innerHTML="";return;}
-  if(TR_BUSY)return;TR_BUSY=true;
-  const lines=txt.split(/\n+/).map(l=>l.trim()).filter(Boolean).slice(0,15);
-  const gUrl="https://translate.google.com/?sl=ja&tl=th&op=translate&text="+encodeURIComponent(txt.slice(0,1500));
-  const hits=glossHits(txt);
-  const gl=hits.length?'<div class="trgl small"><div class="muted" style="grid-column:1/-1">คำบนป้ายที่รู้จัก (ใช้ได้แม้ไม่มีเน็ต)</div>'+hits.map(([j,r,t])=>'<div><b lang="ja">'+j+'</b> <span class="muted">'+r+'</span><span>'+t+'</span></div>').join("")+'</div>':'';
-  const tail='<div class="glinks" style="margin-top:8px"><a href="'+gUrl+'" target="_blank" rel="noopener">เทียบกับ Google แปลภาษา ↗</a></div>';
-  out.innerHTML='<div class="muted">⏳ กำลังแปล…</div>'+gl;
+function translateJa(){
+  /* กดแปลเอง: ถ้าข้อความยังตรงกับที่อ่านจากรูป ใช้ตำแหน่งเดิม ไม่งั้นแปลเป็นรายการ */
+  const t=$("#trJa").value.trim();if(!t){$("#trOut").innerHTML="";return;}
+  if(!(TR_SEGS.length&&TR_SEGS.map(s=>s.ja).join("\n")===t)){TR_SEGS=textSegments(t);if(TR_CV)drawOverlay();}
+  return translateSegs(!!(TR_SEGS[0]&&TR_SEGS[0].b));
+}
+function renderTrOut(note){
+  const t=$("#trJa").value.trim(),hits=glossHits(t);
+  const gUrl="https://translate.google.com/?sl=ja&tl=th&op=translate&text="+encodeURIComponent(t.slice(0,1500));
+  $("#trOut").innerHTML=(note||"")+'<div class="trres">'+TR_SEGS.map((s,i)=>'<div class="trp"><div class="th"><span class="no">'+(i+1)+'</span>'+(s.th?esc(s.th):s.err?'<span class="muted">แปลส่วนนี้ไม่ได้</span>':'<span class="muted">⏳</span>')+'</div><div lang="ja" class="ja">'+esc(s.ja)+'</div></div>').join("")+'</div>'+
+    (hits.length?'<div class="trgl small"><div class="muted" style="grid-column:1/-1">คำบนป้ายที่รู้จัก (ใช้ได้แม้ไม่มีเน็ต)</div>'+hits.map(([j,r,th])=>'<div><b lang="ja">'+j+'</b> <span class="muted">'+r+'</span><span>'+th+'</span></div>').join("")+'</div>':'')+
+    '<div class="glinks" style="margin-top:8px"><a href="'+gUrl+'" target="_blank" rel="noopener">เทียบกับ Google แปลภาษา ↗</a></div>';
+}
+async function translateSegs(overlay){
+  if(TR_BUSY||!TR_SEGS.length)return;TR_BUSY=true;
+  renderTrOut();
   try{
-    if(!navigator.onLine)throw new Error("offline");
-    const res=[];
-    for(const l of lines){let th="";try{th=await mmTranslate(l.slice(0,450));}catch(e){th="";}res.push([l,th]);
-      out.innerHTML='<div class="trres">'+res.map(([a,b])=>'<div class="trp"><div lang="ja" class="ja">'+esc(a)+'</div><div class="th">'+(b?esc(b):'<span class="muted">แปลบรรทัดนี้ไม่ได้</span>')+'</div></div>').join("")+'</div>'+(res.length<lines.length?'<div class="muted">⏳ กำลังแปล…</div>':'')+gl+tail;}
-    if(!res.some(r=>r[1]))throw new Error("none");
-  }catch(e){out.innerHTML='<div class="notice">'+(e.message==="offline"?"ไม่มีเน็ต แปลทั้งประโยคไม่ได้":"บริการแปลไม่ตอบ (อาจเกินโควตาวันนี้)")+' · กดเปิดใน Google แปลภาษาได้เลย</div>'+gl+tail;}
-  finally{TR_BUSY=false;}
+    if(!navigator.onLine){renderTrOut('<div class="notice">ไม่มีเน็ต แปลทั้งประโยคไม่ได้ · ดูคำที่รู้จักด้านล่าง</div>');return;}
+    let i=0;const work=async()=>{for(;;){const s=TR_SEGS[i++];if(!s)return;try{s.th=await mmTranslate(s.ja.slice(0,450));}catch(e){s.err=1;}renderTrOut();if(overlay)drawOverlay();}};
+    await Promise.all([work(),work(),work()]);
+    const ok=TR_SEGS.filter(s=>s.th).length;
+    if(!ok)renderTrOut('<div class="notice">บริการแปลไม่ตอบ (อาจเกินโควตาวันนี้) · กดเปิดใน Google แปลภาษาได้เลย</div>');
+    trStat(ok?"✓ แปลแล้ว "+ok+"/"+TR_SEGS.length+" ส่วน"+(overlay?" · ตัวเลขบนรูปตรงกับรายการด้านล่าง · แตะรูปเพื่อสลับดูต้นฉบับ":""):"⚠️ แปลไม่สำเร็จ");
+  }finally{TR_BUSY=false;}
 }
 function onTrFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>runOcr(r.result);r.readAsDataURL(f);e.target.value="";}
 $("#trCam").addEventListener("change",onTrFile);$("#trPick").addEventListener("change",onTrFile);
 $("#trGo").addEventListener("click",translateJa);
-$("#trClr").addEventListener("click",()=>{$("#trJa").value="";$("#trOut").innerHTML="";trStat("");$("#trImgWrap").hidden=true;});
+$("#trClr").addEventListener("click",()=>{$("#trJa").value="";$("#trOut").innerHTML="";trStat("");$("#trImgWrap").hidden=true;TR_CV=null;TR_SEGS=[];});
+function trToggle(){TR_SHOW=!TR_SHOW;$("#trToggle").textContent=TR_SHOW?"👁 ดูต้นฉบับ":"🔤 ดูคำแปล";drawOverlay();}
+$("#trToggle").addEventListener("click",trToggle);$("#trCanvas").addEventListener("click",trToggle);
+$("#trZoom").addEventListener("click",()=>{const w=$("#trCvWrap");w.classList.toggle("zoom");$("#trZoom").textContent=w.classList.contains("zoom")?"↙ ย่อรูป":"🔍 ขยายรูป";drawOverlay();});
 $("#trDemo").addEventListener("click",()=>{
-  const c=document.createElement("canvas");c.width=760;c.height=420;const x=c.getContext("2d");
-  x.fillStyle="#fff";x.fillRect(0,0,760,420);x.fillStyle="#111";x.font="bold 76px 'Hiragino Sans','Yu Gothic','Noto Sans CJK JP','Noto Sans JP',sans-serif";
-  ["お手洗いは","二階です","店内禁煙"].forEach((t,i)=>x.fillText(t,50,120+i*120));
+  const c=document.createElement("canvas");c.width=860;c.height=440;const x=c.getContext("2d");
+  x.fillStyle="#fff";x.fillRect(0,0,860,440);x.fillStyle="#111";x.font="bold 70px 'Hiragino Sans','Yu Gothic','Noto Sans CJK JP','Noto Sans JP',sans-serif";
+  ["お手洗いは二階の奥に","ございます。","店内禁煙","醤油ラーメン 900円"].forEach((t,i)=>x.fillText(t,40,100+i*100));
   runOcr(c.toDataURL("image/png"));
 });
 /* ---------- events ---------- */
@@ -2088,6 +2155,9 @@ $("#shClose").addEventListener("click",()=>closeDlgEl($("#shareDlg")));
 $("#shareList").addEventListener("click",()=>{if(!CUR.length){toast("ยังไม่มีรายการให้แชร์");return;}doShare(shareList(CUR,listTitle(CUR.length)),"ไกด์ญี่ปุ่นใกล้ฉัน");});
 $("#selCopy").addEventListener("click",()=>{const items=CUR.filter(x=>S.sel.has(x.id));const rest=PLACES.filter(x=>S.sel.has(x.id)&&!items.some(y=>y.id===x.id));const all=items.concat(rest);
   if(all.length===1)doShare(shareOne(all[0]),all[0].n);else doShare(shareList(all,"🇯🇵 ที่ที่เลือกไว้ · "+all.length+" ที่"),"ไกด์ญี่ปุ่นใกล้ฉัน");});
+document.addEventListener("click",e=>{const t=e.target.closest("[data-tbcopy]");if(!t)return;const x=PLACES[+t.dataset.tbcopy];if(!x)return;
+  copyNow(x.j).then(ok=>toast(ok?"คัดลอก "+x.j+" แล้ว · เปิดแอป Tabelog แล้ววางในช่องค้นหา":"กดค้างที่ชื่อญี่ปุ่นบนการ์ดเพื่อคัดลอก"));
+  setTimeout(()=>{openDlgEl($("#tbAppDlg"));$("#tbAppName").textContent=x.j;},60);},true);
 document.addEventListener("click",e=>{const b=e.target.closest("[data-share]");if(!b)return;e.stopPropagation();const x=PLACES[+b.dataset.share];if(x)doShare(shareOne(x),x.n);},true);
 function setRadius(km){S.radius=km>=99999?99999:Math.max(0.1,Math.round(km*1000)/1000);store.set("radius",S.radius);S.shown=20;renderRad();render();}
 function renderRad(){

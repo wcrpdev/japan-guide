@@ -362,6 +362,28 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
 .navmap-wrap{position:relative}
 .navmap-wrap .map-me{font-size:.85rem;padding:6px 10px}
 .map-me[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* สลับ แผนที่ไกด์ / Google Maps */
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);margin:6px 0}
+.seg button{flex:1;border:0;background:transparent;padding:7px 6px;font-size:.84rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.gframe[hidden],#mapChips[hidden],.navmap-wrap[hidden]{display:none!important}
+.gframe{width:100%;border:1px solid var(--line);border-radius:14px;display:block;background:var(--accent-soft)}
+#gmapMain{height:calc(100vh - 290px);min-height:320px}
+#navGmap{height:320px}
+/* รถไฟ/รถเมล์แบบละเอียด */
+.it-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px}
+.it-tabs button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 10px;text-align:left;font-size:.8rem;line-height:1.3}
+.it-tabs button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.it-tabs b{font-size:.95rem;display:block}
+.lchip{display:inline-block;border-radius:6px;padding:1px 6px;color:#fff;font-size:.74rem;font-weight:700;background:var(--lc,#1F6FA8);margin-right:3px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.tleg{list-style:none;margin:0;padding:0;display:grid}
+.tleg li{display:grid;grid-template-columns:30px 1fr;gap:6px;position:relative;padding:6px 0}
+.tleg li .ti{font-size:1.25rem;text-align:center}
+.tleg li.ride{border-left:5px solid var(--lc,#1F6FA8);margin-left:12px;padding-left:4px;grid-template-columns:24px 1fr}
+.tleg li.walk{border-left:5px dotted #9aa0a6;margin-left:12px;padding-left:4px;grid-template-columns:24px 1fr;color:var(--muted);font-size:.86rem}
+.tleg .st{font-weight:700}
+.tleg .tm{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.8rem}
 </style>
 </head>
 <body>
@@ -539,6 +561,8 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <button type="button" class="chip" data-lang="en" aria-pressed="false">English</button>
       <button type="button" class="chip" data-lang="ja" aria-pressed="false">日本語</button>
     </div>
+    <div class="seg" id="mapSrc" role="group" aria-label="เลือกแผนที่"><button type="button" data-src="ml" aria-pressed="true">🗺️ แผนที่ไกด์ (มีหมุดร้าน)</button><button type="button" data-src="g" aria-pressed="false">Google Maps</button></div>
+    <iframe id="gmapMain" class="gframe" title="Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" hidden></iframe>
     <div class="map-wrap">
       <div id="map" role="application" aria-label="แผนที่ร้านและที่เที่ยว"></div>
       <button type="button" class="btn map-me" id="mapMe" aria-label="กลับมาที่ตำแหน่งฉัน">◎</button>
@@ -597,6 +621,8 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <button type="button" data-mode="car" aria-pressed="false">🚕<span>รถ/แท็กซี่</span></button>
       <button type="button" data-mode="bike" aria-pressed="false">🚲<span>จักรยาน</span></button>
     </div>
+    <div class="seg" id="navSrc" role="group" aria-label="เลือกแผนที่นำทาง"><button type="button" data-src="ml" aria-pressed="true">🗺️ แผนที่ไกด์ (ตามตัวฉัน)</button><button type="button" data-src="g" aria-pressed="false">Google Maps</button></div>
+    <iframe id="navGmap" class="gframe" title="เส้นทางใน Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" hidden></iframe>
     <div class="navmap-wrap"><div id="navMap" hidden></div><button type="button" class="btn map-me" id="navFollow" aria-pressed="false" hidden>🎯 ตามตัวฉัน</button></div>
     <section class="nav-sec"><div id="navTurns"></div>
       <a class="btn primary gm-btn" id="navGmBtn" target="_blank" rel="noopener">เปิดนำทางเสียงใน Google Maps ↗</a></section>
@@ -1737,7 +1763,7 @@ addEventListener("hashchange",fromHash);
 
 /* ================= วิธีเดินทาง (คำนวณออฟไลน์จากระยะทาง + ข้อมูลสถานี) ================= */
 /* ชื่อสถานีภาษาอังกฤษ (ตามป้ายในสถานี) */
-const ST_EN={"新宿":"Shinjuku","渋谷":"Shibuya","原宿":"Harajuku","明治神宮前":"Meiji-jingumae","表参道":"Omote-sando","恵比寿":"Ebisu","浅草":"Asakusa","上野":"Ueno","秋葉原":"Akihabara","東京":"Tokyo","銀座":"Ginza","築地":"Tsukiji","月島":"Tsukishima","市場前":"Shijo-mae","新豊洲":"Shin-toyosu","台場":"Daiba","新橋":"Shimbashi","押上":"Oshiage (Skytree)","六本木":"Roppongi","赤羽橋":"Akabanebashi","都庁前":"Tochomae","新宿御苑前":"Shinjuku-gyoemmae","大手町":"Otemachi","根津":"Nezu","下北沢":"Shimo-kitazawa","豪徳寺":"Gotokuji","池袋":"Ikebukuro","品川":"Shinagawa","羽田空港第3ターミナル":"Haneda Airport Terminal 3","羽田空港第1・第2ターミナル":"Haneda Airport Terminal 1·2","成田空港":"Narita Airport","元町・中華街":"Motomachi-Chukagai","日本大通り":"Nihon-odori","みなとみらい":"Minatomirai","横浜":"Yokohama","鎌倉":"Kamakura","長谷":"Hase","鎌倉高校前":"Kamakurakokomae","下吉田":"Shimoyoshida","河口湖":"Kawaguchiko","箱根湯本":"Hakone-Yumoto","彫刻の森":"Chokoku-no-Mori","大涌谷":"Owakudani","東武日光":"Tobu-Nikko","京都":"Kyoto","稲荷":"Inari","東福寺":"Tofukuji","清水五条":"Kiyomizu-Gojo","祇園四条":"Gion-Shijo","京都河原町":"Kyoto-Kawaramachi","三条":"Sanjo","烏丸御池":"Karasuma Oike","二条城前":"Nijojo-mae","蹴上":"Keage","嵯峨嵐山":"Saga-Arashiyama","嵐山":"Arashiyama (Randen)","近鉄奈良":"Kintetsu-Nara","JR奈良":"JR Nara","なんば":"Namba","日本橋":"Nippombashi","心斎橋":"Shinsaibashi","梅田・大阪":"Umeda / Osaka","天王寺":"Tennoji","恵美須町":"Ebisucho","四天王寺前夕陽ヶ丘":"Shitennoji-mae Yuhigaoka","大阪城公園":"Osakajokoen","天満":"Temma","野田":"Noda","ユニバーサルシティ":"Universal City","住吉大社":"Sumiyoshitaisha","関西空港":"Kansai Airport","三宮":"Sannomiya","新神戸":"Shin-Kobe","広島":"Hiroshima","原爆ドーム前":"Genbaku Dome-mae","宮島桟橋":"Miyajima Pier","金沢":"Kanazawa","名古屋":"Nagoya","神宮前":"Jingu-mae","市役所":"Shiyakusho","矢場町":"Yabacho","大須観音":"Osu Kannon","中部国際空港":"Central Japan Int'l Airport","札幌":"Sapporo","大通":"Odori","すすきの":"Susukino","円山公園":"Maruyama-koen","中の島":"Nakanoshima","東区役所前":"Higashi-kuyakusho-mae","新千歳空港":"New Chitose Airport","小樽":"Otaru","函館":"Hakodate","博多":"Hakata","中洲川端":"Nakasu-Kawabata","天神":"Tenjin","大濠公園":"Ohorikoen","太宰府":"Dazaifu","城戸南蔵院前":"Kido-Nanzoin-mae","福岡空港":"Fukuoka Airport","県庁前":"Kencho-mae","牧志":"Makishi","首里":"Shuri","那覇空港":"Naha Airport"};
+const ST_EN={"梅田":"Umeda","有楽町":"Yurakucho","御茶ノ水":"Ochanomizu","浅草橋":"Asakusabashi","新大阪":"Shin-Osaka","本町":"Hommachi","淀屋橋":"Yodoyabashi","京橋":"Kyobashi","大阪":"Osaka","日比谷":"Hibiya","神田":"Kanda","五反田":"Gotanda","目黒":"Meguro","代々木":"Yoyogi","高田馬場":"Takadanobaba","大崎":"Osaki","上野御徒町":"Ueno-okachimachi","御徒町":"Okachimachi","両国":"Ryogoku","錦糸町":"Kinshicho","四条":"Shijo","烏丸":"Karasuma","河原町":"Kawaramachi","伏見稲荷":"Fushimi-Inari","動物園前":"Dobutsuen-mae","新今宮":"Shin-Imamiya","谷町四丁目":"Tanimachi 4-chome","森ノ宮":"Morinomiya","新宿":"Shinjuku","渋谷":"Shibuya","原宿":"Harajuku","明治神宮前":"Meiji-jingumae","表参道":"Omote-sando","恵比寿":"Ebisu","浅草":"Asakusa","上野":"Ueno","秋葉原":"Akihabara","東京":"Tokyo","銀座":"Ginza","築地":"Tsukiji","月島":"Tsukishima","市場前":"Shijo-mae","新豊洲":"Shin-toyosu","台場":"Daiba","新橋":"Shimbashi","押上":"Oshiage (Skytree)","六本木":"Roppongi","赤羽橋":"Akabanebashi","都庁前":"Tochomae","新宿御苑前":"Shinjuku-gyoemmae","大手町":"Otemachi","根津":"Nezu","下北沢":"Shimo-kitazawa","豪徳寺":"Gotokuji","池袋":"Ikebukuro","品川":"Shinagawa","羽田空港第3ターミナル":"Haneda Airport Terminal 3","羽田空港第1・第2ターミナル":"Haneda Airport Terminal 1·2","成田空港":"Narita Airport","元町・中華街":"Motomachi-Chukagai","日本大通り":"Nihon-odori","みなとみらい":"Minatomirai","横浜":"Yokohama","鎌倉":"Kamakura","長谷":"Hase","鎌倉高校前":"Kamakurakokomae","下吉田":"Shimoyoshida","河口湖":"Kawaguchiko","箱根湯本":"Hakone-Yumoto","彫刻の森":"Chokoku-no-Mori","大涌谷":"Owakudani","東武日光":"Tobu-Nikko","京都":"Kyoto","稲荷":"Inari","東福寺":"Tofukuji","清水五条":"Kiyomizu-Gojo","祇園四条":"Gion-Shijo","京都河原町":"Kyoto-Kawaramachi","三条":"Sanjo","烏丸御池":"Karasuma Oike","二条城前":"Nijojo-mae","蹴上":"Keage","嵯峨嵐山":"Saga-Arashiyama","嵐山":"Arashiyama (Randen)","近鉄奈良":"Kintetsu-Nara","JR奈良":"JR Nara","なんば":"Namba","日本橋":"Nippombashi","心斎橋":"Shinsaibashi","梅田・大阪":"Umeda / Osaka","天王寺":"Tennoji","恵美須町":"Ebisucho","四天王寺前夕陽ヶ丘":"Shitennoji-mae Yuhigaoka","大阪城公園":"Osakajokoen","天満":"Temma","野田":"Noda","ユニバーサルシティ":"Universal City","住吉大社":"Sumiyoshitaisha","関西空港":"Kansai Airport","三宮":"Sannomiya","新神戸":"Shin-Kobe","広島":"Hiroshima","原爆ドーム前":"Genbaku Dome-mae","宮島桟橋":"Miyajima Pier","金沢":"Kanazawa","名古屋":"Nagoya","神宮前":"Jingu-mae","市役所":"Shiyakusho","矢場町":"Yabacho","大須観音":"Osu Kannon","中部国際空港":"Central Japan Int'l Airport","札幌":"Sapporo","大通":"Odori","すすきの":"Susukino","円山公園":"Maruyama-koen","中の島":"Nakanoshima","東区役所前":"Higashi-kuyakusho-mae","新千歳空港":"New Chitose Airport","小樽":"Otaru","函館":"Hakodate","博多":"Hakata","中洲川端":"Nakasu-Kawabata","天神":"Tenjin","大濠公園":"Ohorikoen","太宰府":"Dazaifu","城戸南蔵院前":"Kido-Nanzoin-mae","福岡空港":"Fukuoka Airport","県庁前":"Kencho-mae","牧志":"Makishi","首里":"Shuri","那覇空港":"Naha Airport"};
 /* ชื่อสายภาษาอังกฤษ */
 const LINE_EN={"JR ยามาโนเตะ":"JR Yamanote Line","JR ชูโอ":"JR Chuo Line","เมโทร มารุโนะอุจิ":"Marunouchi Line (M)","โทเออิ โออิโดะ":"Toei Oedo Line (E)","โอดะคิว":"Odakyu Line","เคโอ":"Keio Line","เมโทร กินซ่า":"Ginza Line (G)","เมโทร ฮันโซมง":"Hanzomon Line (Z)","เมโทร ฟุกุโตชิน":"Fukutoshin Line (F)","โทคิว":"Tokyu Line","เคโอ อิโนะคาชิระ":"Keio Inokashira Line","เมโทร ชิโยดะ":"Chiyoda Line (C)","เมโทร ฮิบิยะ":"Hibiya Line (H)","โทเออิ อาซากุสะ":"Toei Asakusa Line (A)","โทบุ":"Tobu Line","JR เคฮินโทโฮกุ":"JR Keihin-Tohoku Line","ชินคันเซ็น":"Shinkansen","JR โซบุ":"JR Sobu Line","เมโทร ยูรากุโจ":"Yurakucho Line (Y)","ยูริคาโมเมะ":"Yurikamome","เมโทร โทไซ":"Tozai Line (T)","โทเออิ มิตะ":"Toei Mita Line (I)","เคคิว":"Keikyu Line","โมโนเรล":"Tokyo Monorail","JR นาริตะเอ็กซ์เพรส":"JR Narita Express","เคเซ สกายไลเนอร์":"Keisei Skyliner","มินาโตะมิไร":"Minatomirai Line","JR โทไกโด":"JR Tokaido Line","JR โยโกสุกะ":"JR Yokosuka Line","เอโนเด็น":"Enoden","ฟูจิคิว":"Fujikyu Railway","ฮาโกเนะโทซัง":"Hakone Tozan Railway","กระเช้าฮาโกเนะ":"Hakone Ropeway","JR":"JR","รถไฟใต้ดินคาราสุมะ":"Karasuma Subway Line (K)","คินเท็ตสึ":"Kintetsu Line","JR นารา":"JR Nara Line","เคฮัน":"Keihan Line","ฮันคิว":"Hankyu Line","รถไฟใต้ดินโทไซ":"Tozai Subway Line (T)","JR ซางาโนะ":"JR Sagano Line","รันเด็น":"Randen (Keifuku)","JR ยามาโตจิ":"JR Yamatoji Line","เมโทร มิโดสุจิ":"Midosuji Line (M)","นันไค":"Nankai Line","ฮันชิน":"Hanshin Line","เมโทร ซากาอิสุจิ":"Sakaisuji Line (K)","เมโทร เซ็นนิจิมาเอะ":"Sennichimae Line (S)","เมโทร นางาโฮริ":"Nagahori Tsurumi-ryokuchi Line (N)","JR วงแหวนโอซาก้า":"JR Osaka Loop Line","เมโทร ทานิมาจิ":"Tanimachi Line (T)","JR ยูเมะซากิ":"JR Yumesaki Line","JR ฮารุกะ":"JR Haruka","รถรางฮิโรชิมะ":"Hiroden Streetcar","เรือเฟอร์รี JR":"JR Miyajima Ferry","รถไฟใต้ดินฮิงาชิยามะ":"Higashiyama Subway Line","เมเท็ตสึ":"Meitetsu Line","รถไฟใต้ดินเมโจ":"Meijo Subway Line","รถไฟใต้ดินซึรุไม":"Tsurumai Subway Line","รถไฟใต้ดินนัมโบกุ":"Namboku Subway Line (N)","รถไฟใต้ดินโทไซ (ซัปโปโร)":"Tozai Subway Line (T)","รถไฟใต้ดินโทโฮ":"Toho Subway Line (H)","รถรางฮาโกดาเตะ":"Hakodate Streetcar","รถไฟใต้ดินคูโกะ":"Kuko (Airport) Subway Line","รถไฟใต้ดินฮาโกซากิ":"Hakozaki Subway Line","นิชิเท็ตสึ":"Nishitetsu Line","JR ซาซากุริ":"JR Sasaguri Line","โมโนเรลยุยเรล":"Yui Rail"};
 /* ทางออกสถานีที่ใกล้สถานที่ที่สุด: คีย์ = ชื่อญี่ปุ่นของสถานที่ → st = ชื่อญี่ปุ่นของสถานี */
@@ -2192,9 +2218,35 @@ function applyLang(map){
     if(!tf||!JSON.stringify(tf).includes("name"))return;map.setLayoutProperty(l.id,"text-field",langExpr());
   });}catch(e){}
 }
+/* ปรับหน้าตาแผนที่ให้เรียบแบบ Google: แบน ไม่มีตึก 3 มิติ ถนนขาว ทางด่วนเหลือง ตัดป้ายเลขถนน/ลายจุดที่รก */
+function tidyMap(m){
+  try{
+    m.getStyle().layers.forEach(l=>{
+      const id=l.id,set=(p,v)=>{try{m.setPaintProperty(id,p,v);}catch(e){}},hide=()=>{try{m.setLayoutProperty(id,"visibility","none");}catch(e){}};
+      if(l.type==="fill-extrusion"||/shield|one_way|hatching|natural_earth|road_area_pattern|poi_r20|poi_r7|wetland|park_outline|boundary_3/.test(id))return hide();
+      if(id==="background")return set("background-color","#f3f2ef");
+      if(id==="water")return set("fill-color","#aadaff");
+      if(/^waterway_(river|other|tunnel)$/.test(id))return set("line-color","#aadaff");
+      if(id==="park"){set("fill-color","#cde8c4");set("fill-opacity",1);set("fill-outline-color","#cde8c4");return;}
+      if(/^landcover_(wood|grass)$/.test(id)){set("fill-color","#d4ebc9");return;}
+      if(id==="landuse_residential")return set("fill-opacity",0);
+      if(id==="building"){set("fill-color","#e8e6e1");set("fill-outline-color","#dcd9d3");return;}
+      if(l.type==="line"&&/^(road|tunnel|bridge)_/.test(id)){
+        if(/rail/.test(id))return set("line-color","#bcc0c7");
+        const cas=/casing/.test(id);
+        if(/motorway/.test(id))return set("line-color",cas?"#e3a73b":"#fbd27a");
+        if(/path_pedestrian/.test(id))return set("line-color",cas?"#dddddd":"#ffffff");
+        return set("line-color",cas?"#d9d7d2":"#ffffff");
+      }
+      if(/^highway-name/.test(id))set("text-color","#5f6368");
+    });
+    if(!m.getLayer("building-flat"))m.addLayer({id:"building-flat",type:"fill",source:"openmaptiles","source-layer":"building",minzoom:14,paint:{"fill-color":"#e8e6e1","fill-outline-color":"#dcd9d3"}},m.getLayer("building-3d")?"building-3d":undefined);
+  }catch(e){}
+}
 function newMap(ML,el,opt){
-  const m=new ML.Map(Object.assign({container:el,style:MAP_STYLE,center:[S.pos.lo,S.pos.la],zoom:15,attributionControl:{compact:true}},opt||{}));
-  m.on("styledata",()=>applyLang(m));
+  const m=new ML.Map(Object.assign({container:el,style:MAP_STYLE,center:[S.pos.lo,S.pos.la],zoom:15,attributionControl:{compact:true},maxPitch:0,pitchWithRotate:false,dragRotate:false,touchPitch:false},opt||{}));
+  try{m.touchZoomRotate.disableRotation();}catch(e){}
+  m.on("styledata",()=>{if(!m._tidy&&m.getLayer("background")){m._tidy=true;tidyMap(m);}applyLang(m);});
   return m;
 }
 function meEl(){const d=document.createElement("div");d.className="me-dot";d.innerHTML="<span></span>";d.title="คุณอยู่ที่นี่";return d;}
@@ -2204,13 +2256,15 @@ function mapPlaces(){
   return PLACES.filter(x=>(MF.fav?S.fav.has(x.id):true)&&MF[x.t]).map(x=>({...x,k:dist(p.la,p.lo,x.la,x.lo)})).sort((a,b)=>a.k-b.k);
 }
 function renderMap(){
+  if(applyMapSrc()){$(".map-wrap").hidden=true;$("#mapFallback").hidden=true;$("#langChips").hidden=true;$("#mapChips").hidden=true;$("#mapCard").innerHTML='<p class="rt-foot">แผนที่ Google แสดงตำแหน่งคุณ (หมุดแดง) · ร้านและที่เที่ยวของไกด์ดูได้ใน "แผนที่ไกด์"</p>';return;}
+  $("#mapChips").hidden=false;if($("#mapCard .rt-foot")&&!$("#mapCard .card"))$("#mapCard").innerHTML="";
   document.querySelectorAll("#mapChips [data-mf]").forEach(b=>b.setAttribute("aria-pressed",MF[b.dataset.mf]));
   document.querySelectorAll("#langChips [data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===MAPLANG));
   ensureML().then(ML=>{
     $("#mapFallback").hidden=true;$(".map-wrap").hidden=false;$("#langChips").hidden=false;
     if(!MAP){
       MAP=newMap(ML,"map");
-      MAP.addControl(new ML.NavigationControl({showCompass:true}),"top-left");
+      MAP.addControl(new ML.NavigationControl({showCompass:false}),"top-left");
       ME=new ML.Marker({element:meEl()}).setLngLat([S.pos.lo,S.pos.la]).addTo(MAP);
       MAP.on("dragstart",()=>{if(MFOLLOW)setMFollow(false);});
     }
@@ -2239,6 +2293,14 @@ $("#langChips").addEventListener("click",e=>{const b=e.target.closest("[data-lan
   if(MAP)applyLang(MAP);if(NAV.map)applyLang(NAV.map);});
 let MFOLLOW=false;
 function setMFollow(on){MFOLLOW=on;$("#mapMe").setAttribute("aria-pressed",on);$("#mapMe").textContent=on?"◉ ตามฉันอยู่":"◎";}
+let MAPSRC=store.get("mapsrc","ml");
+function applyMapSrc(){
+  document.querySelectorAll("#mapSrc [data-src]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.src===MAPSRC));
+  const g=$("#gmapMain"),gOn=MAPSRC==="g"&&CAN_NET;
+  g.hidden=!gOn;if(gOn){const u="https://maps.google.com/maps?q="+S.pos.la.toFixed(6)+","+S.pos.lo.toFixed(6)+"&z=16&output=embed&hl=th";if(g.dataset.u!==u){g.src=u;g.dataset.u=u;}}
+  return gOn;
+}
+$("#mapSrc").addEventListener("click",e=>{const b=e.target.closest("[data-src]");if(!b)return;MAPSRC=b.dataset.src;store.set("mapsrc",MAPSRC);renderMap();});
 $("#mapMe").addEventListener("click",()=>{if(!MAP)return;MAP.flyTo({center:[S.pos.lo,S.pos.la],zoom:Math.max(MAP.getZoom(),16)});setMFollow(true);if(S.pos.src!=="gps")toast("ตอนนี้ไม่ได้ใช้ GPS สด · กด 📍 GPS ด้านบนเพื่อให้หมุดตามคุณ");});
 $("#mapCard").addEventListener("click",e=>{
   const nv=e.target.closest("[data-nav]");if(nv){openNav(+nv.dataset.nav);return;}
@@ -2281,8 +2343,75 @@ async function fetchRoute(mode,from,to){
 }
 function offRoute(geom){if(!geom)return 0;let best=1e9;for(const c of geom.coordinates){const d=dist(S.pos.la,S.pos.lo,c[1],c[0]);if(d<best)best=d;}return best;}
 
+
+/* ---- รถไฟ/รถเมล์: ตารางเดินรถจริงจาก Transitous (MOTIS, ข้อมูลเปิด GTFS) ---- */
+const JR_COL={"9acd32":"JR Yamanote Line 山手線","80c241":"JR Yamanote Line 山手線","00b2e5":"JR Keihin-Tohoku Line 京浜東北線","00beeb":"JR Keihin-Tohoku Line 京浜東北線","f15a22":"JR Chuo Rapid Line 中央線快速","ff5c1e":"JR Chuo Rapid Line 中央線快速","ffd400":"JR Chuo-Sobu Line 中央・総武線","ffdd3a":"JR Chuo-Sobu Line 中央・総武線"};
+function decodePoly(g){
+  if(!g||!g.points)return [];const f=Math.pow(10,g.precision||6),str=g.points,out=[];let i=0,la=0,lo=0;
+  while(i<str.length){for(const k of [0,1]){let r=0,sh=0,b;do{b=str.charCodeAt(i++)-63;r|=(b&31)<<sh;sh+=5;}while(b>=32&&i<=str.length);const d=r&1?~(r>>1):r>>1;if(k===0)la+=d;else lo+=d;}out.push([lo/f,la/f]);}
+  return out;
+}
+function lineName(l){
+  const ok=t=>t&&!/^\d{4,}$/.test(t),ln=l.routeLongName||"",sn=l.routeShortName||"",dn=l.displayName||"";
+  let n=ok(ln)?ln:ok(dn)?dn:"";
+  if(!n&&l.routeColor&&/^JR/.test(l.agencyName||""))n=JR_COL[l.routeColor.toLowerCase()]||"";
+  if(!n)n=ok(sn)?sn:(l.agencyName||"")+(l.mode==="BUS"?" รถเมล์":" รถไฟ");
+  else if(ok(sn)&&!n.includes(sn))n=sn+" · "+n;
+  return n;
+}
+function stName(n,isStart,isEnd){
+  if(n==="START")return "จุดที่คุณอยู่";if(n==="END")return NAV.x?NAV.x.n:"ที่หมาย";
+  if(/[A-Za-z]/.test(n))return n;const k=n.replace(/\(.*?\)|（.*?）/g,"").trim();return ST_EN[k]?n+" "+ST_EN[k]:n;
+}
+async function fetchTransit(from,to){
+  const j=await getJSON("https://api.transitous.org/api/v5/plan?fromPlace="+from.la.toFixed(6)+","+from.lo.toFixed(6)+"&toPlace="+to.la.toFixed(6)+","+to.lo.toFixed(6)+"&numItineraries=6");
+  const seen=new Set();
+  return (j.itineraries||[]).filter(it=>it.legs.some(l=>l.mode!=="WALK")).filter(it=>{
+      const k=it.legs.filter(l=>l.mode!=="WALK").map(l=>lineName(l)+l.from.name+l.to.name).join("|");if(seen.has(k))return false;seen.add(k);return true;})
+    .sort((a,b)=>(Date.parse(a.endTime)-Date.parse(b.endTime))||a.transfers-b.transfers).slice(0,4)
+    .map(it=>({dur:it.duration,tr:it.transfers,start:it.startTime,end:it.endTime,legs:it.legs.map(l=>({mode:l.mode,from:l.from.name,to:l.to.name,flat:l.from.lat,flon:l.from.lon,tlat:l.to.lat,tlon:l.to.lon,
+      dur:l.duration,dist:l.distance||0,dep:l.startTime,arr:l.endTime,name:l.mode==="WALK"?"":lineName(l),c:l.routeColor?"#"+l.routeColor:null,hs:l.headsign||"",n:(l.intermediateStops||[]).length+1,geom:decodePoly(l.legGeometry)}))}));
+}
+const TMODE={BUS:"🚌",COACH:"🚌",SUBWAY:"🚇",METRO:"🚇",TRAM:"🚊",FERRY:"⛴️",HIGHSPEED_RAIL:"🚄",LONG_DISTANCE:"🚄",AIRPLANE:"✈️",CABLE_CAR:"🚡",FUNICULAR:"🚞",AERIAL_LIFT:"🚡"};
+function jpTime(iso){try{return new Date(iso).toLocaleTimeString("th-TH",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
+function transitHTML(){
+  const T=NAV.tr,x=NAV.x,k=dist(S.pos.la,S.pos.lo,x.la,x.lo);
+  const est='<details class="rt-more"><summary>ค่าโดยสารโดยประมาณ / ทางเลือกอื่น</summary><div class="rt-inline">'+routeHTML({...x,k})+'</div></details>';
+  if(!T||!T.its.length){
+    const why=!CAN_NET||!navigator.onLine?"ต้องใช้เน็ตเพื่อดูตารางรถจริง":T&&T.err?"ระบบตารางรถไม่ตอบ ลองใหม่อีกครั้ง":k<1?"ระยะใกล้มาก เดินไปเร็วกว่ารอรถ":"ข้อมูลเปิดยังไม่มีตารางรถของเส้นทางนี้ (เช่น รถเมล์บางเมือง)";
+    return '<div class="pres warn"><div class="t">ไม่มีรายละเอียดรถไฟ/รถเมล์</div><div class="s">'+why+' · กด <b>Google Maps</b> ด้านบนเพื่อดูเส้นทางรถไฟแบบละเอียดของ Google</div></div>'+est;
+  }
+  const it=T.its[T.sel];
+  const chips=i=>i.legs.filter(l=>l.mode!=="WALK").map(l=>'<span class="lchip" style="--lc:'+(l.c||"#1F6FA8")+'">'+(TMODE[l.mode]||"🚆")+' '+esc(l.name.split(" · ")[0].slice(0,14))+'</span>').join("");
+  let h='<div class="it-tabs" role="group" aria-label="ทางเลือกการเดินทาง">'+T.its.map((i,ix)=>'<button type="button" data-it="'+ix+'" aria-pressed="'+(ix===T.sel)+'"><b>'+fmtDur(i.dur)+'</b>'+jpTime(i.start)+'–'+jpTime(i.end)+' · '+(i.tr?"เปลี่ยน "+i.tr+" ต่อ":"ไม่ต้องเปลี่ยน")+'<div>'+chips(i)+'</div></button>').join("")+'</div>';
+  h+='<div class="turn-sum"><b>'+fmtDur(it.dur)+'</b> · ออก '+jpTime(it.start)+' ถึง '+jpTime(it.end)+' <span class="muted">(เวลาญี่ปุ่น)</span></div><ol class="tleg">';
+  it.legs.forEach((l,i)=>{
+    const last=i===it.legs.length-1;
+    if(l.mode==="WALK"){
+      if(l.from===l.to||(!l.dist&&i>0&&!last))h+='<li class="walk"><span class="ti">🔁</span><div>เปลี่ยนสายในสถานี <b>'+esc(stName(l.to))+'</b> · ~'+fmtDur(l.dur)+'</div></li>';
+      else h+='<li class="walk"><span class="ti">🚶</span><div>เดิน '+fmtDur(l.dur)+(l.dist?' ('+fmtKm(l.dist/1000)+')':'')+' ไป <b>'+esc(stName(l.to))+'</b></div></li>';
+    }else{
+      h+='<li class="ride" style="--lc:'+(l.c||"#1F6FA8")+'"><span class="ti">'+(TMODE[l.mode]||"🚆")+'</span><div><span class="lchip">'+esc(l.name)+'</span>'+(l.hs?' <span class="muted">ไปทาง '+esc(stName(l.hs))+'</span>':'')+
+        '<div>ขึ้นที่ <span class="st">'+esc(stName(l.from))+'</span> <span class="tm">'+jpTime(l.dep)+'</span></div>'+
+        '<div>ลงที่ <span class="st">'+esc(stName(l.to))+'</span> <span class="tm">'+jpTime(l.arr)+'</span></div>'+
+        '<div class="tm">'+l.n+' ป้าย/สถานี · '+fmtDur(l.dur)+'</div></div></li>';
+    }
+  });
+  h+='</ol><p class="rt-foot">ตารางเดินรถจาก Transitous (ข้อมูลเปิด GTFS ของผู้ให้บริการ) ออกตอนนี้ · บางสาย/บางเมืองอาจไม่มีข้อมูล ถ้าดูแปลกให้เทียบกับ Google Maps ด้านบน · ดูป้ายชานชาลาในสถานีอีกครั้ง</p>'+est;
+  return h;
+}
+function gDir(x,mode){return "https://maps.google.com/maps?saddr="+S.pos.la.toFixed(6)+","+S.pos.lo.toFixed(6)+"&daddr="+x.la+","+x.lo+"&dirflg="+({walk:"w",transit:"r",car:"d",bike:"b"}[mode]||"r")+"&output=embed&hl=th";}
+function setNavView(v,auto){
+  NAV.view=v;if(!auto)store.set("navview",v);
+  document.querySelectorAll("#navSrc [data-src]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.src===v));
+  const g=$("#navGmap"),wrap=$(".navmap-wrap");
+  if(v==="g"&&CAN_NET){const u=gDir(NAV.x,NAV.mode);if(g.dataset.u!==u){g.src=u;g.dataset.u=u;}g.hidden=false;wrap.hidden=true;}
+  else{g.hidden=true;wrap.hidden=false;if(NAV.map)setTimeout(()=>{NAV.map.resize();fitNav();},60);}
+}
+$("#navSrc").addEventListener("click",e=>{const b=e.target.closest("[data-src]");if(b&&NAV.x)setNavView(b.dataset.src);});
+
 /* ---- หน้านำทาง: เข็มทิศ + เส้นทางจริง + ขั้นตอน + ถามทาง ---- */
-const NAV={x:null,heading:null,arrived:false,map:null,me:null,dest:null,mode:"walk",route:null,step:0,lastRoute:0,busy:false,ready:false,follow:false};
+const NAV={tr:null,view:"ml",x:null,heading:null,arrived:false,map:null,me:null,dest:null,mode:"walk",route:null,step:0,lastRoute:0,busy:false,ready:false,follow:false};
 function onOri(e){
   let h=null;
   if(typeof e.webkitCompassHeading==="number")h=e.webkitCompassHeading;
@@ -2317,8 +2446,8 @@ function drawCompass(){
 function fmtDur(sec){const m=Math.max(1,Math.round(sec/60));return m<60?m+" นาที":Math.floor(m/60)+" ชม. "+(m%60?m%60+" นาที":"");}
 function renderTurns(){
   const box=$("#navTurns"),r=NAV.route,mode=NAV.mode;
-  if(mode==="transit"){box.innerHTML='<div class="rt-inline">'+routeHTML({...NAV.x,k:dist(S.pos.la,S.pos.lo,NAV.x.la,NAV.x.lo)})+'</div>';return;}
-  if(NAV.busy){box.innerHTML='<div class="muted">กำลังหาเส้นทางตามถนน…</div>';return;}
+  if(NAV.busy){box.innerHTML='<div class="muted">'+(mode==="transit"?"กำลังหาเที่ยวรถไฟ/รถเมล์ที่ออกตอนนี้…":"กำลังหาเส้นทางตามถนน…")+'</div>';return;}
+  if(mode==="transit"){box.innerHTML=transitHTML();return;}
   if(!r){box.innerHTML='<div class="pres warn"><div class="t">หาเส้นทางตามถนนไม่ได้</div><div class="s">'+(CAN_NET?"อาจไม่มีเน็ตหรือระบบเส้นทางไม่ตอบ ใช้ลูกศรด้านบนเดินตามทิศได้ หรือกดเปิดใน Google Maps":"ในหน้านี้ใช้เส้นทางจริงไม่ได้ เปิดไกด์บนเว็บของคุณเองเพื่อใช้")+'</div></div>';return;}
   const cur=r.steps[NAV.step];
   box.innerHTML='<div class="turn-sum"><b>'+fmtKm(r.dist/1000)+'</b> · '+fmtDur(r.dur)+' <span class="muted">('+MODES.find(m=>m[0]===mode)[2]+' ตามถนนจริง'+(mode==="car"?' ไม่รวมรถติด':'')+')</span></div>'+
@@ -2326,32 +2455,55 @@ function renderTurns(){
     '<ol class="turn-list">'+r.steps.map((s,i)=>'<li class="'+(i<NAV.step?"done":i===NAV.step?"cur":"")+'"><span class="ti">'+s.icon+'</span><span>'+esc(s.text)+(s.dist>0&&i<r.steps.length-1?' <small class="muted">แล้วไปต่อ '+fmtKm(s.dist/1000)+'</small>':'')+'</span></li>').join("")+'</ol>'+
     '<p class="rt-foot">เส้นทางจาก OpenStreetMap (FOSSGIS) · ชื่อถนนเป็นภาษาท้องถิ่น · ระวังถนนจริงและป้ายจราจรเสมอ</p>';
 }
+function routeFC(){
+  const F=[],L=(c,col,walk)=>{if(c&&c.length>1)F.push({type:"Feature",properties:{c:col,walk:!!walk},geometry:{type:"LineString",coordinates:c}});},
+    P=(lo,la,col)=>F.push({type:"Feature",properties:{c:col},geometry:{type:"Point",coordinates:[lo,la]}});
+  const it=NAV.mode==="transit"&&NAV.tr&&NAV.tr.its[NAV.tr.sel];
+  if(it){it.legs.forEach(l=>{const g=l.geom.length>1?l.geom:[[l.flon,l.flat],[l.tlon,l.tlat]];
+      if(l.mode==="WALK")L(g,"#5f6368",true);else{const c=l.c||"#1F6FA8";L(g,c,false);P(l.flon,l.flat,c);P(l.tlon,l.tlat,c);}});}
+  else if(NAV.route&&NAV.mode!=="transit")L(NAV.route.geom.coordinates,"#1F6FA8",false);
+  else L([[S.pos.lo,S.pos.la],[NAV.x.lo,NAV.x.la]],"#1F6FA8",true);
+  return {type:"FeatureCollection",features:F};
+}
 function drawRouteLine(){
-  const m=NAV.map;if(!m||!NAV.ready)return;
-  const coords=NAV.route&&NAV.mode!=="transit"?NAV.route.geom.coordinates:[[S.pos.lo,S.pos.la],[NAV.x.lo,NAV.x.la]];
-  const data={type:"Feature",geometry:{type:"LineString",coordinates:coords}};
-  if(m.getSource("rt"))m.getSource("rt").setData(data);
-  else{m.addSource("rt",{type:"geojson",data});
-    m.addLayer({id:"rt-casing",type:"line",source:"rt",paint:{"line-color":"#ffffff","line-width":9}});
-    m.addLayer({id:"rt",type:"line",source:"rt",paint:{"line-color":"#1F6FA8","line-width":5}});}
-  m.setPaintProperty("rt","line-dasharray",NAV.route&&NAV.mode!=="transit"?[1]:[2,2]);
+  const m=NAV.map;if(!m||!NAV.ready||!NAV.x)return;
+  const data=routeFC();
+  if(m.getSource("rt")){m.getSource("rt").setData(data);return;}
+  m.addSource("rt",{type:"geojson",data});
+  const line=["==",["geometry-type"],"LineString"],solid=["all",line,["!",["get","walk"]]];
+  m.addLayer({id:"rt-casing",type:"line",source:"rt",filter:solid,layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#ffffff","line-width":9}});
+  m.addLayer({id:"rt",type:"line",source:"rt",filter:solid,layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":["get","c"],"line-width":5}});
+  m.addLayer({id:"rt-walk",type:"line",source:"rt",filter:["all",line,["get","walk"]],layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":["get","c"],"line-width":5,"line-dasharray":[0.1,1.8]}});
+  m.addLayer({id:"rt-pt",type:"circle",source:"rt",filter:["==",["geometry-type"],"Point"],paint:{"circle-radius":5,"circle-color":"#ffffff","circle-stroke-color":["get","c"],"circle-stroke-width":3}});
 }
 async function loadRoute(force){
   if(!NAV.x)return;
-  if(NAV.mode==="transit"||!CAN_NET||!navigator.onLine){NAV.route=null;renderTurns();drawRouteLine();return;}
+  if(NAV.mode==="transit"){
+    NAV.route=null;
+    if(!CAN_NET||!navigator.onLine){NAV.tr=null;renderTurns();drawRouteLine();return;}
+    if(NAV.busy)return;NAV.busy=true;NAV.tr=null;renderTurns();
+    const x=NAV.x;let its=[];
+    try{its=await fetchTransit(S.pos,x);}catch(e){its=null;}
+    NAV.busy=false;if(NAV.x!==x||NAV.mode!=="transit")return;
+    NAV.tr={its:its||[],sel:0,err:its===null};
+    renderTurns();drawRouteLine();fitNav();
+    if(!NAV.tr.its.length&&NAV.view!=="g"&&dist(S.pos.la,S.pos.lo,x.la,x.lo)>1)setNavView("g",true);
+    return;
+  }
+  if(!CAN_NET||!navigator.onLine){NAV.route=null;renderTurns();drawRouteLine();return;}
   if(NAV.busy||(!force&&Date.now()-NAV.lastRoute<20000))return;
   NAV.busy=true;renderTurns();NAV.lastRoute=Date.now();
   try{NAV.route=await fetchRoute(NAV.mode,S.pos,NAV.x);NAV.step=1;}catch(e){NAV.route=null;}
   NAV.busy=false;renderTurns();drawRouteLine();drawCompass();if(NAV.follow)followMe();else fitNav();
 }
-function fitNav(){const m=NAV.map;if(!m)return;const c=NAV.route&&NAV.mode!=="transit"?NAV.route.geom.coordinates:[[S.pos.lo,S.pos.la],[NAV.x.lo,NAV.x.la]];
+function fitNav(){const m=NAV.map;if(!m||!NAV.x)return;const c=[[S.pos.lo,S.pos.la],[NAV.x.lo,NAV.x.la]];routeFC().features.forEach(f=>{if(f.geometry.type==="LineString")c.push(...f.geometry.coordinates);});
   let a=[180,90],b=[-180,-90];c.forEach(p=>{a=[Math.min(a[0],p[0]),Math.min(a[1],p[1])];b=[Math.max(b[0],p[0]),Math.max(b[1],p[1])];});
   try{m.fitBounds([a,b],{padding:40,maxZoom:17,duration:0});}catch(e){}}
 function setMode(md){
   NAV.mode=md;document.querySelectorAll("#navModes [data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===md));
   const gm=MODES.find(m=>m[0]===md)[3];
   $("#navGmBtn").href=gmUrl(NAV.x,gm)+"&hl=th";$("#navGmBtn").textContent="เปิดนำทางเสียงใน Google Maps ("+MODES.find(m=>m[0]===md)[2]+") ↗";
-  NAV.route=null;loadRoute(true);
+  NAV.route=null;NAV.tr=null;if(NAV.view==="g")setNavView("g",true);loadRoute(true);
 }
 function updateNav(){
   const x=NAV.x;if(!x)return;
@@ -2388,7 +2540,9 @@ function openNav(id){
   $("#navCompassBtn").hidden=ORI_ON;$("#navCompassBtn").disabled=false;$("#navCompassBtn").textContent="🧭 เปิดเข็มทิศ (ลูกศรหมุนตามมือถือ)";
   startCompass(false);
   const k=dist(S.pos.la,S.pos.lo,x.la,x.lo);
+  NAV.view=CAN_NET?store.get("navview","ml"):"ml";NAV.tr=null;
   setMode(k<=2.5?"walk":"transit");
+  setNavView(NAV.view,true);
   updateNav();
   if(S.pos.src==="gps")startWatch();
   const nm=$("#navMap");
@@ -2402,8 +2556,8 @@ function openNav(id){
       NAV.map.on("dragstart",()=>{if(NAV.follow)setFollow(false,true);});}
     else{NAV.dest.setLngLat([x.lo,x.la]);NAV.me.setLngLat([S.pos.lo,S.pos.la]);}
     setTimeout(()=>{NAV.map.resize();drawRouteLine();fitNav();},120);
-    $("#navFollow").hidden=false;setFollow(false,true);
-  }).catch(()=>{nm.hidden=true;});
+    $("#navFollow").hidden=false;setFollow(false,true);if(NAV.view==="g")setNavView("g",true);
+  }).catch(()=>{nm.hidden=true;$("#navFollow").hidden=true;});
 }
 function closeNav(){NAV.x=null;NAV.follow=false;const d=$("#nav");if(d.close)d.close();else d.removeAttribute("open");}
 $("#navClose").addEventListener("click",closeNav);
@@ -2412,7 +2566,7 @@ $("#navCompassBtn").addEventListener("click",()=>startCompass(true));
 $("#navFollow").addEventListener("click",()=>setFollow(!NAV.follow));
 $("#navModes").addEventListener("click",e=>{const b=e.target.closest("[data-mode]");if(b&&NAV.x)setMode(b.dataset.mode);});
 $("#askCopy").addEventListener("click",async e=>{const b=e.target;try{await navigator.clipboard.writeText(NAV.x.j);b.textContent="คัดลอกแล้ว ✓";}catch(err){b.textContent="คัดลอกไม่ได้";}setTimeout(()=>b.textContent="คัดลอกชื่อญี่ปุ่น",1600);});
-$("#navTurns").addEventListener("click",e=>{const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;renderTurns();});
+$("#navTurns").addEventListener("click",e=>{const ib=e.target.closest("[data-it]");if(ib&&NAV.tr){NAV.tr.sel=+ib.dataset.it;renderTurns();drawRouteLine();fitNav();return;}const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;renderTurns();});
 
 /* แตะเมนูเด็ด = ขึ้นชื่อญี่ปุ่นตัวใหญ่ให้พนักงานดู */
 function showDish(b){

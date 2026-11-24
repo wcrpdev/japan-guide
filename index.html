@@ -25,22 +25,27 @@
   --font-jp:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="cozy"]){
   --bg:#12151B; --surface:#1B2029; --ink:#E9ECF1; --muted:#9AA3B0; --line:#2C333F;
   --accent:#8DB8E6; --accent-soft:#1F2C3D; --torii:#F07A62; --ok:#6CC895; --warn:#E8B04B; color-scheme:dark;}}
 :root[data-theme="dark"]{
   --bg:#12151B; --surface:#1B2029; --ink:#E9ECF1; --muted:#9AA3B0; --line:#2C333F;
   --accent:#8DB8E6; --accent-soft:#1F2C3D; --torii:#F07A62; --ok:#6CC895; --warn:#E8B04B; color-scheme:dark;}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55}
+html{font-size:calc(16px * var(--fs,1))}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.55}
+body{font-size:1rem}
+:root[data-theme="cozy"]{--bg:#F5EEDF;--surface:#FFFAF0;--ink:#3A2F25;--muted:#7A6A57;--line:#E4D8C2;--accent:#7A4E22;--accent-soft:#F0E2CA;--torii:#B4513A;--ok:#4E7A3A;--warn:#A0620A;color-scheme:light}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .wrap{max-width:720px;margin:0 auto;padding:0 16px 48px}
 header.top{padding-top:env(safe-area-inset-top);position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
 .top-inner{max-width:720px;margin:0 auto;padding:12px 16px 10px;display:grid;gap:10px}
-.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand h1{margin:0;font-size:1.2rem;font-weight:700;text-wrap:balance;display:flex;align-items:center;gap:8px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:8px}
+html[data-big] header.top{position:static}
+@media (max-width:380px){.net{display:none}}
+.brand h1{margin:0;font-size:1.05rem;white-space:nowrap;min-width:0;font-weight:700;text-wrap:balance;display:flex;align-items:center;gap:8px}
 .brand h1 .mark{width:22px;height:22px;flex:none}
 .net{font-size:.78rem;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .net.on{color:var(--ok);border-color:currentColor}
@@ -290,7 +295,7 @@ dialog.full{width:100%;max-width:640px;height:100%;max-height:100%;margin:0 auto
 .nav-hint{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:.9rem}
 .nav-hint.arrived{background:var(--ok);color:#fff;font-weight:700;font-size:1.05rem;text-align:center}
 #navMap{height:260px;border-radius:14px;border:1px solid var(--line);overflow:hidden}
-.nav-modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.nav-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .nav-modes button{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 2px;display:grid;justify-items:center;gap:2px;font-size:1.2rem}
 .nav-modes button span{font-size:.74rem;font-weight:600}
 .nav-modes button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
@@ -314,14 +319,15 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
 /* แถบแปลงเงิน เยน ⇄ บาท (อยู่บนสุดเพราะใช้บ่อย) */
-.fx{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+.fx{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:center}
 .fx-in{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:0 10px;height:38px}
 .fx-in b{color:var(--muted);margin-right:6px;font-size:1rem}
 .fx-in input{border:0;background:transparent;width:100%;min-width:0;font-size:1.05rem;font-weight:700;outline:none;font-variant-numeric:tabular-nums}
 .fx-eq{color:var(--muted);font-weight:700}
-.fx-meta{grid-column:1/-1;display:flex;gap:8px;align-items:center;font-size:.72rem;color:var(--muted);line-height:1.3}
+.fx-meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:.72rem;color:var(--muted);line-height:1.3}
+#fxRate{white-space:nowrap}
 .fx-meta b{color:var(--ink)}
-.fx-meta .fx-st{margin-left:auto;white-space:nowrap}
+.fx-meta .fx-st{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .fx-meta button{border:0;background:none;color:var(--accent);padding:2px 4px;font-size:.78rem}
 .fx-meta.stale b{color:var(--warn)}
 /* ระยะค้นหา */
@@ -384,6 +390,62 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
 .tleg li.walk{border-left:5px dotted #9aa0a6;margin-left:12px;padding-left:4px;grid-template-columns:24px 1fr;color:var(--muted);font-size:.86rem}
 .tleg .st{font-weight:700}
 .tleg .tm{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.8rem}
+
+.uibtn{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 10px;font-size:.8rem;font-weight:700;color:var(--ink)}
+.fx-clr{border:1px solid var(--line);background:var(--surface);border-radius:10px;width:38px;height:38px;font-size:1rem;color:var(--muted)}
+.fx-meta .fx-calc{margin-left:auto;border:1px solid var(--accent);border-radius:99px;padding:2px 10px;font-weight:700;color:var(--accent);background:var(--surface);white-space:nowrap}
+.set-sec{display:grid;gap:8px;padding:14px 16px}
+.set-sec h3{margin:0;font-size:.95rem}
+.set-row{display:flex;gap:6px;flex-wrap:wrap}
+.set-row .chip{font-size:.9rem;padding:7px 12px}
+.fs-row{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center;text-align:center}
+.fs-row button{height:44px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-weight:700}
+.fs-row button:first-child{font-size:.85rem}.fs-row button:last-child{font-size:1.3rem}
+.sw{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid var(--line);vertical-align:-2px;margin-right:4px}
+/* เครื่องคิดเลข/บิล */
+.calc-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.calc-tabs button{border:0;background:var(--surface);padding:9px;font-weight:700;color:var(--muted)}
+.calc-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.cdisp{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface);display:grid;gap:4px}
+.cdisp input{border:0;background:transparent;font-size:1.5rem;font-weight:700;text-align:right;width:100%;outline:none;font-variant-numeric:tabular-nums}
+.cres{text-align:right;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.cres b{font-size:1.25rem}
+.cres .muted{font-size:.85rem}
+.ccur{display:flex;gap:6px;justify-content:flex-end}
+.ccur button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:2px 10px;font-size:.8rem}
+.ccur button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.kp button{height:52px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:1.25rem;font-weight:600}
+.kp .op{background:var(--accent-soft);color:var(--accent);font-weight:800}
+.kp .eq{background:var(--accent);color:#fff;border-color:var(--accent)}
+.kp .fn{font-size:.9rem}
+.kp button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.disc{border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:6px;background:var(--surface)}
+.disc-in{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.disc-in input{width:70px;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:1rem;text-align:center;background:var(--bg)}
+.disc-in .chip{padding:4px 10px;font-size:.8rem}
+.disc-out{font-variant-numeric:tabular-nums;line-height:1.5}
+.people{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pchip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:99px;padding:3px 4px 3px 10px;background:var(--surface);font-size:.88rem}
+.pchip button{border:0;background:transparent;color:var(--muted);font-size:.85rem;padding:0 6px}
+.padd{display:flex;gap:6px}
+.padd input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface)}
+.padd button,.bbtn{border:1px solid var(--accent);background:var(--surface);color:var(--accent);border-radius:10px;padding:7px 12px;font-weight:700}
+.bill{border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:8px;background:var(--surface)}
+.bill-r1{display:grid;grid-template-columns:1fr auto;gap:6px}
+.bill input{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--bg);min-width:0;width:100%}
+.bill-r2{display:grid;grid-template-columns:1fr 92px;gap:6px}
+.bill-r2 label{display:grid;gap:2px;font-size:.74rem;color:var(--muted)}
+.bill-del{border:0;background:transparent;font-size:1.1rem;padding:0 6px}
+.who{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.8rem}
+.who button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:3px 10px;font-size:.84rem}
+.who button[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.bill-out{font-size:.88rem;font-variant-numeric:tabular-nums;background:var(--accent-soft);border-radius:10px;padding:6px 10px}
+#cPane[hidden],#bPane[hidden]{display:none!important}
+.bsum{border:2px solid var(--accent);border-radius:14px;padding:10px 12px;display:grid;gap:6px;background:var(--surface)}
+.bsum table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.bsum td{padding:5px 2px;border-top:1px dashed var(--line)}
+.bsum td:not(:first-child){text-align:right}
 </style>
 </head>
 <body>
@@ -391,7 +453,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
   <div class="top-inner">
     <div class="brand">
       <h1><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5.5h20M4 9h16M7 5.5V21M17 5.5V21" stroke="var(--torii)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>ไกด์ญี่ปุ่นใกล้ฉัน</h1>
-      <span style="display:flex;gap:6px;align-items:center"><span id="net" class="net">ออนไลน์</span><button type="button" class="sosbtn" id="sosBtn" aria-label="ฉุกเฉิน เบอร์โทรและโรงพยาบาล">🆘 ฉุกเฉิน</button></span>
+      <span style="display:flex;gap:6px;align-items:center"><span id="net" class="net">ออนไลน์</span><button type="button" class="uibtn" id="uiBtn" aria-label="ธีมสีและขนาดตัวอักษร">Aa</button><button type="button" class="sosbtn" id="sosBtn" aria-label="ฉุกเฉิน เบอร์โทรและโรงพยาบาล">🆘 ฉุกเฉิน</button></span>
     </div>
     <div class="loc">
       <div class="loc-info" aria-live="polite">
@@ -402,10 +464,11 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <button class="btn" id="btnPick" type="button">เลือกจุด</button>
     </div>
     <div class="fx" id="fx" aria-label="แปลงเงินเยนเป็นบาท">
-      <label class="fx-in"><b>¥</b><input id="fxJpy" type="text" inputmode="decimal" autocomplete="off" placeholder="1,000" aria-label="จำนวนเงินเยน"></label>
+      <label class="fx-in"><b>¥</b><input id="fxJpy" type="text" inputmode="decimal" autocomplete="off" placeholder="ใส่เงินเยน" aria-label="จำนวนเงินเยน"></label>
       <span class="fx-eq" aria-hidden="true">=</span>
-      <label class="fx-in"><b>฿</b><input id="fxThb" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="จำนวนเงินบาท"></label>
-      <div class="fx-meta" id="fxMeta"><span id="fxRate">1 ¥ = … ฿</span><span class="fx-st" id="fxSt"></span><button type="button" id="fxRef" aria-label="โหลดเรทใหม่">⟳</button></div>
+      <label class="fx-in"><b>฿</b><input id="fxThb" type="text" inputmode="decimal" autocomplete="off" placeholder="ใส่เงินบาท" aria-label="จำนวนเงินบาท"></label>
+      <button type="button" class="fx-clr" id="fxClr" aria-label="ล้างค่า">✕</button>
+      <div class="fx-meta" id="fxMeta"><span id="fxRate">1 ¥ = … ฿</span><span class="fx-st" id="fxSt"></span><button type="button" id="fxRef" aria-label="โหลดเรทใหม่">⟳</button><button type="button" class="fx-calc" id="calcBtn">🧮 คิดเลข/หารบิล</button></div>
     </div>
   </div>
 </header>
@@ -595,6 +658,58 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     <button class="btn primary" id="dishClose" type="button">ปิด</button>
   </div>
 </dialog>
+
+<dialog id="uiDlg" aria-labelledby="uiT">
+  <div class="set-sec"><h3 id="uiT">🎨 ธีมสี</h3>
+    <div class="set-row" id="themeRow">
+      <button type="button" class="chip" data-theme-set="auto">📱 ตามเครื่อง</button>
+      <button type="button" class="chip" data-theme-set="light"><span class="sw" style="background:#F3F4F1"></span>สว่าง</button>
+      <button type="button" class="chip" data-theme-set="dark"><span class="sw" style="background:#12151B"></span>มืด</button>
+      <button type="button" class="chip" data-theme-set="cozy"><span class="sw" style="background:#F5EEDF"></span>ครีมสบายตา</button>
+    </div>
+  </div>
+  <div class="set-sec"><h3>🔠 ขนาดตัวอักษร</h3>
+    <div class="fs-row"><button type="button" id="fsDown" aria-label="ลดขนาดตัวอักษร">A−</button><div><b id="fsVal">100%</b><div class="muted" style="font-size:.8rem">ตัวอย่าง ราเมง ラーメン</div></div><button type="button" id="fsUp" aria-label="เพิ่มขนาดตัวอักษร">A+</button></div>
+    <button type="button" class="linkbtn" id="fsReset">กลับเป็นขนาดปกติ</button>
+  </div>
+  <div class="set-sec"><button class="btn primary" id="uiClose" type="button">เสร็จ</button></div>
+</dialog>
+<dialog id="calcDlg" class="full" aria-labelledby="calcT">
+  <div class="nav-body">
+    <div class="nav-top"><button type="button" class="btn" id="calcClose">← กลับ</button><div class="nav-title"><div class="c-name" id="calcT">🧮 คิดเลข & หารบิล</div><div class="muted" id="calcRate" style="font-size:.8rem"></div></div></div>
+    <div class="calc-tabs" role="group"><button type="button" data-ctab="calc" aria-pressed="true">เครื่องคิดเลข</button><button type="button" data-ctab="bill" aria-pressed="false">บิล & หารคน</button></div>
+    <section id="cPane" style="display:grid;gap:10px">
+      <div class="cdisp">
+        <div class="ccur" role="group" aria-label="สกุลเงินที่พิมพ์"><span class="muted" style="font-size:.8rem;align-self:center">ตัวเลขที่พิมพ์เป็น</span><button type="button" data-ccur="jpy" aria-pressed="true">เยน ¥</button><button type="button" data-ccur="thb" aria-pressed="false">บาท ฿</button></div>
+        <input id="cExpr" type="text" inputmode="none" autocomplete="off" placeholder="0" aria-label="ตัวเลขและเครื่องหมาย">
+        <div class="cres" id="cRes" aria-live="polite"></div>
+      </div>
+      <div class="disc">
+        <div class="disc-in"><b>🏷️ ส่วนลด</b><input id="cDisc" type="text" inputmode="decimal" placeholder="0" aria-label="ส่วนลดเป็นเปอร์เซ็นต์"> %
+          <button type="button" class="chip" data-dq="10">10%</button><button type="button" class="chip" data-dq="20">20%</button><button type="button" class="chip" data-dq="30">30%</button><button type="button" class="chip" data-dq="50">50%</button></div>
+        <div class="disc-out" id="cDiscOut"><span class="muted">ใส่ราคาด้านบน แล้วใส่ % ที่ลด จะบอกราคาหลังลดเป็นเยนและบาท</span></div>
+      </div>
+      <div class="kp" id="kp">
+        <button type="button" class="fn" data-k="C">ล้าง</button><button type="button" class="op" data-k="(">(</button><button type="button" class="op" data-k=")">)</button><button type="button" class="op" data-k="÷">÷</button>
+        <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" class="op" data-k="×">×</button>
+        <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" class="op" data-k="−">−</button>
+        <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" class="op" data-k="+">+</button>
+        <button type="button" data-k="0">0</button><button type="button" data-k="00">00</button><button type="button" data-k=".">.</button><button type="button" class="fn" data-k="back" aria-label="ลบตัวสุดท้าย">⌫</button>
+        <button type="button" class="fn op" data-k="avg">เฉลี่ย</button><button type="button" class="fn" data-k="tobill">＋ เป็นบิล</button><button type="button" class="eq" data-k="=" style="grid-column:span 2">=</button>
+      </div>
+      <p class="rt-foot">เฉลี่ย = เอาตัวเลขที่บวกกันไว้มาหารจำนวนรายการ เช่น 1200+800+1500 → เฉลี่ย 1,167 · แปลงตามเรทด้านบน</p>
+    </section>
+    <section id="bPane" hidden style="display:grid;gap:10px">
+      <div><b>👥 คนในทริป</b> <span class="muted" style="font-size:.8rem">(ใช้เลือกว่าใครหารบิลไหน)</span></div>
+      <div class="people" id="people"></div>
+      <div class="padd"><input id="pName" type="text" placeholder="ชื่อเพื่อน เช่น แม่, บี" aria-label="ชื่อคน" maxlength="20"><button type="button" id="pAdd">＋ เพิ่มคน</button></div>
+      <div id="bills" style="display:grid;gap:10px"></div>
+      <button type="button" class="bbtn" id="bAdd">＋ เพิ่มบิล</button>
+      <div class="bsum" id="bSum"></div>
+      <button type="button" class="linkbtn" id="bClear" style="justify-self:start">🗑 ล้างบิลทั้งหมด</button>
+    </section>
+  </div>
+</dialog>
 <dialog id="nav" class="full" aria-labelledby="navName">
   <div class="nav-body">
     <div class="nav-top">
@@ -619,7 +734,6 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <button type="button" data-mode="walk" aria-pressed="true">🚶<span>เดิน</span></button>
       <button type="button" data-mode="transit" aria-pressed="false">🚆<span>รถไฟ/บัส</span></button>
       <button type="button" data-mode="car" aria-pressed="false">🚕<span>รถ/แท็กซี่</span></button>
-      <button type="button" data-mode="bike" aria-pressed="false">🚲<span>จักรยาน</span></button>
     </div>
     <div class="seg" id="navSrc" role="group" aria-label="เลือกแผนที่นำทาง"><button type="button" data-src="ml" aria-pressed="true">🗺️ แผนที่ไกด์ (ตามตัวฉัน)</button><button type="button" data-src="g" aria-pressed="false">Google Maps</button></div>
     <iframe id="navGmap" class="gframe" title="เส้นทางใน Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" hidden></iframe>
@@ -2311,7 +2425,7 @@ $("#mapCard").addEventListener("click",e=>{
 
 /* ---- เส้นทางจริงตามถนน (OSRM ของ FOSSGIS: เดิน จักรยาน รถยนต์) ---- */
 const ROUTERS={walk:"routed-foot",bike:"routed-bike",car:"routed-car"};
-const MODES=[["walk","🚶","เดิน","walking"],["transit","🚆","รถไฟ/บัส","transit"],["car","🚕","รถ/แท็กซี่","driving"],["bike","🚲","จักรยาน","bicycling"]];
+const MODES=[["walk","🚶","เดิน","walking"],["transit","🚆","รถไฟ/บัส","transit"],["car","🚕","รถ/แท็กซี่","driving"]];
 const ROAD_EN={"東大路通":"Higashioji-dori","四条通":"Shijo-dori","河原町通":"Kawaramachi-dori","烏丸通":"Karasuma-dori","堀川通":"Horikawa-dori","五条通":"Gojo-dori","七条通":"Shichijo-dori","三条通":"Sanjo-dori","今出川通":"Imadegawa-dori","丸太町通":"Marutamachi-dori","御池通":"Oike-dori","八坂通":"Yasaka-dori","花見小路通":"Hanamikoji-dori","白川通":"Shirakawa-dori","千本通":"Senbon-dori","西大路通":"Nishioji-dori","九条通":"Kujo-dori","御堂筋":"Midosuji","堺筋":"Sakaisuji","四つ橋筋":"Yotsubashi-suji","松屋町筋":"Matsuyamachi-suji","長堀通":"Nagahori-dori","千日前通":"Sennichimae-dori","中央大通":"Chuo-odori","土佐堀通":"Tosabori-dori","明治通り":"Meiji-dori","靖国通り":"Yasukuni-dori","青山通り":"Aoyama-dori","中央通り":"Chuo-dori","晴海通り":"Harumi-dori","外堀通り":"Sotobori-dori","甲州街道":"Koshu-kaido","山手通り":"Yamate-dori","表参道":"Omotesando","井の頭通り":"Inokashira-dori","昭和通り":"Showa-dori","日比谷通り":"Hibiya-dori","桜田通り":"Sakurada-dori","六本木通り":"Roppongi-dori","玉川通り":"Tamagawa-dori","目白通り":"Mejiro-dori","春日通り":"Kasuga-dori","不忍通り":"Shinobazu-dori","言問通り":"Kototoi-dori","浅草通り":"Asakusa-dori","江戸通り":"Edo-dori","新宿通り":"Shinjuku-dori","文化村通り":"Bunkamura-dori","公園通り":"Koen-dori","道玄坂":"Dogenzaka","竹下通り":"Takeshita-dori","仲見世通り":"Nakamise-dori","大通":"Odori","駅前通":"Ekimae-dori","渡月橋":"Togetsukyo Bridge"};
 function roadName(n){
   if(!n)return "";
@@ -2351,6 +2465,13 @@ function decodePoly(g){
   while(i<str.length){for(const k of [0,1]){let r=0,sh=0,b;do{b=str.charCodeAt(i++)-63;r|=(b&31)<<sh;sh+=5;}while(b>=32&&i<=str.length);const d=r&1?~(r>>1):r>>1;if(k===0)la+=d;else lo+=d;}out.push([lo/f,la/f]);}
   return out;
 }
+/* คะแนนความคุ้ม: ถึงเร็ว + เปลี่ยนสายน้อย + เดินไม่มาก (กันเส้นทางอ้อม) */
+function itScore(it){const walk=it.legs.filter(l=>l.mode==="WALK").reduce((a,l)=>a+(l.duration||0),0);return Date.parse(it.endTime)/1000+it.transfers*300+Math.max(0,walk-600)*0.5;}
+async function fillWalkGeom(its){/* ช่วงเดินที่ไม่มีเส้น ใช้เส้นทางเดินจริงจาก OSRM แทนเส้นตรง */
+  let n=0;for(const it of its)for(const l of it.legs){if(l.mode!=="WALK"||l.geom.length>1||n>=6)continue;
+    if(dist(l.flat,l.flon,l.tlat,l.tlon)<0.04)continue;n++;
+    try{const r=await fetchRoute("walk",{la:l.flat,lo:l.flon},{la:l.tlat,lo:l.tlon});l.geom=r.geom.coordinates;}catch(e){}}
+}
 function lineName(l){
   const ok=t=>t&&!/^\d{4,}$/.test(t),ln=l.routeLongName||"",sn=l.routeShortName||"",dn=l.displayName||"";
   let n=ok(ln)?ln:ok(dn)?dn:"";
@@ -2363,14 +2484,14 @@ function stName(n,isStart,isEnd){
   if(n==="START")return "จุดที่คุณอยู่";if(n==="END")return NAV.x?NAV.x.n:"ที่หมาย";
   if(/[A-Za-z]/.test(n))return n;const k=n.replace(/\(.*?\)|（.*?）/g,"").trim();return ST_EN[k]?n+" "+ST_EN[k]:n;
 }
-async function fetchTransit(from,to){
-  const j=await getJSON("https://api.transitous.org/api/v5/plan?fromPlace="+from.la.toFixed(6)+","+from.lo.toFixed(6)+"&toPlace="+to.la.toFixed(6)+","+to.lo.toFixed(6)+"&numItineraries=6");
+async function fetchTransit(from,to,modes){
+  const j=await getJSON("https://api.transitous.org/api/v5/plan?fromPlace="+from.la.toFixed(6)+","+from.lo.toFixed(6)+"&toPlace="+to.la.toFixed(6)+","+to.lo.toFixed(6)+"&numItineraries=6"+(modes?"&transitModes="+modes:""));
   const seen=new Set();
   return (j.itineraries||[]).filter(it=>it.legs.some(l=>l.mode!=="WALK")).filter(it=>{
-      const k=it.legs.filter(l=>l.mode!=="WALK").map(l=>lineName(l)+l.from.name+l.to.name).join("|");if(seen.has(k))return false;seen.add(k);return true;})
-    .sort((a,b)=>(Date.parse(a.endTime)+a.transfers*300e3)-(Date.parse(b.endTime)+b.transfers*300e3)).slice(0,4)
+      const k=it.legs.filter(l=>l.mode!=="WALK").map(l=>tLineName(l)+l.from.name+l.to.name).join("|");if(seen.has(k))return false;seen.add(k);return true;})
+    .sort((a,b)=>itScore(a)-itScore(b)).slice(0,4)
     .map(it=>({dur:it.duration,tr:it.transfers,start:it.startTime,end:it.endTime,legs:it.legs.map(l=>({mode:l.mode,from:l.from.name,to:l.to.name,flat:l.from.lat,flon:l.from.lon,tlat:l.to.lat,tlon:l.to.lon,
-      dur:l.duration,dist:l.distance||0,dep:l.startTime,arr:l.endTime,name:l.mode==="WALK"?"":lineName(l),c:l.routeColor?"#"+l.routeColor:null,hs:l.headsign||"",n:(l.intermediateStops||[]).length+1,geom:decodePoly(l.legGeometry)}))}));
+      dur:l.duration,dist:l.distance||0,dep:l.startTime,arr:l.endTime,name:l.mode==="WALK"?"":tLineName(l),c:l.routeColor?"#"+l.routeColor:null,hs:l.headsign||"",n:(l.intermediateStops||[]).length+1,geom:decodePoly(l.legGeometry)}))}));
 }
 const TMODE={BUS:"🚌",COACH:"🚌",SUBWAY:"🚇",METRO:"🚇",TRAM:"🚊",FERRY:"⛴️",HIGHSPEED_RAIL:"🚄",LONG_DISTANCE:"🚄",AIRPLANE:"✈️",CABLE_CAR:"🚡",FUNICULAR:"🚞",AERIAL_LIFT:"🚡"};
 function jpTime(iso){try{return new Date(iso).toLocaleTimeString("th-TH",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
@@ -2382,8 +2503,10 @@ function transitHTML(){
     return '<div class="pres warn"><div class="t">ไม่มีรายละเอียดรถไฟ/รถเมล์</div><div class="s">'+why+' · กด <b>Google Maps</b> ด้านบนเพื่อดูเส้นทางรถไฟแบบละเอียดของ Google</div></div>'+est;
   }
   const it=T.its[T.sel];
-  const chips=i=>i.legs.filter(l=>l.mode!=="WALK").map(l=>'<span class="lchip" style="--lc:'+(l.c||"#1F6FA8")+'">'+(TMODE[l.mode]||"🚆")+' '+esc(l.name.split(" · ")[0].slice(0,14))+'</span>').join("");
-  let h='<div class="it-tabs" role="group" aria-label="ทางเลือกการเดินทาง">'+T.its.map((i,ix)=>'<button type="button" data-it="'+ix+'" aria-pressed="'+(ix===T.sel)+'"><b>'+fmtDur(i.dur)+'</b>'+jpTime(i.start)+'–'+jpTime(i.end)+' · '+(i.tr?"เปลี่ยน "+i.tr+" ต่อ":"ไม่ต้องเปลี่ยน")+'<div>'+chips(i)+'</div></button>').join("")+'</div>';
+  const chips=i=>i.walkOnly?'<span class="lchip" style="--lc:#5f6368">🚶 เดินไปเลย</span>':i.legs.filter(l=>l.mode!=="WALK").map(l=>'<span class="lchip" style="--lc:'+(l.c||"#1F6FA8")+'">'+(TMODE[l.mode]||"🚆")+' '+esc(l.name.split(" · ")[0].slice(0,14))+'</span>').join("");
+  let h='<div class="it-tabs" role="group" aria-label="ทางเลือกการเดินทาง">'+T.its.map((i,ix)=>'<button type="button" data-it="'+ix+'" aria-pressed="'+(ix===T.sel)+'"><b>'+(i.walkOnly?"🚶 ":i.busOnly?"🚌 ":"🚆 ")+fmtDur(i.dur)+'</b>'+(i.walkOnly?fmtKm(i.legs[0].dist/1000)+' · ไม่ต้องรอรถ':jpTime(i.start)+'–'+jpTime(i.end)+' · '+(i.tr?"เปลี่ยน "+i.tr+" ต่อ":"ไม่ต้องเปลี่ยน"))+'<div>'+chips(i)+'</div></button>').join("")+'</div>';
+  if(T.short)h='<div class="pres ok"><div class="t">ใกล้มาก ('+fmtKm(T.k)+') เดินไปเลยเร็วกว่ารอรถ</div><div class="s">ระยะไม่เกิน 500 ม. แนะนำให้เดิน เส้นทางด้านล่างเดินตามทางเท้าจริง</div></div>'+h;
+  if(it.walkOnly)return h+turnsHTML(NAV.walk)+est;
   h+='<div class="turn-sum"><b>'+fmtDur(it.dur)+'</b> · ออก '+jpTime(it.start)+' ถึง '+jpTime(it.end)+' <span class="muted">(เวลาญี่ปุ่น)</span></div><ol class="tleg">';
   it.legs.forEach((l,i)=>{
     const last=i===it.legs.length-1;
@@ -2411,7 +2534,7 @@ function setNavView(v,auto){
 $("#navSrc").addEventListener("click",e=>{const b=e.target.closest("[data-src]");if(b&&NAV.x)setNavView(b.dataset.src);});
 
 /* ---- หน้านำทาง: เข็มทิศ + เส้นทางจริง + ขั้นตอน + ถามทาง ---- */
-const NAV={tr:null,view:"ml",x:null,heading:null,arrived:false,map:null,me:null,dest:null,mode:"walk",route:null,step:0,lastRoute:0,busy:false,ready:false,follow:false};
+const NAV={walk:null,tr:null,view:"ml",x:null,heading:null,arrived:false,map:null,me:null,dest:null,mode:"walk",route:null,step:0,lastRoute:0,busy:false,ready:false,follow:false};
 function onOri(e){
   let h=null;
   if(typeof e.webkitCompassHeading==="number")h=e.webkitCompassHeading;
@@ -2449,8 +2572,11 @@ function renderTurns(){
   if(NAV.busy){box.innerHTML='<div class="muted">'+(mode==="transit"?"กำลังหาเที่ยวรถไฟ/รถเมล์ที่ออกตอนนี้…":"กำลังหาเส้นทางตามถนน…")+'</div>';return;}
   if(mode==="transit"){box.innerHTML=transitHTML();return;}
   if(!r){box.innerHTML='<div class="pres warn"><div class="t">หาเส้นทางตามถนนไม่ได้</div><div class="s">'+(CAN_NET?"อาจไม่มีเน็ตหรือระบบเส้นทางไม่ตอบ ใช้ลูกศรด้านบนเดินตามทิศได้ หรือกดเปิดใน Google Maps":"ในหน้านี้ใช้เส้นทางจริงไม่ได้ เปิดไกด์บนเว็บของคุณเองเพื่อใช้")+'</div></div>';return;}
+  box.innerHTML='<div class="turn-sum"><b>'+fmtKm(r.dist/1000)+'</b> · '+fmtDur(r.dur)+' <span class="muted">('+MODES.find(m=>m[0]===mode)[2]+' ตามถนนจริง'+(mode==="car"?' ไม่รวมรถติด':'')+')</span></div>'+turnsHTML(r);
+}
+function turnsHTML(r){
   const cur=r.steps[NAV.step];
-  box.innerHTML='<div class="turn-sum"><b>'+fmtKm(r.dist/1000)+'</b> · '+fmtDur(r.dur)+' <span class="muted">('+MODES.find(m=>m[0]===mode)[2]+' ตามถนนจริง'+(mode==="car"?' ไม่รวมรถติด':'')+')</span></div>'+
+  return ''+
     (cur?'<div class="turn-next"><span class="ti">'+cur.icon+'</span><div><div class="muted">ถัดไป · อีก '+fmtKm(dist(S.pos.la,S.pos.lo,cur.la,cur.lo))+'</div><b>'+esc(cur.text)+'</b></div></div>':'')+
     '<ol class="turn-list">'+r.steps.map((s,i)=>'<li class="'+(i<NAV.step?"done":i===NAV.step?"cur":"")+'"><span class="ti">'+s.icon+'</span><span>'+esc(s.text)+(s.dist>0&&i<r.steps.length-1?' <small class="muted">แล้วไปต่อ '+fmtKm(s.dist/1000)+'</small>':'')+'</span></li>').join("")+'</ol>'+
     '<p class="rt-foot">เส้นทางจาก OpenStreetMap (FOSSGIS) · ชื่อถนนเป็นภาษาท้องถิ่น · ระวังถนนจริงและป้ายจราจรเสมอ</p>';
@@ -2459,7 +2585,8 @@ function routeFC(){
   const F=[],L=(c,col,walk)=>{if(c&&c.length>1)F.push({type:"Feature",properties:{c:col,walk:!!walk},geometry:{type:"LineString",coordinates:c}});},
     P=(lo,la,col)=>F.push({type:"Feature",properties:{c:col},geometry:{type:"Point",coordinates:[lo,la]}});
   const it=NAV.mode==="transit"&&NAV.tr&&NAV.tr.its[NAV.tr.sel];
-  if(it){it.legs.forEach(l=>{const g=l.geom.length>1?l.geom:[[l.flon,l.flat],[l.tlon,l.tlat]];
+  if(it&&it.walkOnly)L(it.legs[0].geom,"#1F6FA8",false);
+  else if(it){it.legs.forEach(l=>{const g=l.geom.length>1?l.geom:[[l.flon,l.flat],[l.tlon,l.tlat]];
       if(l.mode==="WALK")L(g,"#5f6368",true);else{const c=l.c||"#1F6FA8";L(g,c,false);P(l.flon,l.flat,c);P(l.tlon,l.tlat,c);}});}
   else if(NAV.route&&NAV.mode!=="transit")L(NAV.route.geom.coordinates,"#1F6FA8",false);
   else L([[S.pos.lo,S.pos.la],[NAV.x.lo,NAV.x.la]],"#1F6FA8",true);
@@ -2479,15 +2606,27 @@ function drawRouteLine(){
 async function loadRoute(force){
   if(!NAV.x)return;
   if(NAV.mode==="transit"){
-    NAV.route=null;
-    if(!CAN_NET||!navigator.onLine){NAV.tr=null;renderTurns();drawRouteLine();return;}
-    if(NAV.busy)return;NAV.busy=true;NAV.tr=null;renderTurns();
-    const x=NAV.x;let its=[];
-    try{its=await fetchTransit(S.pos,x);}catch(e){its=null;}
+    if(!CAN_NET||!navigator.onLine){NAV.route=null;NAV.tr=null;renderTurns();drawRouteLine();return;}
+    if(NAV.busy||(!force&&Date.now()-NAV.lastRoute<20000))return;
+    NAV.busy=true;NAV.tr=null;NAV.route=null;NAV.lastRoute=Date.now();renderTurns();
+    const x=NAV.x,k=dist(S.pos.la,S.pos.lo,x.la,x.lo);
+    const [w,rail,bus]=await Promise.all([
+      k<=3?fetchRoute("walk",S.pos,x).catch(()=>null):Promise.resolve(null),
+      k>0.5?fetchTransit(S.pos,x).catch(()=>null):Promise.resolve([]),
+      k>0.5?fetchTransit(S.pos,x,"BUS").catch(()=>null):Promise.resolve([])]);
     NAV.busy=false;if(NAV.x!==x||NAV.mode!=="transit")return;
-    NAV.tr={its:its||[],sel:0,err:its===null};
-    renderTurns();drawRouteLine();fitNav();
-    if(!NAV.tr.its.length&&NAV.view!=="g"&&dist(S.pos.la,S.pos.lo,x.la,x.lo)>1)setNavView("g",true);
+    let its=(rail||[]).slice(0,3);
+    const sig=i=>i.legs.filter(l=>l.mode!=="WALK").map(l=>l.name+l.from+l.to).join("|");
+    const b=(bus||[]).find(i=>i.legs.every(l=>l.mode==="WALK"||l.mode==="BUS")&&!its.some(o=>sig(o)===sig(i)));
+    if(b){b.busOnly=true;its.push(b);}
+    NAV.walk=w;
+    if(w){const wi={walkOnly:true,dur:w.dur,tr:0,legs:[{mode:"WALK",from:"START",to:"END",flat:S.pos.la,flon:S.pos.lo,tlat:x.la,tlon:x.lo,dur:w.dur,dist:w.dist,geom:w.geom.coordinates}]};
+      if(k<=0.5||!its.length||w.dur<=Math.min(...its.map(i=>i.dur)))its.unshift(wi);else if(w.dur<=25*60)its.push(wi);}
+    NAV.tr={its,sel:0,err:k>0.5&&rail===null&&bus===null,short:k<=0.5,k};
+    NAV.route=its[0]&&its[0].walkOnly?w:null;NAV.step=1;
+    renderTurns();drawRouteLine();if(NAV.follow)followMe();else fitNav();
+    fillWalkGeom(its.filter(i=>!i.walkOnly)).then(()=>{if(NAV.tr&&NAV.tr.its===its)drawRouteLine();});
+    if(!its.length&&NAV.view!=="g"&&k>1)setNavView("g",true);
     return;
   }
   if(!CAN_NET||!navigator.onLine){NAV.route=null;renderTurns();drawRouteLine();return;}
@@ -2566,7 +2705,7 @@ $("#navCompassBtn").addEventListener("click",()=>startCompass(true));
 $("#navFollow").addEventListener("click",()=>setFollow(!NAV.follow));
 $("#navModes").addEventListener("click",e=>{const b=e.target.closest("[data-mode]");if(b&&NAV.x)setMode(b.dataset.mode);});
 $("#askCopy").addEventListener("click",async e=>{const b=e.target;try{await navigator.clipboard.writeText(NAV.x.j);b.textContent="คัดลอกแล้ว ✓";}catch(err){b.textContent="คัดลอกไม่ได้";}setTimeout(()=>b.textContent="คัดลอกชื่อญี่ปุ่น",1600);});
-$("#navTurns").addEventListener("click",e=>{const ib=e.target.closest("[data-it]");if(ib&&NAV.tr){NAV.tr.sel=+ib.dataset.it;renderTurns();drawRouteLine();fitNav();return;}const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;renderTurns();});
+$("#navTurns").addEventListener("click",e=>{const ib=e.target.closest("[data-it]");if(ib&&NAV.tr){NAV.tr.sel=+ib.dataset.it;const it=NAV.tr.its[NAV.tr.sel];NAV.route=it&&it.walkOnly?NAV.walk:null;NAV.step=1;renderTurns();drawRouteLine();fitNav();return;}const tb=e.target.closest("[data-rt]");if(!tb||!NAV.x)return;RT.tab[NAV.x.id]=tb.dataset.rt;renderTurns();});
 
 /* แตะเมนูเด็ด = ขึ้นชื่อญี่ปุ่นตัวใหญ่ให้พนักงานดู */
 function showDish(b){
@@ -2614,7 +2753,7 @@ document.addEventListener("click",e=>{
 /* ---------- เรทเงิน เยน → บาท ---------- */
 let FX=store.get("fx2",null)||{jt:0.199,ju:0.0064,d:"",src:"ค่าประมาณ",t:0,est:true};
 function thDate(d){try{return new Date(d+"T12:00:00").toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});}catch(e){return d;}}
-function numIn(v){return parseFloat(String(v).replace(/[,\s฿¥]/g,""));}
+function numIn(v){const t=String(v).trim();if(!t)return NaN;const e=calcEval(t);return isFinite(e)?e:NaN;}
 function fmtConv(v){return v<100?(Math.round(v*100)/100).toLocaleString("en-US"):Math.round(v).toLocaleString("en-US");}
 async function getJSON(u){const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);try{const r=await fetch(u,{signal:c.signal,cache:"no-store"});if(!r.ok)throw new Error(r.status);return await r.json();}finally{clearTimeout(t);}}
 function renderFx(failed){
@@ -2623,7 +2762,7 @@ function renderFx(failed){
   $("#fxMeta").classList.toggle("stale",!!(FX.est||failed));
 }
 function fxConvert(){const a=$("#fxJpy"),b=$("#fxThb");
-  if(FX_LAST==="j"){const v=numIn(a.value);b.value=v>=0?fmtConv(v*FX.jt):"";}else{const v=numIn(b.value);a.value=v>=0?Math.round(v/FX.jt).toLocaleString("en-US"):"";}}
+  if(FX_LAST==="j"){const v=numIn(a.value);b.value=v>=0?fmtConv(v*FX.jt):"";if(/[+\-*/×÷x()]/.test(a.value)&&v>=0)a.title="= ¥"+Math.round(v).toLocaleString("en-US");}else{const v=numIn(b.value);a.value=v>=0?Math.round(v/FX.jt).toLocaleString("en-US"):"";}}
 function priceOpts(){[[1,1000],[2,3000],[3,8000]].forEach(([i,y])=>{const o=$('#price option[value="'+i+'"]');if(o)o.textContent="≤ ¥"+y.toLocaleString("en-US")+" (≈฿"+fmtB(y*FX.jt)+")";});}
 let FX_LAST="j";
 async function loadFx(force){
@@ -2639,17 +2778,158 @@ async function loadFx(force){
   res.sort((a,b)=>b.d.localeCompare(a.d));/* วันที่ใหม่สุดก่อน ถ้าวันเดียวกันใช้ ECB */
   FX={...res[0],t:Date.now(),est:false};store.set("fx2",FX);
   renderFx();fxConvert();priceOpts();
+  if($("#calcDlg").open){if($("#bPane").hidden)renderCalc();else renderBills();}
   if(S.pos&&S.tab!=="map"&&!NAV.x){const y=scrollY;render();scrollTo(0,y);}
 }
 $("#fxJpy").addEventListener("input",()=>{FX_LAST="j";fxConvert();store.set("fxv",$("#fxJpy").value);});
 $("#fxThb").addEventListener("input",()=>{FX_LAST="t";fxConvert();});
-$("#fxJpy").addEventListener("blur",e=>{const v=numIn(e.target.value);if(v>=0)e.target.value=v.toLocaleString("en-US");});
+$("#fxJpy").addEventListener("blur",e=>{const v=numIn(e.target.value);if(v>=0)e.target.value=Math.round(v*100)/100===Math.round(v)?Math.round(v).toLocaleString("en-US"):v.toLocaleString("en-US");});
+$("#fxClr").addEventListener("click",()=>{$("#fxJpy").value="";$("#fxThb").value="";store.set("fxv","");FX_LAST="j";$("#fxJpy").focus();});
 $("#fxRef").addEventListener("click",()=>loadFx(true));
 addEventListener("online",()=>loadFx(false));
 setInterval(()=>loadFx(false),30*60e3);
 
+
+/* ---------- ธีม & ขนาดตัวอักษร ---------- */
+const UI={theme:store.get("theme","auto"),fs:store.get("fs",1)};
+function applyUI(){
+  const r=document.documentElement;if(UI.theme==="auto")delete r.dataset.theme;else r.dataset.theme=UI.theme;
+  r.style.setProperty("--fs",UI.fs);if(UI.fs>=1.2)r.dataset.big="1";else delete r.dataset.big;
+  document.querySelectorAll("[data-theme-set]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.themeSet===UI.theme));
+  $("#fsVal").textContent=Math.round(UI.fs*100)+"%";
+  [MAP,NAV.map].forEach(m=>{try{m&&m.resize();}catch(e){}});
+}
+function openDlgEl(d){try{d.showModal()}catch(e){d.setAttribute("open","")}}
+function closeDlgEl(d){if(d.close)d.close();else d.removeAttribute("open");}
+$("#uiBtn").addEventListener("click",()=>openDlgEl($("#uiDlg")));
+$("#uiClose").addEventListener("click",()=>closeDlgEl($("#uiDlg")));
+$("#themeRow").addEventListener("click",e=>{const b=e.target.closest("[data-theme-set]");if(!b)return;UI.theme=b.dataset.themeSet;store.set("theme",UI.theme);applyUI();});
+function setFs(v){UI.fs=Math.min(1.6,Math.max(0.85,Math.round(v*100)/100));store.set("fs",UI.fs);applyUI();}
+$("#fsUp").addEventListener("click",()=>setFs(UI.fs+0.1));
+$("#fsDown").addEventListener("click",()=>setFs(UI.fs-0.1));
+$("#fsReset").addEventListener("click",()=>setFs(1));
+applyUI();
+
+/* ---------- คิดเลข: ตัวแยกนิพจน์ปลอดภัย (ไม่ใช้ eval) ---------- */
+function calcTokens(t){
+  t=String(t).replace(/[,\s¥฿]/g,"").replace(/[×xX]/g,"*").replace(/÷/g,"/").replace(/[−–]/g,"-");
+  const out=[];let i=0;
+  while(i<t.length){const c=t[i];
+    if(/[0-9.]/.test(c)){let j=i;while(j<t.length&&/[0-9.]/.test(t[j]))j++;const n=parseFloat(t.slice(i,j));if(isNaN(n))return null;out.push(n);i=j;continue;}
+    if("+-*/()%".includes(c)){out.push(c);i++;continue;}
+    return null;}
+  return out;
+}
+function calcEval(t){
+  const tk=calcTokens(t);if(!tk||!tk.length)return NaN;let p=0;
+  const peek=()=>tk[p],next=()=>tk[p++];
+  function prim(){const v=next();
+    if(v==="-")return -prim();if(v==="+")return prim();
+    if(v==="("){const r=expr();if(next()!==")")throw 0;return r;}
+    if(typeof v==="number"){if(peek()==="%"){next();return v/100;}return v;}
+    throw 0;}
+  function term(){let v=prim();while(peek()==="*"||peek()==="/"){const o=next(),r=prim();v=o==="*"?v*r:v/r;}return v;}
+  function expr(){let v=term();while(peek()==="+"||peek()==="-"){const o=next(),r=term();v=o==="+"?v+r:v-r;}return v;}
+  try{let open=tk.filter(x=>x==="(").length-tk.filter(x=>x===")").length;while(open-->0)tk.push(")");
+    while(typeof tk[tk.length-1]==="string"&&"+-*/".includes(tk[tk.length-1]))tk.pop();
+    const v=expr();return p===tk.length?v:NaN;}catch(e){return NaN;}
+}
+function topTerms(t){/* แยกรายการที่บวกกันระดับนอกสุด สำหรับหาค่าเฉลี่ย */
+  const s=String(t).replace(/[−–]/g,"-");let d=0,cur="",out=[];
+  for(const c of s){if(c==="(")d++;if(c===")")d--;if(c==="+"&&d===0){out.push(cur);cur="";}else cur+=c;}
+  out.push(cur);return out.map(calcEval).filter(isFinite);
+}
+const fY=v=>"¥"+(Math.round(v)).toLocaleString("en-US");
+const fT=v=>"฿"+(Math.abs(v)<1000?(Math.round(v*100)/100).toLocaleString("en-US",{minimumFractionDigits:Math.round(v*100)%100?2:0}):Math.round(v).toLocaleString("en-US"));
+const CALC={cur:store.get("ccur","jpy"),avg:false};
+function calcBase(){/* ค่าที่พิมพ์ → [เยน, บาท] */
+  const v=CALC.avg?(()=>{const a=topTerms($("#cExpr").value);return a.length?a.reduce((x,y)=>x+y,0)/a.length:NaN;})():calcEval($("#cExpr").value);
+  if(!isFinite(v))return null;return CALC.cur==="jpy"?[v,v*FX.jt]:[v/FX.jt,v];
+}
+function renderCalc(){
+  $("#calcRate").textContent="เรท 1 ¥ = "+FX.jt.toFixed(4)+" ฿"+(FX.est?" (ค่าประมาณ)":" · "+thDate(FX.d)+" · "+FX.src);
+  document.querySelectorAll("[data-ccur]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ccur===CALC.cur));
+  const b=calcBase(),res=$("#cRes"),dOut=$("#cDiscOut");
+  if(!b){res.innerHTML=$("#cExpr").value?'<span class="muted">พิมพ์ต่อให้ครบ…</span>':'';dOut.innerHTML='<span class="muted">ใส่ราคาด้านบน แล้วใส่ % ที่ลด จะบอกราคาหลังลดเป็นเยนและบาท</span>';return;}
+  const n=CALC.avg?topTerms($("#cExpr").value).length:0;
+  res.innerHTML=(CALC.avg?'<span class="muted">เฉลี่ย '+n+' รายการ</span> ':'')+'= <b>'+(CALC.cur==="jpy"?fY(b[0])+'</b> <span class="muted">≈ '+fT(b[1])+'</span>':fT(b[1])+'</b> <span class="muted">≈ '+fY(b[0])+'</span>');
+  const d=parseFloat($("#cDisc").value);
+  if(d>0&&d<=100){const k=1-d/100;
+    dOut.innerHTML='ลด '+d+'% → เหลือ <b>'+fY(b[0]*k)+'</b> ≈ <b>'+fT(b[1]*k)+'</b><br><span class="muted">ประหยัด '+fY(b[0]*d/100)+' ≈ '+fT(b[1]*d/100)+' · ราคาเต็ม '+fY(b[0])+'</span>';}
+  else dOut.innerHTML='<span class="muted">ใส่ % ที่ลด เช่น 35 แล้วจะเห็นราคาหลังลด</span>';
+}
+$("#kp").addEventListener("click",e=>{
+  const b=e.target.closest("[data-k]");if(!b)return;const k=b.dataset.k,inp=$("#cExpr");
+  if(k==="C"){inp.value="";CALC.avg=false;$("#cDisc").value="";}
+  else if(k==="back"){inp.value=inp.value.slice(0,-1);}
+  else if(k==="avg"){CALC.avg=!CALC.avg;b.setAttribute("aria-pressed",CALC.avg);}
+  else if(k==="="){const v=CALC.avg?null:calcEval(inp.value);if(isFinite(v))inp.value=String(Math.round(v*100)/100);}
+  else if(k==="tobill"){const bb=calcBase();if(!bb){toast("ใส่ตัวเลขก่อน");return;}const d=parseFloat($("#cDisc").value)||0;
+    addBill({amt:String(Math.round(bb[0])),disc:d>0?String(d):""});setCTab("bill");toast("เพิ่มเป็นบิลแล้ว ใส่ชื่อบิลได้เลย");
+    setTimeout(()=>{const l=document.querySelector("#bills .bill:last-child [data-bf=label]");if(l)l.focus();},80);return;}
+  else{const op="+−×÷".includes(k);if(op&&/[+−×÷\-*/]$/.test(inp.value))inp.value=inp.value.slice(0,-1);inp.value+=k;}
+  if(k!=="avg")document.querySelector('[data-k="avg"]').setAttribute("aria-pressed",CALC.avg);
+  renderCalc();
+});
+$("#cExpr").addEventListener("input",renderCalc);
+$("#cDisc").addEventListener("input",renderCalc);
+document.querySelectorAll("[data-dq]").forEach(b=>b.addEventListener("click",()=>{$("#cDisc").value=b.dataset.dq;renderCalc();}));
+document.querySelectorAll("[data-ccur]").forEach(b=>b.addEventListener("click",()=>{CALC.cur=b.dataset.ccur;store.set("ccur",CALC.cur);renderCalc();}));
+
+/* ---------- บิล & หารคน ---------- */
+const uid=()=>Math.random().toString(36).slice(2,8);
+let BILL=store.get("bills2",null)||{people:[{id:"me",n:"ฉัน"}],bills:[]};
+function saveBill(){store.set("bills2",BILL);}
+function billNet(b){const a=calcEval(b.amt||"");if(!isFinite(a))return null;const d=parseFloat(b.disc)||0;return a*(1-Math.min(100,Math.max(0,d))/100);}
+function addBill(o){BILL.bills.push(Object.assign({id:uid(),label:"",amt:"",disc:"",who:BILL.people.map(p=>p.id)},o||{}));saveBill();renderBills();}
+function billOutHTML(b){
+  const net=billNet(b);if(net==null)return '<span class="muted">ใส่ราคาเป็นเยน (พิมพ์ 1200+800 ได้)</span>';
+  const n=b.who.length,d=parseFloat(b.disc)||0;
+  return 'สุทธิ <b>'+fY(net)+'</b> ≈ '+fT(net*FX.jt)+(d>0?' <span class="muted">(ลด '+d+'%)</span>':'')+'<br>'+(n?'หาร '+n+' คน = <b>'+fY(net/n)+'</b> ≈ <b>'+fT(net*FX.jt/n)+'</b> /คน':'<span style="color:var(--warn)">ยังไม่ได้เลือกคนหาร</span>');
+}
+function renderBills(){
+  $("#people").innerHTML=BILL.people.map(p=>'<span class="pchip">'+esc(p.n)+(BILL.people.length>1?'<button type="button" data-pdel="'+p.id+'" aria-label="ลบ '+esc(p.n)+'">✕</button>':'')+'</span>').join("");
+  $("#bills").innerHTML=BILL.bills.length?BILL.bills.map((b,i)=>'<div class="bill" data-bid="'+b.id+'">'+
+    '<div class="bill-r1"><input data-bf="label" value="'+esc(b.label)+'" placeholder="บิลที่ '+(i+1)+': ค่าอะไร เช่น ราเมงมื้อเที่ยง" aria-label="ชื่อบิล" maxlength="40"><button type="button" class="bill-del" data-bdel="'+b.id+'" aria-label="ลบบิล">🗑</button></div>'+
+    '<div class="bill-r2"><label>ราคา (เยน)<input data-bf="amt" value="'+esc(b.amt)+'" inputmode="decimal" placeholder="เช่น 5730"></label><label>ลด %<input data-bf="disc" value="'+esc(b.disc)+'" inputmode="decimal" placeholder="0"></label></div>'+
+    '<div class="who"><span class="muted">ใครหาร:</span>'+BILL.people.map(p=>'<button type="button" data-who="'+p.id+'" aria-pressed="'+b.who.includes(p.id)+'">'+(b.who.includes(p.id)?"✓ ":"")+esc(p.n)+'</button>').join("")+
+      '<button type="button" data-whoall="1" class="linkbtn" style="border:0;background:none">ทุกคน</button></div>'+
+    '<div class="bill-out" data-bout>'+billOutHTML(b)+'</div></div>').join(""):'<p class="muted" style="margin:0">ยังไม่มีบิล กด ＋ เพิ่มบิล หรือคิดในเครื่องคิดเลขแล้วกด ＋ เป็นบิล</p>';
+  renderBillSum();
+}
+function renderBillSum(){
+  let tot=0;const per={};BILL.people.forEach(p=>per[p.id]=0);let cnt=0;
+  BILL.bills.forEach(b=>{const net=billNet(b);if(net==null)return;cnt++;tot+=net;if(b.who.length)b.who.forEach(id=>{if(id in per)per[id]+=net/b.who.length;});});
+  $("#bSum").innerHTML='<div><b>รวม '+cnt+' บิล: '+fY(tot)+'</b> ≈ <b>'+fT(tot*FX.jt)+'</b></div>'+
+    (BILL.people.length>1||cnt?'<table><tr><td class="muted">แต่ละคนจ่าย</td><td class="muted">เยน</td><td class="muted">บาท</td></tr>'+BILL.people.map(p=>'<tr><td>'+esc(p.n)+'</td><td>'+fY(per[p.id])+'</td><td><b>'+fT(per[p.id]*FX.jt)+'</b></td></tr>').join("")+'</table>':'')+
+    '<div class="muted" style="font-size:.78rem">เรท 1 ¥ = '+FX.jt.toFixed(4)+' ฿ · ปัดเศษเพื่อแสดงผล</div>';
+}
+$("#bills").addEventListener("input",e=>{
+  const f=e.target.dataset.bf;if(!f)return;const el=e.target.closest("[data-bid]"),b=BILL.bills.find(x=>x.id===el.dataset.bid);if(!b)return;
+  b[f]=e.target.value;saveBill();el.querySelector("[data-bout]").innerHTML=billOutHTML(b);renderBillSum();
+});
+$("#bills").addEventListener("click",e=>{
+  const el=e.target.closest("[data-bid]");if(!el)return;const b=BILL.bills.find(x=>x.id===el.dataset.bid);
+  const d=e.target.closest("[data-bdel]");if(d){if(b.amt&&!confirm("ลบบิล "+(b.label||"นี้")+" ?"))return;BILL.bills=BILL.bills.filter(x=>x!==b);saveBill();renderBills();return;}
+  const w=e.target.closest("[data-who]");if(w){const id=w.dataset.who;b.who=b.who.includes(id)?b.who.filter(x=>x!==id):[...b.who,id];saveBill();renderBills();return;}
+  if(e.target.closest("[data-whoall]")){b.who=b.who.length===BILL.people.length?[]:BILL.people.map(p=>p.id);saveBill();renderBills();}
+});
+$("#people").addEventListener("click",e=>{const d=e.target.closest("[data-pdel]");if(!d)return;const id=d.dataset.pdel,p=BILL.people.find(x=>x.id===id);
+  if(!confirm("ลบ "+p.n+" ออกจากทุกบิล?"))return;BILL.people=BILL.people.filter(x=>x.id!==id);BILL.bills.forEach(b=>b.who=b.who.filter(x=>x!==id));saveBill();renderBills();});
+function addPerson(){const i=$("#pName"),n=i.value.trim();if(!n)return;const id=uid();
+  BILL.bills.forEach(b=>{if(b.who.length===BILL.people.length)b.who.push(id);});/* บิลที่ทุกคนหารอยู่ ให้คนใหม่หารด้วย */
+  BILL.people.push({id,n});i.value="";saveBill();renderBills();i.focus();}
+$("#pAdd").addEventListener("click",addPerson);
+$("#pName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addPerson();}});
+$("#bAdd").addEventListener("click",()=>{addBill();setTimeout(()=>{const l=document.querySelector("#bills .bill:last-child [data-bf=label]");if(l)l.focus();},50);});
+$("#bClear").addEventListener("click",()=>{if(!BILL.bills.length||confirm("ล้างบิลทั้งหมด? (รายชื่อคนยังอยู่)")){BILL.bills=[];saveBill();renderBills();}});
+function setCTab(t){document.querySelectorAll("[data-ctab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ctab===t));$("#cPane").hidden=t!=="calc";$("#bPane").hidden=t!=="bill";store.set("ctab",t);if(t==="bill")renderBills();else renderCalc();}
+document.querySelectorAll("[data-ctab]").forEach(b=>b.addEventListener("click",()=>setCTab(b.dataset.ctab)));
+$("#calcBtn").addEventListener("click",()=>{openDlgEl($("#calcDlg"));const v=$("#fxJpy").value.trim();if(v&&!$("#cExpr").value){$("#cExpr").value=v;CALC.cur="jpy";}setCTab(store.get("ctab","calc"));});
+$("#calcClose").addEventListener("click",()=>closeDlgEl($("#calcDlg")));
+
 /* start: show last known spot immediately, then try GPS */
-$("#fxJpy").value=store.get("fxv","1,000");renderFx();fxConvert();priceOpts();loadFx(false);
+$("#fxJpy").value=store.get("fxv","");renderFx();fxConvert();priceOpts();loadFx(false);
 if(!fromHash()){if(S.pos)render();locate(false);}
 </script>
 </body>

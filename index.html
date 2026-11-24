@@ -2886,7 +2886,7 @@ function saveBill(){store.set("bills2",BILL);}
 function billNet(b){const a=calcEval(b.amt||"");if(!isFinite(a))return null;const d=parseFloat(b.disc)||0;return a*(1-Math.min(100,Math.max(0,d))/100);}
 function addBill(o){BILL.bills.push(Object.assign({id:uid(),label:"",amt:"",disc:"",who:BILL.people.map(p=>p.id)},o||{}));saveBill();renderBills();}
 function pName(id){const p=BILL.people.find(x=>x.id===id);return p?p.n:"?";}
-/* คนเลี้ยง (host) จ่ายส่วนของตัวเอง + ส่วนของคนที่ตัวเองเลี้ยง (treat) · คนที่เหลือจ่ายส่วนตัวเอง */
+/* คนจ่ายรวม (host) จ่ายส่วนของตัวเอง + ส่วนของคนที่จ่ายให้ (treat) · คนที่เหลือจ่ายส่วนตัวเอง */
 function billHost(b){return b.host&&b.who.includes(b.host)?b.host:"";}
 function billTreat(b){const h=billHost(b);return h?(b.treat||[]).filter(id=>id!==h&&b.who.includes(id)):[];}
 function billPay(b){const net=billNet(b),pay={};if(net==null||!b.who.length)return pay;const sh=net/b.who.length,h=billHost(b),tr=billTreat(b);
@@ -2898,18 +2898,18 @@ function billOutHTML(b){
   if(!n)return o+'<span style="color:var(--warn)">ยังไม่ได้เลือกคนหาร</span>';
   o+='หาร '+n+' คน = '+fY(net/n)+' ≈ '+fT(net*FX.jt/n)+' /คน';
   if(h&&tr.length){const pay=billPay(b),self=b.who.filter(id=>id!==h&&!tr.includes(id));
-    o+='<br>🎁 <b>'+esc(pName(h))+'</b> เลี้ยง '+tr.map(id=>esc(pName(id))).join(", ")+' → จ่าย <b>'+fY(pay[h])+'</b> ≈ <b>'+fT(pay[h]*FX.jt)+'</b>';
+    o+='<br>👛 <b>'+esc(pName(h))+'</b> จ่ายรวมให้ '+tr.map(id=>esc(pName(id))).join(", ")+' → จ่าย <b>'+fY(pay[h])+'</b> ≈ <b>'+fT(pay[h]*FX.jt)+'</b>';
     if(self.length)o+='<br>จ่ายส่วนตัวเอง: '+self.map(id=>esc(pName(id))).join(", ")+' คนละ <b>'+fY(net/n)+'</b> ≈ <b>'+fT(net*FX.jt/n)+'</b>';}
-  else if(h)o+='<br><span class="muted">เลือกว่า '+esc(pName(h))+' เลี้ยงใครบ้าง</span>';
+  else if(h)o+='<br><span class="muted">เลือกว่า '+esc(pName(h))+' จ่ายรวมให้ใครบ้าง</span>';
   return o;
 }
 function giftHTML(b){
-  if(!b.gift)return '<button type="button" class="linkbtn" data-gift="1" style="justify-self:start;border:0;background:none">🎁 มีคนเลี้ยงบิลนี้? (จ่ายแทนบางคน)</button>';
+  if(!b.gift)return '<button type="button" class="linkbtn" data-gift="1" style="justify-self:start;border:0;background:none">👛 มีคนจ่ายรวมให้หลายคน?</button>';
   const h=billHost(b),tr=billTreat(b);
-  return '<div class="bill-gift"><div class="who host"><span class="muted">🎁 ใครเลี้ยง:</span>'+b.who.map(id=>'<button type="button" data-host="'+id+'" aria-pressed="'+(h===id)+'">'+esc(pName(id))+'</button>').join("")+'</div>'+
-    (h?'<div class="who treat"><span class="muted">เลี้ยงใครบ้าง:</span>'+b.who.filter(id=>id!==h).map(id=>'<button type="button" data-treat="'+id+'" aria-pressed="'+tr.includes(id)+'">'+(tr.includes(id)?"✓ ":"")+esc(pName(id))+'</button>').join("")+
+  return '<div class="bill-gift"><div class="who host"><span class="muted">👛 ใครจ่ายรวม:</span>'+b.who.map(id=>'<button type="button" data-host="'+id+'" aria-pressed="'+(h===id)+'">'+esc(pName(id))+'</button>').join("")+'</div>'+
+    (h?'<div class="who treat"><span class="muted">รวมของใครบ้าง:</span>'+b.who.filter(id=>id!==h).map(id=>'<button type="button" data-treat="'+id+'" aria-pressed="'+tr.includes(id)+'">'+(tr.includes(id)?"✓ ":"")+esc(pName(id))+'</button>').join("")+
       '<button type="button" data-treatall="1" class="linkbtn" style="border:0;background:none">ทุกคน</button></div>':'')+
-    '<button type="button" class="linkbtn" data-gift="0" style="justify-self:start;border:0;background:none;font-size:.8rem">✕ ไม่มีคนเลี้ยง (หารเท่ากัน)</button></div>';
+    '<button type="button" class="linkbtn" data-gift="0" style="justify-self:start;border:0;background:none;font-size:.8rem">✕ ต่างคนต่างจ่าย (หารเท่ากัน)</button></div>';
 }
 function renderBills(){
   $("#people").innerHTML=BILL.people.map(p=>'<span class="pchip">'+esc(p.n)+(BILL.people.length>1?'<button type="button" data-pdel="'+p.id+'" aria-label="ลบ '+esc(p.n)+'">✕</button>':'')+'</span>').join("");
@@ -2926,7 +2926,7 @@ function renderBillSum(){
   const gave={},got={};BILL.bills.forEach(b=>{const net=billNet(b);if(net==null)return;cnt++;tot+=net;const pay=billPay(b);for(const id in pay)if(id in per)per[id]+=pay[id];
     const h=billHost(b);billTreat(b).forEach(id=>{gave[h]=(gave[h]||0)+1;got[id]=(got[id]||0)+1;});});
   $("#bSum").innerHTML='<div><b>รวม '+cnt+' บิล: '+fY(tot)+'</b> ≈ <b>'+fT(tot*FX.jt)+'</b></div>'+
-    (BILL.people.length>1||cnt?'<table><tr><td class="muted">แต่ละคนจ่าย</td><td class="muted">เยน</td><td class="muted">บาท</td></tr>'+BILL.people.map(p=>'<tr><td>'+esc(p.n)+(gave[p.id]?' <span class="muted" style="font-size:.75rem">🎁 เลี้ยง</span>':'')+(got[p.id]&&!per[p.id]?' <span class="muted" style="font-size:.75rem">ได้รับเลี้ยง</span>':'')+'</td><td>'+fY(per[p.id])+'</td><td><b>'+fT(per[p.id]*FX.jt)+'</b></td></tr>').join("")+'</table>':'')+
+    (BILL.people.length>1||cnt?'<table><tr><td class="muted">แต่ละคนจ่าย</td><td class="muted">เยน</td><td class="muted">บาท</td></tr>'+BILL.people.map(p=>'<tr><td>'+esc(p.n)+(gave[p.id]?' <span class="muted" style="font-size:.75rem">👛 จ่ายรวม</span>':'')+(got[p.id]&&!per[p.id]?' <span class="muted" style="font-size:.75rem">มีคนจ่ายให้แล้ว</span>':'')+'</td><td>'+fY(per[p.id])+'</td><td><b>'+fT(per[p.id]*FX.jt)+'</b></td></tr>').join("")+'</table>':'')+
     '<div class="muted" style="font-size:.78rem">เรท 1 ¥ = '+FX.jt.toFixed(4)+' ฿ · ปัดเศษเพื่อแสดงผล</div>';
 }
 $("#bills").addEventListener("input",e=>{

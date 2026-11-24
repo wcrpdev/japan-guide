@@ -2117,7 +2117,9 @@ function sxPopJa(en){if(!en)return "";const nz=t=>t.toLowerCase().replace(/[^a-z
 const SX_MODE={SUBWAY:"🚇 ใต้ดิน",REGIONAL_RAIL:"🚆 รถไฟ",RAIL:"🚆 รถไฟ",SUBURBAN:"🚆 รถไฟ",METRO:"🚇 ใต้ดิน",HIGHSPEED_RAIL:"🚄 ชินคันเซ็น",LONG_DISTANCE:"🚆 รถไฟทางไกล",TRAM:"🚋 รถราง",FUNICULAR:"🚠 เคเบิลคาร์"};
 function sxOpHint(x){
   const m=/^jp-tokyo-rail_([^.]+)\.([^.]+)\./.exec(x.id);
-  if(m)return "🚆 สาย "+m[2].replace(/([a-z])([A-Z])/g,"$1 $2").replace(/Line$/,"").trim()+" เท่านั้น";
+  if(m){const h=t=>t.replace(/([a-z])([A-Z])/g,"$1 $2").replace(/-/g," ").trim(),op=h(m[1]),ln=h(m[2]).replace(/\s*Line$/,"");
+    const OP={"Tokyo Metro":"🚇 Tokyo Metro","Toei":"🚇 Toei","MIR":"🚆","JR East":"🚆 JR"};
+    return (OP[op]!==undefined?OP[op]:"🚆 "+op)+" สาย "+ln+" เท่านั้น";}
   const md=[...new Set((x.modes||[]).map(k=>SX_MODE[k]).filter(Boolean))];
   return md.length>1?md.join(" + ")+" (หลายสาย)":md[0]||"";
 }
@@ -2178,14 +2180,14 @@ function sxItHTML(it){
       const samePar=l.from.parentId&&l.from.parentId===l.to.parentId,diffCo=prev.agencyName!==next.agencyName;
       h+='<li class="sx-walk"><div class="sx-wk">🔁 <b>เปลี่ยนสาย</b> · เดิน ~'+Math.max(1,Math.round(l.duration/60))+' นาที<br>'+
         (samePar?'อยู่ในสถานีเดียวกัน ตามป้าย <b lang="ja">乗換</b> / <b>Transfer</b> ไปยัง <b style="color:'+sxCol(next)+'">'+esc(sxLineName(next))+'</b>'+(next.from.stopCode?' (ชานชาลารหัส '+esc(next.from.stopCode)+')':''):
-          'ต้อง<b>ออกจากสถานี '+esc(l.from.th||l.from.en)+'</b> แล้วเดินไป<b>สถานี '+esc(l.to.th||l.to.en)+'</b> (คนละอาคาร) · ดูทางออกด้านล่าง')+
+          'เดินจาก<b>สถานี '+esc(l.from.th||l.from.en)+'</b> ไป<b>สถานี '+esc(l.to.th||l.to.en)+'</b> (ชื่อสถานีต่างกัน) · มองหาป้าย <b>乗換 / Transfer</b> ก่อน บางที่มีทางเดินเชื่อมใต้ดิน · ถ้าไม่มี ให้ออกจากสถานีแล้วเดินบนถนน ดูทางออก/ลิฟต์ด้านล่าง')+
         (diffCo?'<br><span class="sx-warn">⚠️ คนละบริษัท ('+esc(prev.agencyName||"")+' → '+esc(next.agencyName||"")+'): ส่วนใหญ่ต้องแตะบัตรออกที่ประตูตรวจตั๋ว แล้วแตะเข้าใหม่ บางสถานีมีประตูเปลี่ยนสายตรง (<span lang="ja">乗換改札</span>) ใช้บัตร IC (Suica/ICOCA) ได้เลย</span>':'')+
         '</div></li>';
       return;
     }
     const c=sxCol(l),mid=l.intermediateStops||[],n=mid.length+1;
     h+='<li class="sx-leg" style="--c:'+c+'"><div class="sx-lh"><span class="sx-chip" style="background:'+c+'">'+esc(l.routeShortName||l.displayName||"🚆")+'</span> <b>'+esc(sxLineName(l))+'</b>'+
-      '<div class="muted">'+esc(l.agencyName||"")+' · มุ่งหน้า <b>'+esc(sxHead(l).to)+'</b>'+(l.headJa?' (<span lang="ja">'+esc(l.headJa.replace(/^[（(].*?[)）]\s*/,""))+'</span>)':"")+(sxHead(l).ty?' · รถ'+esc(sxHead(l).ty):"")+' · นั่ง <b>'+n+' สถานี</b> ~'+Math.round(l.duration/60)+' นาที</div></div><ul class="sx-sts">'+
+      '<div class="muted">'+esc(l.agencyName||"")+' · มุ่งหน้า <b>'+esc(sxHead(l).to)+'</b>'+(l.headJa?' (<span lang="ja">'+esc(l.headJa.replace(/^[（(【].*?[)）】]\s*/,""))+'</span>)':"")+(sxHead(l).ty?' · รถ'+esc(sxHead(l).ty):"")+' · นั่ง <b>'+n+' สถานี</b> ~'+Math.round(l.duration/60)+' นาที</div></div><ul class="sx-sts">'+
       sxStn(l.from,"on","🟢 ขึ้นรถที่นี่ · ออก "+hhmm(l.startTime)+(l.from.track?" · ชานชาลา "+esc(l.from.track):""))+
       (mid.length>6?mid.slice(0,2).map(s=>sxStn(s,"mid")).join("")+'<li class="sx-more"><details><summary>ผ่านอีก '+(mid.length-4)+' สถานี ▾</summary><ul class="sx-sts">'+mid.slice(2,-2).map(s=>sxStn(s,"mid")).join("")+'</ul></details></li>'+mid.slice(-2).map(s=>sxStn(s,"mid")).join(""):mid.map(s=>sxStn(s,"mid")).join(""))+
       sxStn(l.to,"off","🔴 ลงที่นี่ · ถึง "+hhmm(l.endTime))+'</ul></li>';

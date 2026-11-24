@@ -156,6 +156,7 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:10px
 .c-act{display:flex;gap:8px;margin-top:2px;flex-wrap:wrap}
 .meta .rate{background:#FFF1E6;color:#B4380F;border-radius:6px;padding:1px 6px;font-weight:700}
 .meta .trustb{font-size:.9rem}
+.sx-op{display:block;font-size:.75rem;color:var(--accent);margin-top:2px}
 .c-more{margin:6px 0 2px;border-top:1px dashed var(--line)}
 .c-more>summary{cursor:pointer;list-style:none;font-size:.82rem;color:var(--accent);font-weight:600;padding:7px 0 3px}
 .c-more>summary::-webkit-details-marker{display:none}.c-more>summary::before{content:"▸ ";}.c-more[open]>summary::before{content:"▾ ";}
@@ -2102,15 +2103,23 @@ function sxTitle(s){return s&&s===s.toUpperCase()&&/[A-Z]{3}/.test(s)?s.toLowerC
 function sxJa(s){return (s||"").replace(/\s+[A-Za-z][A-Za-z .\-]*$/,"").trim();}
 const SX_RAIL=/RAIL|SUBWAY|TRAM|METRO|FUNICULAR|MONORAIL|HIGHSPEED|LONG_DISTANCE|NIGHT_RAIL|SUBURBAN/;
 async function sxGet(path){const r=await fetch(SX_API+path);if(!r.ok)throw new Error("http "+r.status);return r.json();}
-async function sxGeocode(text){
-  const q=encodeURIComponent(text);
-  const [en,ja]=await Promise.all([sxGet("/v1/geocode?type=STOP&language=en&text="+q).catch(()=>[]),sxGet("/v1/geocode?type=STOP&language=ja&text="+q).catch(()=>[])]);
+async function sxGeocode(text,jaText){
+  const q=encodeURIComponent(text),qj=encodeURIComponent(jaText||text);
+  const [en,ja]=await Promise.all([sxGet("/v1/geocode?type=STOP&language=en&text="+q).catch(()=>[]),sxGet("/v1/geocode?type=STOP&language=ja&text="+qj).catch(()=>[])]);
   return sxMerge(en,ja);
 }
 async function sxNear(la,lo){
   const p=la.toFixed(5)+","+lo.toFixed(5);
   const [en,ja]=await Promise.all([sxGet("/v1/reverse-geocode?type=STOP&language=en&place="+p).catch(()=>[]),sxGet("/v1/reverse-geocode?type=STOP&language=ja&place="+p).catch(()=>[])]);
   return sxMerge(en,ja).sort((a,b)=>dist(la,lo,a.la,a.lo)-dist(la,lo,b.la,b.lo));
+}
+function sxPopJa(en){if(!en)return "";const nz=t=>t.toLowerCase().replace(/[^a-z0-9]/g,"");const p=SX_POP.find(p=>nz(p[1].replace(/\s*\(.*\)/,""))===nz(en));return p?p[2]:"";}
+const SX_MODE={SUBWAY:"🚇 ใต้ดิน",REGIONAL_RAIL:"🚆 รถไฟ",RAIL:"🚆 รถไฟ",SUBURBAN:"🚆 รถไฟ",METRO:"🚇 ใต้ดิน",HIGHSPEED_RAIL:"🚄 ชินคันเซ็น",LONG_DISTANCE:"🚆 รถไฟทางไกล",TRAM:"🚋 รถราง",FUNICULAR:"🚠 เคเบิลคาร์"};
+function sxOpHint(x){
+  const m=/^jp-tokyo-rail_([^.]+)\.([^.]+)\./.exec(x.id);
+  if(m)return "🚆 สาย "+m[2].replace(/([a-z])([A-Z])/g,"$1 $2").replace(/Line$/,"").trim()+" เท่านั้น";
+  const md=[...new Set((x.modes||[]).map(k=>SX_MODE[k]).filter(Boolean))];
+  return md.length>1?md.join(" + ")+" (หลายสาย)":md[0]||"";
 }
 function sxMerge(en,ja){
   const J={};(ja||[]).forEach(s=>J[s.id]=sxJa(s.name));
@@ -2119,13 +2128,13 @@ function sxMerge(en,ja){
     if(s.type!=="STOP"||!(s.modes||[]).some(m=>SX_RAIL.test(m)))return;
     const e=sxTitle(/[A-Za-z]/.test(s.name)?s.name:""),j=J[s.id]||(/[A-Za-z]/.test(s.name)?"":s.name);
     const area=(s.areas||[]).filter(a=>a.adminLevel===7||a.adminLevel===4).map(a=>a.name).join(", ");
-    const x={id:s.id,en:e,ja:j,la:s.lat,lo:s.lon,area,modes:s.modes||[]};
+    const x={id:s.id,en:e,ja:j||sxPopJa(e),la:s.lat,lo:s.lon,area,modes:s.modes||[]};
     /* ฟีดโตเกียว (มีรหัสสถานี/สีสาย) ดีกว่าฟีดทั่วประเทศ: ตัดตัวซ้ำในระยะ 400 ม. */
     const dup=out.find(o=>dist(o.la,o.lo,x.la,x.lo)<0.4&&(o.ja&&o.ja===x.ja||o.en&&x.en&&o.en.toLowerCase()===x.en.toLowerCase()));
     if(dup){if(/tokyo-rail/.test(x.id)&&!/tokyo-rail/.test(dup.id))Object.assign(dup,{id:x.id,la:x.la,lo:x.lo});dup.ja=dup.ja||x.ja;dup.en=dup.en||x.en;return;}
     out.push(x);
   });
-  out.forEach(x=>x.th=sxThai(x.en,x.ja));
+  out.forEach(x=>{x.th=sxThai(x.en,x.ja);x.op=sxOpHint(x);});
   return out.slice(0,8);
 }
 /* ---------- route ---------- */
@@ -2223,7 +2232,7 @@ const SX={a:store.get("sx_a",null),b:store.get("sx_b",null),its:[],sel:0,busy:fa
 function sxPickHTML(end){
   const s=SX[end],r=SX.res[end];
   return (s?'<div class="sx-picked"><span class="sx-dot2"></span><div><b>'+esc(s.th||s.en||s.ja)+'</b><div class="sx-sub">'+esc(s.en||"")+(s.ja?' · <span lang="ja">'+esc(s.ja)+'</span>':"")+(s.area?' · '+esc(s.area):"")+'</div></div><button type="button" class="linkbtn" data-sxclr="'+end+'">เปลี่ยน</button></div>':"")+
-    (r&&r.length&&!s?'<ul class="sx-res">'+r.map((x,i)=>'<li><button type="button" data-sxpick="'+end+'" data-i="'+i+'"><b>'+esc(x.th||x.en||x.ja)+'</b><span class="sx-sub">'+esc(x.en||"")+(x.ja?' · <span lang="ja">'+esc(x.ja)+'</span>':"")+(x.area?' · '+esc(x.area):"")+'</span></button></li>').join("")+'</ul>':"")+
+    (r&&r.length&&!s?'<ul class="sx-res">'+r.map((x,i)=>'<li><button type="button" data-sxpick="'+end+'" data-i="'+i+'"><b>'+esc(x.th||x.en||x.ja)+'</b><span class="sx-sub">'+esc(x.en||"")+(x.ja?' · <span lang="ja">'+esc(x.ja)+'</span>':"")+(x.area?' · '+esc(x.area):"")+'</span>'+(x.op?'<span class="sx-op">'+esc(x.op)+'</span>':'')+'</button></li>').join("")+'</ul>':"")+
     (r&&r.msg&&!s?'<div class="muted" style="font-size:.85rem">'+r.msg+'</div>':"");
 }
 function renderSt(){
@@ -2246,11 +2255,12 @@ function renderSt(){
   exStations.forEach(([t,s])=>{const k=s.la.toFixed(4)+","+s.lo.toFixed(4);if(!SX_EXIT[k]){SX_EXIT[k]=null;sxExits(s).then(()=>{if(S.tab==="st")renderSt();});}});
 }
 async function sxSearch(end){
-  const inp=$(end==="a"?"#sxQA":"#sxQB");let q=inp.value.trim();if(!q)return;
+  const inp=$(end==="a"?"#sxQA":"#sxQB");let q=inp.value.trim(),qj="";if(!q)return;
+  if(!qj&&/^[A-Za-z\s\-]+$/.test(q))qj=sxPopJa(q.replace(/\s*station$/i,""));
   if(/[฀-๿]/.test(q)){const p=SX_POP.find(p=>p[0].replace(/\s*\(.*\)/,"").includes(q.replace(/^สถานี/,""))||q.includes(p[0].replace(/\s*\(.*\)/,"")));
-    if(p)q=p[1];else{SX.res[end]=[];SX.res[end].msg="ยังไม่รู้จักชื่อนี้ในภาษาไทย ลองพิมพ์ภาษาอังกฤษหรือญี่ปุ่น เช่น Shinjuku / 新宿";renderSt();return;}}
+    if(p){q=p[1];qj=p[2];}else{SX.res[end]=[];SX.res[end].msg="ยังไม่รู้จักชื่อนี้ในภาษาไทย ลองพิมพ์ภาษาอังกฤษหรือญี่ปุ่น เช่น Shinjuku / 新宿";renderSt();return;}}
   SX.res[end]=[];SX.res[end].msg="⏳ กำลังค้นหา…";renderSt();
-  try{const r=await sxGeocode(q.replace(/\s*(station|駅)$/i,""));SX.res[end]=r;if(!r.length){SX.res[end]=[];SX.res[end].msg="ไม่พบสถานีชื่อนี้ ลองสะกดอีกแบบ เช่น Shimbashi/Shinbashi หรือพิมพ์ภาษาญี่ปุ่น";}}
+  try{const r=await sxGeocode(q.replace(/\s*(station|駅)$/i,""),qj);SX.res[end]=r;if(!r.length){SX.res[end]=[];SX.res[end].msg="ไม่พบสถานีชื่อนี้ ลองสะกดอีกแบบ เช่น Shimbashi/Shinbashi หรือพิมพ์ภาษาญี่ปุ่น";}}
   catch(e){SX.res[end]=[];SX.res[end].msg="ค้นหาไม่สำเร็จ (ต้องใช้เน็ต) ลองใหม่อีกครั้ง";}
   renderSt();
 }

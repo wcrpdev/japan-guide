@@ -41,6 +41,9 @@ button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .wrap{max-width:720px;margin:0 auto;padding:0 16px 48px}
 header.top{padding-top:env(safe-area-inset-top);position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+body.mini header.top .loc,body.mini header.top .fx-meta{display:none}
+body.mini header.top .brand{margin-bottom:6px}
+body[data-view="st"] header.top .loc,body[data-view="st"] header.top .fx,body[data-view="tr"] header.top .loc,body[data-view="tr"] header.top .fx{display:none}
 .top-inner{max-width:720px;margin:0 auto;padding:12px 16px 10px;display:grid;gap:10px}
 .brand{display:flex;align-items:center;justify-content:space-between;gap:8px}
 html[data-big] header.top{position:static}
@@ -61,6 +64,40 @@ html[data-big] header.top{position:static}
 
 .chips{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
+#stView{display:grid;gap:12px}
+.sx-form h3{margin:0 0 8px}.sx-end{display:grid;gap:6px}.sx-lbl{font-size:.82rem;font-weight:700}
+.sx-in{display:flex;gap:6px}.sx-in[hidden]{display:none}.sx-in input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font:inherit;background:var(--surface);color:var(--ink)}
+.sx-swap{justify-self:start;margin:6px 0}
+.sx-res{list-style:none;margin:2px 0;padding:0;display:grid;gap:4px}.sx-res button{width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 10px;display:grid;gap:1px;cursor:pointer;font:inherit}
+.sx-sub{font-size:.78rem;color:var(--muted)}
+.sx-picked{display:flex;gap:10px;align-items:center;border:1.5px solid var(--accent);border-radius:12px;padding:8px 10px;background:var(--surface)}.sx-picked>div{flex:1;min-width:0}
+.sx-dot2{width:12px;height:12px;border-radius:50%;background:var(--accent);flex:none}
+.sx-popd{margin-top:8px}.sx-popd summary{cursor:pointer;font-size:.88rem}.sx-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center;font-size:.85rem}
+.sx-box{padding-bottom:10px}.sx-sum{font-size:1rem;margin-bottom:4px}
+.sx-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px}.sx-tabs button{flex:none;display:grid;gap:2px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 10px;font:inherit;font-size:.8rem;cursor:pointer}
+.sx-tabs button[aria-pressed="true"]{border:2px solid var(--accent)}.sx-cs{display:flex;gap:2px}.sx-cs i{width:16px;height:5px;border-radius:3px;display:block}
+.sx-strip{display:flex;align-items:center;overflow-x:auto;padding:8px 2px 10px}
+.sx-d{width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--c);flex:none;box-sizing:border-box}.sx-d.sm{width:9px;height:9px;border-width:2px}
+.sx-l{width:12px;height:4px;background:var(--c);flex:none}.sx-xfer{margin:0 4px;font-size:.8rem}
+.sx-line{list-style:none;padding:0;margin:6px 0 0}
+.sx-leg{border-left:6px solid var(--c);margin-left:9px;padding:2px 0 2px 16px}
+.sx-lh{margin:2px 0 4px}.sx-lh .muted{font-size:.8rem}
+.sx-chip{color:#fff;border-radius:6px;padding:1px 7px;font-weight:700;font-size:.8rem;text-shadow:0 0 2px rgba(0,0,0,.5)}
+.sx-sts{list-style:none;padding:0;margin:0}
+.sx-st{display:flex;gap:10px;align-items:flex-start;padding:4px 0}
+.sx-st .sx-dot{width:14px;height:14px;border-radius:50%;border:3px solid var(--c);background:var(--surface);margin-left:-27px;flex:none;margin-top:4px;box-sizing:border-box}
+.sx-st.on .sx-dot,.sx-st.off .sx-dot{width:20px;height:20px;margin-left:-30px;margin-top:1px;border-width:4px}
+.sx-st.mid b{font-weight:500}.sx-st.on b,.sx-st.off b{font-size:1.05rem}
+.sx-nm{min-width:0}.sx-code{display:inline-block;margin-left:6px;border:2px solid var(--c);border-radius:6px;padding:0 4px;font-size:.72rem;font-weight:700;vertical-align:1px}
+.sx-note{font-size:.8rem;font-weight:600;margin-top:1px}
+.sx-more summary{cursor:pointer;color:var(--muted);font-size:.82rem;padding:3px 0;list-style:none}.sx-more summary::-webkit-details-marker{display:none}
+.sx-walk{margin:4px 0 4px 10px;border-left:3px dashed var(--muted);padding:6px 0 6px 14px}
+.sx-wk{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.88rem}.sx-warn{color:#B45309;font-size:.82rem}
+.sx-ex{border-top:1px solid var(--line);padding-top:8px;margin-top:8px;font-size:.88rem}.sx-exh{margin-bottom:4px}
+.sx-lift{margin:4px 0}.sx-exs{margin-top:4px}
+.sx-exb{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:2px 8px;margin:2px;font-size:.82rem;text-decoration:none;color:var(--ink);background:var(--surface)}
+.sx-exb.lift{background:#E6F4EA;border-color:#2E7D4F;color:#1B5E36;font-weight:700}
+
 .gchip{font-weight:600}
 #subBox:empty{display:none}
 .subttl{font-size:.78rem;color:var(--muted);margin:2px 0 6px}
@@ -117,6 +154,14 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:10px
 .c-desc{font-size:.92rem}
 .c-tip{font-size:.84rem;color:var(--muted);border-left:3px solid var(--torii);padding-left:8px}
 .c-act{display:flex;gap:8px;margin-top:2px;flex-wrap:wrap}
+.meta .rate{background:#FFF1E6;color:#B4380F;border-radius:6px;padding:1px 6px;font-weight:700}
+.meta .trustb{font-size:.9rem}
+.c-more{margin:6px 0 2px;border-top:1px dashed var(--line)}
+.c-more>summary{cursor:pointer;list-style:none;font-size:.82rem;color:var(--accent);font-weight:600;padding:7px 0 3px}
+.c-more>summary::-webkit-details-marker{display:none}.c-more>summary::before{content:"▸ ";}.c-more[open]>summary::before{content:"▾ ";}
+.c-more-b{display:grid;gap:8px;padding-top:4px}
+.c-act button.ico{min-width:40px;font-size:1rem;padding:4px 8px}
+
 .tbl-a .tbapp{font:inherit;font-size:.82rem;border:1px solid #E8A87C;background:#FFF3E8;color:#A3470F;border-radius:8px;padding:3px 9px;cursor:pointer}
 .sh-apps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
 .sh-apps a,.sh-apps button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;font-weight:700;font-size:.8rem;white-space:nowrap;padding:0 4px;text-decoration:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
@@ -160,6 +205,7 @@ dialog{overflow:hidden}
 .sosbtn{border:0;background:var(--torii);color:#fff;font-weight:700;border-radius:99px;padding:4px 10px;font-size:.78rem}
 #moreView{display:grid;gap:14px;margin-top:12px}
 body[data-view="list"] #moreView,body[data-view="map"] #moreView,body[data-view="more"] .listview,body[data-view="more"] #mapView{display:none}
+body:not([data-view="st"]) #stView,body[data-view="st"] .listview,body[data-view="st"] #mapView,body[data-view="st"] #moreView,body[data-view="st"] #trView,
 body:not([data-view="tr"]) #trView,body[data-view="tr"] .listview,body[data-view="tr"] #mapView,body[data-view="tr"] #moreView{display:none}
 .more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tile{display:grid;gap:2px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;text-decoration:none;color:var(--ink)}
@@ -265,7 +311,7 @@ body:not([data-view="tr"]) #trView,body[data-view="tr"] .listview,body[data-view
 :root{--bnav:62px}
 body{padding-bottom:calc(var(--bnav) + env(safe-area-inset-bottom))}
 .btn .sm{font-size:.78rem;margin-left:2px}
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
 .bnav button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:7px 0 6px;font-size:.74rem;color:var(--muted);position:relative;min-height:var(--bnav)}
 .bnav .i{font-size:1.25rem;line-height:1.2;filter:grayscale(1);opacity:.7}
 .bnav button[aria-current="page"]{color:var(--accent);font-weight:700}
@@ -567,6 +613,21 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
     </div>
   </div>
   </div>
+  <section id="stView" aria-label="สถานีรถไฟ">
+    <div class="tbox sx-form">
+      <h3>🚉 นั่งรถไฟจากสถานีไหน ไปสถานีไหน</h3>
+      <div class="sx-end"><div class="sx-lbl">🟢 ต้นทาง</div>
+        <div class="sx-in" id="sxInA"><input id="sxQA" type="search" placeholder="เช่น Shinjuku · 新宿 · ชินจูกุ" autocomplete="off" enterkeyhint="search" aria-label="สถานีต้นทาง"><button type="button" class="btn" id="sxGoA">ค้นหา</button><button type="button" class="btn" id="sxNear">📍 ใกล้ฉัน</button></div>
+        <div id="sxPickA"></div></div>
+      <button type="button" class="linkbtn sx-swap" id="sxSwap">⇅ สลับ</button>
+      <div class="sx-end"><div class="sx-lbl">🔴 ปลายทาง</div>
+        <div class="sx-in" id="sxInB"><input id="sxQB" type="search" placeholder="เช่น Asakusa · 浅草 · อาซากุสะ" autocomplete="off" enterkeyhint="search" aria-label="สถานีปลายทาง"><button type="button" class="btn" id="sxGoB">ค้นหา</button></div>
+        <div id="sxPickB"></div></div>
+      <details class="sx-popd"><summary>⭐ สถานียอดนิยม (แตะเพื่อเลือก)</summary><div class="sx-chips" id="sxPop"></div></details>
+      <div class="sx-chips" id="sxRecent"></div>
+    </div>
+    <div id="sxOut"></div>
+  </section>
   <section id="trView" aria-label="แปลป้ายด้วยกล้อง">
     <div class="tbox">
       <h3>📷 แปลป้าย/เมนูญี่ปุ่นเป็นไทย</h3>
@@ -698,6 +759,7 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
 </main>
 <nav class="bnav" aria-label="เมนูหลัก">
   <button type="button" data-tab="x" aria-current="page"><span class="i">🔎</span><span>สำรวจ</span></button>
+  <button type="button" data-tab="st"><span class="i">🚉</span><span>สถานี</span></button>
   <button type="button" data-tab="x" data-preset="wc"><span class="i">🚻</span><span>ห้องน้ำ</span></button>
   <button type="button" data-tab="tr"><span class="i">📷</span><span>แปลป้าย</span></button>
   <button type="button" data-tab="map"><span class="i">🗺️</span><span>แผนที่</span></button>
@@ -1653,6 +1715,16 @@ function tabelogHTML(x){
     (t[6]?'<div class="tbl-s">💬 <b>สรุปจากรีวิว:</b> '+esc(t[6])+'</div>':'')+
     '<div class="tbl-a">'+(t[5]?'<a href="'+tbUrl(x)+'" target="_blank" rel="noopener">หน้าร้าน ↗</a><a href="'+tbUrl(x,"dtlrvwlst/")+'" target="_blank" rel="noopener">รีวิวทั้งหมด ↗</a><a href="'+tbUrl(x,"dtlphotolst/")+'" target="_blank" rel="noopener">รูปอาหาร ↗</a><a href="'+tbUrl(x,"dtlmenu/")+'" target="_blank" rel="noopener">เมนู ↗</a><button type="button" class="tbapp" data-tbcopy="'+x.id+'">📱 เปิดในแอป</button>':'<a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">ค้นร้านใน Tabelog ↗</a>')+'<span class="muted">ข้อมูล ณ '+TBL_DATE+'</span></div></div>';
 }
+const MORE_OPEN=new Set();
+function moreHTML(x){
+  const body=(x.tip&&!x.live?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+foodInfoHTML(x)+tabelogHTML(x)+photoTipHTML(x)+
+    (x.live?'<div class="revlinks">ข้อมูลจาก OpenStreetMap · <a href="https://www.google.com/maps/search/'+encodeURIComponent(x.j||x.n)+'/@'+x.la.toFixed(6)+','+x.lo.toFixed(6)+',18z" target="_blank" rel="noopener">ดูรีวิว/เวลาเปิดใน Google ↗</a></div>':'')+
+    (x.t==="f"?'<div class="revlinks">เช็กรีวิวล่าสุด: <a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Google ↗</a> '+(x.tb?'':'<a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Tabelog ↗</a>')+'</div>':'');
+  if(!body)return "";
+  const bits=[x.tip&&!x.live?"เคล็ดลับ":"",x.fi?"เมนูเด็ด":"",x.tb?"รีวิว Tabelog":"",PTIP[x.j]?"วิธีถ่ายรูป":"",x.live||x.t==="f"?"ลิงก์รีวิว":""].filter(Boolean);
+  return '<details class="c-more" data-more="'+x.id+'"'+(MORE_OPEN.has(x.id)?' open':'')+'><summary>'+(bits.slice(0,3).join(" · ")||"รายละเอียด")+'</summary><div class="c-more-b">'+body+'</div></details>';
+}
+document.addEventListener("toggle",e=>{const d=e.target;if(d.classList&&d.classList.contains("c-more")){const id=+d.dataset.more;if(d.open)MORE_OPEN.add(id);else MORE_OPEN.delete(id);}},true);
 function card(x){
   const cat=CAT[x.c],p=S.pos,b=bearing(p.la,p.lo,x.la,x.lo),di=Math.round(b/45)%8;
   const fav=S.fav.has(x.id),sel=S.sel.has(x.id);
@@ -1661,18 +1733,15 @@ function card(x){
     (PTIP[x.j]&&photoable(x)?'<div class="thumb pban" data-ph="'+x.id+'"'+(PHOTO[x.id]?' style="background-image:url(\''+esc(PHOTO[x.id])+'\')"':'')+' aria-hidden="true">📸</div>':'')+
     '<div class="c-top"><div class="c-head">'+(PTIP[x.j]&&photoable(x)?'':thumbHTML(x))+'<div><div class="c-name">'+(fav?'<span style="color:var(--torii)" title="บันทึกไว้">★ </span>':'')+esc(x.n)+'</div><div class="c-jp" lang="ja">'+esc(x.j)+'</div></div></div>'+
     '<div class="dist"><div class="km">'+ARR[di]+' '+fmtKm(x.k)+'</div><div class="walk">'+(x.k<=2.5?"เดิน ~"+walkMin(x.k)+" นาที":"ทาง"+DIRS[di])+'</div></div></div>'+
-    '<div class="meta"><span class="tag" style="color:'+cat.c+'">'+cat.l+'</span><span class="area">'+esc(x.a)+'</span>'+priceHTML(x)+'</div>'+
+    '<div class="meta"><span class="tag" style="color:'+cat.c+'">'+cat.l+'</span>'+(x.tb&&x.tb[0]?'<span class="rate" title="คะแนน Tabelog">★ '+x.tb[0].toFixed(2)+'</span>':'')+(x.fi&&TRUST[x.fi.w]&&x.fi.w!=="popular"?'<span class="trustb" title="'+esc(TRUST[x.fi.w][1])+'">'+TRUST[x.fi.w][0]+'</span>':'')+priceHTML(x)+'<span class="area">'+esc(x.a)+'</span></div>'+
     '<div class="c-desc">'+esc(x.d)+'</div>'+
-    (x.tip?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+
-    (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+foodInfoHTML(x)+tabelogHTML(x)+photoTipHTML(x)+
-    (x.live?'<div class="revlinks">ข้อมูลจาก OpenStreetMap · <a href="https://www.google.com/maps/search/'+encodeURIComponent(x.j||x.n)+'/@'+x.la.toFixed(6)+','+x.lo.toFixed(6)+',18z" target="_blank" rel="noopener">ดูรีวิว/เวลาเปิดใน Google ↗</a></div>':'')+
-    (x.t==="f"?'<div class="revlinks">เช็กรีวิวล่าสุด: <a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Google ↗</a> '+(x.tb?'':'<a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">Tabelog ↗</a>')+'</div>':'')+
-    (S.selMode?'':routeMini(x)+
+    (x.hx?hotelLine(x):'')+(x.mx?hospLine(x):'')+(x.live&&x.tip?'<div class="c-tip">'+esc(x.tip)+'</div>':'')+
+    moreHTML(x)+    (S.selMode?'':routeMini(x)+
     (RT.open===x.id?'<div class="rt-inline" id="rt'+x.id+'">'+routeHTML(x)+'</div>':'')+
     '<div class="c-act"><button type="button" class="nav-go" data-nav="'+x.id+'">🧭 นำทาง</button>'+
     '<button type="button" class="go" data-route="'+x.id+'" aria-expanded="'+(RT.open===x.id)+'">'+(RT.open===x.id?"▲ ซ่อน":"🚆 วิธีเดินทาง")+'</button>'+
-    (x.live?'':'<button type="button" data-fav="'+x.id+'" aria-pressed="'+fav+'">'+(fav?"★ บันทึกแล้ว":"☆ บันทึก")+'</button>')+
-    '<button type="button" data-share="'+x.id+'" aria-label="แชร์ '+esc(x.n)+'">📤 แชร์</button>'+
+    (x.live?'':'<button type="button" class="ico" data-fav="'+x.id+'" aria-pressed="'+fav+'" aria-label="'+(fav?"เอาออกจากที่บันทึก":"บันทึก")+'" title="'+(fav?"บันทึกแล้ว":"บันทึก")+'">'+(fav?"★":"☆")+'</button>')+
+    '<button type="button" class="ico" data-share="'+x.id+'" aria-label="แชร์ '+esc(x.n)+'" title="แชร์">📤</button>'+
     (x.hx?'<a class="extbtn" href="'+bookUrl(x)+'" target="_blank" rel="noopener">เช็กห้องว่างคืนนี้ ↗</a>':'')+
 '</div>')+'</article>';
 }
@@ -1801,7 +1870,7 @@ function liveCount(k){const s=LIVE.g[k];if(!s||!s.items)return 0;const p=S.pos,R
 function render(){
   renderLoc();
   if(!S.pos)return;
-  document.body.dataset.view=S.tab==="map"?"map":S.tab==="more"?"more":S.tab==="tr"?"tr":"list";
+  document.body.dataset.view=S.tab==="map"?"map":S.tab==="more"?"more":S.tab==="tr"?"tr":S.tab==="st"?"st":"list";
   const fb=$("#favBadge");fb.hidden=!S.fav.size;fb.textContent=S.fav.size;$("#favCount").textContent=S.fav.size+" ที่";
   const wcOnly=S.groups.size===1&&S.groups.has("wc");
   document.querySelectorAll(".bnav button").forEach(x=>{const t=x.dataset.tab,on=t==="x"?S.tab==="x"&&(x.dataset.preset==="wc")===wcOnly:t===S.tab||(t==="more"&&(S.tab==="fav"||S.tab==="m"));if(on)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
@@ -1809,6 +1878,7 @@ function render(){
   if(S.tab==="map"){renderMap();return;}
   if(S.tab==="more")return;
   if(S.tab==="tr"){renderTr();return;}
+  if(S.tab==="st"){renderSt();return;}
   renderTabBox();
   const {arr,base,pool}=filtered();
   renderChips(pool,base);
@@ -1972,6 +2042,251 @@ $("#trDemo").addEventListener("click",()=>{
   ["お手洗いは二階の奥に","ございます。","店内禁煙","醤油ラーメン 900円"].forEach((t,i)=>x.fillText(t,40,100+i*100));
   runOcr(c.toDataURL("image/png"));
 });
+/* ================= 🚉 สถานีรถไฟ: จากสถานี → ถึงสถานี (Transitous) + ทางออก/ลิฟต์ (OpenStreetMap) ================= */
+const SX_API="https://api.transitous.org/api";
+/* สถานียอดนิยม: ชื่อไทยที่คนไทยใช้จริง (ใช้ค้นด้วยภาษาไทยได้) */
+const SX_POP=[
+ ["โตเกียว","Tokyo","東京"],["ชินจูกุ","Shinjuku","新宿"],["ชิบุยะ","Shibuya","渋谷"],["อิเคะบุคุโระ","Ikebukuro","池袋"],["อุเอโนะ","Ueno","上野"],
+ ["อาซากุสะ","Asakusa","浅草"],["อากิฮาบาระ","Akihabara","秋葉原"],["กินซ่า","Ginza","銀座"],["ชินางาวะ","Shinagawa","品川"],["ฮาราจุกุ","Harajuku","原宿"],
+ ["โอโมเตะซันโด","Omote-sando","表参道"],["รปปงงิ","Roppongi","六本木"],["เอบิสึ","Ebisu","恵比寿"],["นิปโปริ","Nippori","日暮里"],["โอชิอาเงะ (สกายทรี)","Oshiage","押上"],
+ ["สึกิจิ","Tsukiji","築地"],["โทโยสุ","Toyosu","豊洲"],["ชิมบาชิ","Shimbashi","新橋"],["ฮามามัตสึโจ","Hamamatsucho","浜松町"],["ยูรากุโจ","Yurakucho","有楽町"],
+ ["นิฮมบาชิ","Nihombashi","日本橋"],["โอเทมาจิ","Otemachi","大手町"],["คันดะ","Kanda","神田"],["คิจิโจจิ","Kichijoji","吉祥寺"],["ชิโมคิตะซาวะ","Shimo-kitazawa","下北沢"],
+ ["นากะเมงุโระ","Naka-meguro","中目黒"],["มาอิฮามะ (ดิสนีย์)","Maihama","舞浜"],["สนามบินฮาเนดะ อาคาร 3","Haneda Airport Terminal 3","羽田空港第3ターミナル"],
+ ["สนามบินฮาเนดะ อาคาร 1·2","Haneda Airport Terminal 1·2","羽田空港第1・第2ターミナル"],["สนามบินนาริตะ อาคาร 1","Narita Airport Terminal 1","成田空港"],
+ ["โยโกฮามะ","Yokohama","横浜"],["มินาโตะมิไร","Minatomirai","みなとみらい"],["คามาคุระ","Kamakura","鎌倉"],["โอดาวาระ","Odawara","小田原"],["ฮาโกเนะยูโมโตะ","Hakone-Yumoto","箱根湯本"],
+ ["คาวากุจิโกะ","Kawaguchiko","河口湖"],["โทบุนิกโก","Tobu-Nikko","東武日光"],["เกียวโต","Kyoto","京都"],["เกียวโตคาวาระมาจิ","Kyoto-kawaramachi","京都河原町"],
+ ["กิองชิโจ","Gion-shijo","祇園四条"],["อาราชิยามะ","Arashiyama","嵐山"],["ฟุชิมิอินาริ","Fushimi-inari","伏見稲荷"],["อินาริ","Inari","稲荷"],["คิโยมิซุโกโจ","Kiyomizu-gojo","清水五条"],
+ ["โอซาก้า","Osaka","大阪"],["อุเมดะ","Umeda","梅田"],["นัมบะ","Namba","難波"],["ชินไซบาชิ","Shinsaibashi","心斎橋"],["เทนโนจิ","Tennoji","天王寺"],
+ ["ชินโอซาก้า","Shin-Osaka","新大阪"],["ยูนิเวอร์แซลซิตี้","Universal-City","ユニバーサルシティ"],["นิปปมบาชิ","Nippombashi","日本橋"],["สนามบินคันไซ","Kansai Airport","関西空港"],
+ ["นารา","Nara","奈良"],["คินเทตสึนารา","Kintetsu-Nara","近鉄奈良"],["ซันโนมิยะ (โกเบ)","Sannomiya","三宮"],["ฮิเมจิ","Himeji","姫路"],["ฮิโรชิมะ","Hiroshima","広島"],
+ ["มิยาจิมะกุจิ","Miyajimaguchi","宮島口"],["นาโกย่า","Nagoya","名古屋"],["คานาซาวะ","Kanazawa","金沢"],["ซัปโปโร","Sapporo","札幌"],["ซูซูกิโนะ","Susukino","すすきの"],
+ ["โอตารุ","Otaru","小樽"],["ฮาโกดาเตะ","Hakodate","函館"],["ฮากาตะ (ฟุกุโอกะ)","Hakata","博多"],["เทนจิน","Tenjin","天神"],["นาฮะ สนามบิน","Naha Airport","那覇空港"]
+];
+/* อ่านชื่อโรมาจิเป็นไทย (ประมาณ) สำหรับสถานีที่ไม่มีชื่อไทยในรายการ */
+const SX_EN_W={airport:"สนามบิน",terminal:"อาคาร",park:"พาร์ก",city:"ซิตี้",universal:"ยูนิเวอร์แซล",skytree:"สกายทรี",line:"สาย",international:"อินเตอร์",port:"พอร์ต",town:"ทาวน์",center:"เซ็นเตอร์",station:"",university:"มหาวิทยาลัย",zoo:"สวนสัตว์",dome:"โดม",stadium:"สเตเดียม",tower:"ทาวเวอร์",garden:"การ์เดน",world:"เวิลด์",bay:"เบย์",hills:"ฮิลส์",mall:"มอลล์"};
+const SX_TC={k:"ก",g:"ก",s:"ซ",z:"ซ",t:"ต",d:"ด",n:"น",h:"ฮ",b:"บ",p:"พ",m:"ม",y:"ย",r:"ร",w:"ว",f:"ฟ",j:"จ",ch:"จ",sh:"ช",ts:"ส","":"อ"};
+const SX_GL={kya:"เกีย",kyu:"คิว",kyo:"เกียว",gya:"เกีย",gyu:"กิว",gyo:"เกียว",sha:"ชะ",shu:"ชุ",sho:"โช",cha:"ชะ",chu:"ชู",cho:"โจ",ja:"จะ",tsu:"สึ",ju:"จู",jo:"โจ",nya:"เนีย",nyu:"นิว",nyo:"เนียว",hya:"เฮีย",hyu:"ฮิว",hyo:"เฮียว",
+ mya:"เมีย",myu:"มิว",myo:"เมียว",rya:"เรีย",ryu:"ริว",ryo:"เรียว",bya:"เบีย",byu:"บิว",byo:"เบียว",pya:"เปีย",pyu:"ปิว",pyo:"เปียว"};
+function sxSyl(c,v,end,fin){
+  const C=SX_TC[c]!=null?SX_TC[c]:c;
+  const g=SX_GL[c+v];if(g)return g+(fin||"");
+  if(fin){return {a:C+"ั"+fin,i:C+"ิ"+fin,u:C+"ุ"+fin,e:"เ"+C+"็"+fin,o:C+"อ"+fin}[v]||C+fin;}
+  return {a:C+(end?"ะ":"า"),i:C+"ิ",u:C+"ุ",e:"เ"+C+(end?"ะ":""),o:"โ"+C+(end?"ะ":""),aa:C+"า",ii:C+"ี",uu:C+"ู",oo:"โ"+C,ou:"โ"+C,ei:"เ"+C,ee:"เ"+C,ai:"ไ"+C}[v]||C;
+}
+function sxThaiWord(w){
+  w=w.toLowerCase().normalize("NFD").replace(/[̄̂]/g,":").normalize("NFC").replace(/([aiueo]):/g,"$1$1");
+  if(SX_EN_W[w]!=null)return SX_EN_W[w];
+  if(!/^[a-z]+$/.test(w)||/[lqvx]/.test(w))return w;
+  const out=[];let i=0;
+  const syl=/^(ky|gy|sh|ch|ts|ny|hy|my|ry|by|py|[kgsztdnhbpmyrwfj]?)(aa|ii|uu|oo|ou|ei|ai|[aiueo])/;
+  while(i<w.length){
+    const r=w.slice(i),m=r.match(syl);
+    if(!m){
+      const c=r[0];
+      if((c==="n"||c==="m")&&out.length){out[out.length-1].fin=out[out.length-1].fin||"";out[out.length-1].fin+=c==="m"?"ม":"น";i++;continue;}
+      if(/[kstp]/.test(c)&&r[1]&&(r[1]===c||(c==="t"&&r[1]==="c"))&&out.length){out[out.length-1].fin=({k:"ก",s:"ส",t:"ต",p:"ป"})[c];i++;continue;}
+      out.push({raw:c});i++;continue;
+    }
+    out.push({c:m[1],v:m[2]});i+=m[0].length;
+  }
+  return out.map((s,k)=>s.raw!=null?s.raw:sxSyl(s.c,s.v,k===out.length-1&&!s.fin,s.fin)).join("");
+}
+function sxThai(en,ja){
+  if(!en)return "";
+  const clean=en.replace(/\s*\((.*?)\)/g," $1").replace(/[·・]/g," ").trim();
+  const nz=t=>t.toLowerCase().replace(/[^a-z0-9]/g,""),c0=nz(clean);
+  const pop=SX_POP.find(p=>nz(p[1])===c0||(ja&&p[2]===ja));if(pop)return pop[0];
+  return clean.split(/[\s\-]+/).filter(Boolean).map(w=>/^\d/.test(w)?w:sxThaiWord(w)).join(" ").replace(/\s{2,}/g," ").trim();
+}
+function sxTitle(s){return s&&s===s.toUpperCase()&&/[A-Z]{3}/.test(s)?s.toLowerCase().replace(/(^|[\s\-(])([a-z])/g,(m,a,b)=>a+b.toUpperCase()):s;}
+function sxJa(s){return (s||"").replace(/\s+[A-Za-z][A-Za-z .\-]*$/,"").trim();}
+const SX_RAIL=/RAIL|SUBWAY|TRAM|METRO|FUNICULAR|MONORAIL|HIGHSPEED|LONG_DISTANCE|NIGHT_RAIL|SUBURBAN/;
+async function sxGet(path){const r=await fetch(SX_API+path);if(!r.ok)throw new Error("http "+r.status);return r.json();}
+async function sxGeocode(text){
+  const q=encodeURIComponent(text);
+  const [en,ja]=await Promise.all([sxGet("/v1/geocode?type=STOP&language=en&text="+q).catch(()=>[]),sxGet("/v1/geocode?type=STOP&language=ja&text="+q).catch(()=>[])]);
+  return sxMerge(en,ja);
+}
+async function sxNear(la,lo){
+  const p=la.toFixed(5)+","+lo.toFixed(5);
+  const [en,ja]=await Promise.all([sxGet("/v1/reverse-geocode?type=STOP&language=en&place="+p).catch(()=>[]),sxGet("/v1/reverse-geocode?type=STOP&language=ja&place="+p).catch(()=>[])]);
+  return sxMerge(en,ja).sort((a,b)=>dist(la,lo,a.la,a.lo)-dist(la,lo,b.la,b.lo));
+}
+function sxMerge(en,ja){
+  const J={};(ja||[]).forEach(s=>J[s.id]=sxJa(s.name));
+  const out=[];
+  (en||[]).concat((ja||[]).filter(s=>!(en||[]).some(e=>e.id===s.id))).forEach(s=>{
+    if(s.type!=="STOP"||!(s.modes||[]).some(m=>SX_RAIL.test(m)))return;
+    const e=sxTitle(/[A-Za-z]/.test(s.name)?s.name:""),j=J[s.id]||(/[A-Za-z]/.test(s.name)?"":s.name);
+    const area=(s.areas||[]).filter(a=>a.adminLevel===7||a.adminLevel===4).map(a=>a.name).join(", ");
+    const x={id:s.id,en:e,ja:j,la:s.lat,lo:s.lon,area,modes:s.modes||[]};
+    /* ฟีดโตเกียว (มีรหัสสถานี/สีสาย) ดีกว่าฟีดทั่วประเทศ: ตัดตัวซ้ำในระยะ 400 ม. */
+    const dup=out.find(o=>dist(o.la,o.lo,x.la,x.lo)<0.4&&(o.ja&&o.ja===x.ja||o.en&&x.en&&o.en.toLowerCase()===x.en.toLowerCase()));
+    if(dup){if(/tokyo-rail/.test(x.id)&&!/tokyo-rail/.test(dup.id))Object.assign(dup,{id:x.id,la:x.la,lo:x.lo});dup.ja=dup.ja||x.ja;dup.en=dup.en||x.en;return;}
+    out.push(x);
+  });
+  out.forEach(x=>x.th=sxThai(x.en,x.ja));
+  return out.slice(0,8);
+}
+/* ---------- route ---------- */
+async function sxPlan(a,b){
+  const base="/v5/plan?numItineraries=4&transitModes=RAIL,SUBWAY,TRAM,FUNICULAR&fromPlace="+encodeURIComponent(a.id)+"&toPlace="+encodeURIComponent(b.id);
+  const [en,ja]=await Promise.all([sxGet(base+"&language=en"),sxGet(base+"&language=ja").catch(()=>null)]);
+  const JA={},HJ={};
+  if(ja)(ja.itineraries||[]).forEach(it=>it.legs.forEach(l=>{[l.from,l.to,...(l.intermediateStops||[])].forEach(s=>{if(s&&s.stopId)JA[s.stopId]=sxJa(s.name);});if(l.tripId){HJ[l.tripId]={h:l.headsign,n:l.routeLongName||l.routeShortName};}}));
+  const its=(en.itineraries||[]).filter(it=>it.legs.some(l=>l.mode!=="WALK"));
+  its.forEach(it=>it.legs.forEach(l=>{[l.from,l.to,...(l.intermediateStops||[])].forEach(s=>{if(!s)return;s.en=sxTitle(s.name);s.ja=JA[s.stopId]||"";s.th=sxThai(s.en,s.ja);});if(HJ[l.tripId]){l.headJa=HJ[l.tripId].h;l.lineJa=HJ[l.tripId].n;}}));
+  return its;
+}
+const SX_FALL={"Hankyu":"8b0000","Keihan":"00a0e9","Kintetsu":"c8102e","Nankai":"ef7d00","Hanshin":"0067b3","Odakyu":"1d6fbd","Keio":"dd0077","Tokyu":"e51a2e","Seibu":"2b5da5","Tobu":"1f4d9c","Keisei":"0067c0","Keikyu":"e5001d","Sotetsu":"0072bc","JR":"008a43","Osaka Metro":"e5171f","Kyoto":"00a256","Fukuoka":"f39800","Sapporo":"009944","Nagoya":"f4a000","Yokohama":"0068b7","Hiroden":"00843e","Enoden":"009944","Fujikyu":"e60012","Hakone":"e95513"};
+function sxCol(l){
+  let c=(l.routeColor||"").replace("#","");
+  if(!c||/^(0{6}|f{6})$/i.test(c)){const k=Object.keys(SX_FALL).find(k=>((l.agencyName||"")+" "+(l.routeLongName||"")).includes(k));c=k?SX_FALL[k]:"";}
+  if(!c){let h=0;for(const ch of (l.routeId||l.routeLongName||"x"))h=(h*31+ch.charCodeAt(0))%360;return "hsl("+h+",55%,42%)";}
+  return "#"+c;
+}
+const SX_TYPE=[[/limited express|特急/i,"ด่วนพิเศษ (จอดน้อย บางขบวนต้องซื้อตั๋วเพิ่ม)"],[/commuter rapid|通勤快速/i,"เร็วช่วงเร่งด่วน (ข้ามบางสถานี)"],[/special rapid|新快速|特別快速/i,"เร็วพิเศษ (ข้ามหลายสถานี)"],[/semi.?express|準急/i,"กึ่งด่วน (ข้ามบางสถานี)"],[/express|急行/i,"ด่วน (ข้ามบางสถานี)"],[/rapid|快速/i,"เร็ว (ข้ามบางสถานี)"],[/local|普通|各駅|各停/i,"ธรรมดา (จอดทุกสถานี)"]];
+function sxHead(l){const h=l.headsign||(l.tripTo&&l.tripTo.name)||"",m=h.match(/^\((.*?)\)\s*/);const ty=m?(SX_TYPE.find(([r])=>r.test(m[1]))||[])[1]||m[1]:"";return {to:sxTitle(m?h.slice(m[0].length):h),ty};}
+function sxLineName(l){const n=(l.routeLongName||"").trim(),s=(l.routeShortName||"").trim();return (n||s||l.agencyName||"รถไฟ")+(l.lineJa&&l.lineJa!==n?" · "+l.lineJa:"");}
+function sxCode(s){return s.stopCode&&/^[A-Z]{1,3}\d{1,3}$/.test(s.stopCode)?'<span class="sx-code">'+esc(s.stopCode)+'</span>':"";}
+function sxStn(s,cls,note){
+  return '<li class="sx-st '+(cls||"")+'"><span class="sx-dot"></span><div class="sx-nm"><b>'+esc(s.th||s.en||s.ja)+'</b>'+sxCode(s)+
+    '<div class="sx-sub">'+(s.en?esc(s.en):"")+(s.ja?' · <span lang="ja">'+esc(s.ja)+'</span>':"")+'</div>'+(note?'<div class="sx-note">'+note+'</div>':"")+'</div></li>';
+}
+const hhmm=t=>new Date(t).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tokyo"});
+function sxItHTML(it){
+  const rides=it.legs.filter(l=>l.mode!=="WALK");
+  const nStops=rides.reduce((a,l)=>a+(l.intermediateStops||[]).length+1,0);
+  /* เส้นย่อ •-•-• */
+  let strip='<div class="sx-strip" aria-hidden="true">';
+  rides.forEach((l,i)=>{const c=sxCol(l),n=(l.intermediateStops||[]).length+1;
+    strip+=(i?'<span class="sx-xfer">🔁</span>':'')+'<span class="sx-d" style="--c:'+c+'"></span>'+Array.from({length:n},(_,k)=>'<span class="sx-l" style="--c:'+c+'"></span><span class="sx-d'+(k===n-1?'':' sm')+'" style="--c:'+c+'"></span>').join("");});
+  strip+='</div>';
+  let h='<div class="sx-sum"><b>'+nStops+' สถานี</b> · '+(rides.length>1?'เปลี่ยน '+(rides.length-1)+' ครั้ง':'ไม่ต้องเปลี่ยนสาย')+' · ~'+Math.round(it.duration/60)+' นาที <span class="muted">('+hhmm(it.startTime)+'–'+hhmm(it.endTime)+' เวลาญี่ปุ่น)</span></div>'+strip+'<ol class="sx-line">';
+  it.legs.forEach((l,i)=>{
+    if(l.mode==="WALK"){
+      const prev=it.legs[i-1],next=it.legs[i+1];if(!prev||!next)return;
+      const samePar=l.from.parentId&&l.from.parentId===l.to.parentId,diffCo=prev.agencyName!==next.agencyName;
+      h+='<li class="sx-walk"><div class="sx-wk">🔁 <b>เปลี่ยนสาย</b> · เดิน ~'+Math.max(1,Math.round(l.duration/60))+' นาที<br>'+
+        (samePar?'อยู่ในสถานีเดียวกัน ตามป้าย <b lang="ja">乗換</b> / <b>Transfer</b> ไปยัง <b style="color:'+sxCol(next)+'">'+esc(sxLineName(next))+'</b>'+(next.from.stopCode?' (ชานชาลารหัส '+esc(next.from.stopCode)+')':''):
+          'ต้อง<b>ออกจากสถานี '+esc(l.from.th||l.from.en)+'</b> แล้วเดินไป<b>สถานี '+esc(l.to.th||l.to.en)+'</b> (คนละอาคาร) · ดูทางออกด้านล่าง')+
+        (diffCo?'<br><span class="sx-warn">⚠️ คนละบริษัท ('+esc(prev.agencyName||"")+' → '+esc(next.agencyName||"")+'): ส่วนใหญ่ต้องแตะบัตรออกที่ประตูตรวจตั๋ว แล้วแตะเข้าใหม่ บางสถานีมีประตูเปลี่ยนสายตรง (<span lang="ja">乗換改札</span>) ใช้บัตร IC (Suica/ICOCA) ได้เลย</span>':'')+
+        '</div></li>';
+      return;
+    }
+    const c=sxCol(l),mid=l.intermediateStops||[],n=mid.length+1;
+    h+='<li class="sx-leg" style="--c:'+c+'"><div class="sx-lh"><span class="sx-chip" style="background:'+c+'">'+esc(l.routeShortName||l.displayName||"🚆")+'</span> <b>'+esc(sxLineName(l))+'</b>'+
+      '<div class="muted">'+esc(l.agencyName||"")+' · มุ่งหน้า <b>'+esc(sxHead(l).to)+'</b>'+(l.headJa?' (<span lang="ja">'+esc(l.headJa.replace(/^[（(].*?[)）]\s*/,""))+'</span>)':"")+(sxHead(l).ty?' · รถ'+esc(sxHead(l).ty):"")+' · นั่ง <b>'+n+' สถานี</b> ~'+Math.round(l.duration/60)+' นาที</div></div><ul class="sx-sts">'+
+      sxStn(l.from,"on","🟢 ขึ้นรถที่นี่ · ออก "+hhmm(l.startTime)+(l.from.track?" · ชานชาลา "+esc(l.from.track):""))+
+      (mid.length>6?mid.slice(0,2).map(s=>sxStn(s,"mid")).join("")+'<li class="sx-more"><details><summary>ผ่านอีก '+(mid.length-4)+' สถานี ▾</summary><ul class="sx-sts">'+mid.slice(2,-2).map(s=>sxStn(s,"mid")).join("")+'</ul></details></li>'+mid.slice(-2).map(s=>sxStn(s,"mid")).join(""):mid.map(s=>sxStn(s,"mid")).join(""))+
+      sxStn(l.to,"off","🔴 ลงที่นี่ · ถึง "+hhmm(l.endTime))+'</ul></li>';
+  });
+  return h+'</ol>';
+}
+/* ---------- ทางออก & ลิฟต์ (OpenStreetMap) ---------- */
+const SX_EXIT={};
+async function sxExits(st){
+  const key=st.la.toFixed(4)+","+st.lo.toFixed(4);if(SX_EXIT[key])return SX_EXIT[key];
+  const R=350,a=st.la.toFixed(5)+","+st.lo.toFixed(5);
+  const q='[out:json][timeout:15];(node["railway"~"^(subway_entrance|train_station_entrance)$"](around:'+R+','+a+');node["entrance"]["ref"](around:'+R+','+a+');node["highway"="elevator"](around:'+R+','+a+'););out tags 300;';
+  let els=null;
+  try{els=await overpass(q);}catch(e){
+    try{const d=R/111000,dl=d/Math.cos(st.la*Math.PI/180);
+      const j=await nomiGet("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=50&bounded=1&extratags=1&namedetails=1&q=subway%20entrance&viewbox="+[(st.lo-dl).toFixed(5),(st.la+d).toFixed(5),(st.lo+dl).toFixed(5),(st.la-d).toFixed(5)].join(","));
+      els=(j||[]).map(e=>({lat:+e.lat,lon:+e.lon,tags:Object.assign({railway:"subway_entrance"},e.extratags||{},e.namedetails||{})}));els.nomi=1;}catch(_){els=null;}
+  }
+  if(!els)return (SX_EXIT[key]={err:1});
+  const lifts=els.filter(e=>e.tags&&e.tags.highway==="elevator");
+  const ex=els.filter(e=>e.tags&&e.tags.highway!=="elevator"&&(e.tags.ref||e.tags.name||e.tags["name:en"])).map(e=>{
+    const T=e.tags,near=lifts.some(l=>dist(e.lat,e.lon,l.lat,l.lon)<0.03);
+    const lift=T.elevator==="yes"||T.wheelchair==="yes"||near;
+    return {ref:T.ref||"",name:T["name:en"]||T.name||"",ja:T.name||"",la:e.lat,lo:e.lon,lift,wc:T.wheelchair,k:dist(st.la,st.lo,e.lat,e.lon)};
+  }).filter(x=>x.ref||/口|exit|gate/i.test(x.name+x.ja));
+  const seen=new Set(),out=[];ex.sort((a,b)=>(b.lift-a.lift)||a.ref.localeCompare(b.ref,"en",{numeric:true})).forEach(x=>{const k=(x.ref||x.ja)+x.la.toFixed(4);if(!seen.has(k)){seen.add(k);out.push(x);}});
+  return (SX_EXIT[key]={list:out.slice(0,40),lifts:lifts.length,nomi:!!els.nomi});
+}
+function sxExitHTML(st,res,title){
+  const off='https://www.google.com/search?q='+encodeURIComponent((st.ja||st.en)+"駅 構内図 エレベーター 出口");
+  let h='<div class="sx-ex"><div class="sx-exh">🚪 '+title+': <b>'+esc(st.th||st.en)+'</b> <span lang="ja" class="muted">'+esc(st.ja||"")+'</span></div>';
+  if(!res)return h+'<div class="muted">⏳ กำลังหาทางออกและลิฟต์…</div></div>';
+  if(res.err||!res.list.length)h+='<div class="muted">ยังไม่มีข้อมูลทางออกของสถานีนี้ใน OpenStreetMap</div>';
+  else{
+    const L=res.list.filter(x=>x.lift);
+    h+=(L.length?'<div class="sx-lift">🛗 <b>'+(/^ทางเข้า|เข้า/.test(title)?"ทางเข้า":"ทางออก")+'ที่มีลิฟต์/ทางลาด:</b> '+L.map(x=>'<a class="sx-exb lift" href="https://www.google.com/maps/search/?api=1&query='+x.la+','+x.lo+'" target="_blank" rel="noopener">'+esc(x.ref||x.ja||x.name)+'</a>').join("")+'</div>':
+      '<div class="sx-lift muted">🛗 ข้อมูลแผนที่ยังไม่ระบุว่าทางออกไหนมีลิฟต์'+(res.lifts?' (พบลิฟต์ '+res.lifts+' จุดรอบสถานี แต่ไม่ได้ผูกกับเลขทางออก)':'')+' · ดูผังสถานีทางการด้านล่าง</div>')+
+      '<div class="sx-exs"><span class="muted">ทางออกทั้งหมด:</span> '+res.list.map(x=>'<a class="sx-exb'+(x.lift?' lift':'')+'" href="https://www.google.com/maps/search/?api=1&query='+x.la+','+x.lo+'" target="_blank" rel="noopener" title="'+esc(x.name||x.ja)+'">'+(x.lift?'🛗 ':'')+esc(x.ref||x.ja||x.name)+'</a>').join("")+'</div>';
+  }
+  return h+'<div class="glinks" style="margin-top:6px"><a href="'+off+'" target="_blank" rel="noopener">ผังสถานีทางการ + ลิฟต์ ↗</a></div></div>';
+}
+/* ---------- state / UI ---------- */
+const SX={a:store.get("sx_a",null),b:store.get("sx_b",null),its:[],sel:0,busy:false,res:{a:[],b:[]},recent:store.get("sx_recent",[])};
+function sxPickHTML(end){
+  const s=SX[end],r=SX.res[end];
+  return (s?'<div class="sx-picked"><span class="sx-dot2"></span><div><b>'+esc(s.th||s.en||s.ja)+'</b><div class="sx-sub">'+esc(s.en||"")+(s.ja?' · <span lang="ja">'+esc(s.ja)+'</span>':"")+(s.area?' · '+esc(s.area):"")+'</div></div><button type="button" class="linkbtn" data-sxclr="'+end+'">เปลี่ยน</button></div>':"")+
+    (r&&r.length&&!s?'<ul class="sx-res">'+r.map((x,i)=>'<li><button type="button" data-sxpick="'+end+'" data-i="'+i+'"><b>'+esc(x.th||x.en||x.ja)+'</b><span class="sx-sub">'+esc(x.en||"")+(x.ja?' · <span lang="ja">'+esc(x.ja)+'</span>':"")+(x.area?' · '+esc(x.area):"")+'</span></button></li>').join("")+'</ul>':"")+
+    (r&&r.msg&&!s?'<div class="muted" style="font-size:.85rem">'+r.msg+'</div>':"");
+}
+function renderSt(){
+  $("#sxPickA").innerHTML=sxPickHTML("a");$("#sxPickB").innerHTML=sxPickHTML("b");
+  $("#sxInA").hidden=!!SX.a;$("#sxInB").hidden=!!SX.b;
+  $("#sxRecent").innerHTML=SX.recent.length?'<span class="muted">ล่าสุด:</span>'+SX.recent.map((r,i)=>'<button type="button" class="chip" data-sxrec="'+i+'">'+esc(r.a.th||r.a.en)+' → '+esc(r.b.th||r.b.en)+'</button>').join(""):"";
+  $("#sxPop").innerHTML=SX_POP.slice(0,24).map((p,i)=>'<button type="button" class="chip" data-sxpop="'+i+'">'+esc(p[0])+'</button>').join("");
+  const o=$("#sxOut");
+  if(SX.busy){o.innerHTML='<div class="tbox muted">⏳ กำลังหาเส้นทาง…</div>';return;}
+  if(SX.err){o.innerHTML='<div class="tbox">'+SX.err+'</div>';return;}
+  if(!SX.its.length){o.innerHTML="";return;}
+  const it=SX.its[SX.sel];
+  const tabs=SX.its.length>1?'<div class="sx-tabs">'+SX.its.map((t,i)=>{const r=t.legs.filter(l=>l.mode!=="WALK");return '<button type="button" data-sxit="'+i+'" aria-pressed="'+(i===SX.sel)+'"><b>'+Math.round(t.duration/60)+' นาที</b><span>'+(r.length>1?"เปลี่ยน "+(r.length-1):"ตรง")+'</span><span class="sx-cs">'+r.map(l=>'<i style="background:'+sxCol(l)+'"></i>').join("")+'</span></button>';}).join("")+'</div>':'';
+  const rides=it.legs.filter(l=>l.mode!=="WALK"),first=rides[0],last=rides[rides.length-1];
+  const xfers=it.legs.filter((l,i)=>l.mode==="WALK"&&i>0&&i<it.legs.length-1&&!(l.from.parentId&&l.from.parentId===l.to.parentId));
+  const exStations=[["ทางเข้าต้นทาง",{...first.from,la:first.from.lat,lo:first.from.lon}],...xfers.flatMap(w=>[["ออกเพื่อเปลี่ยนสาย",{...w.from,la:w.from.lat,lo:w.from.lon}],["เข้าสถานีถัดไป",{...w.to,la:w.to.lat,lo:w.to.lon}]]),["ทางออกปลายทาง",{...last.to,la:last.to.lat,lo:last.to.lon}]];
+  o.innerHTML='<div class="tbox sx-box">'+tabs+sxItHTML(it)+'<div class="sx-exwrap">'+exStations.map(([t,s])=>sxExitHTML(s,SX_EXIT[s.la.toFixed(4)+","+s.lo.toFixed(4)],t)).join("")+'</div>'+
+    '<div class="glinks" style="margin-top:8px"><a href="https://www.google.com/maps/dir/?api=1&origin='+first.from.lat+','+first.from.lon+'&destination='+last.to.lat+','+last.to.lon+'&travelmode=transit" target="_blank" rel="noopener">เทียบกับ Google Maps ↗</a><button type="button" class="linkbtn" id="sxShare">📤 แชร์เส้นทางนี้</button></div>'+
+    '<p class="rt-foot">ตารางเดินรถและสีสายจากข้อมูลผู้ให้บริการผ่าน Transitous (เวลาตามตาราง ไม่ใช่เวลาจริง) · ชื่อไทยเป็นคำอ่านโดยประมาณ · ทางออก/ลิฟต์จาก OpenStreetMap อาจไม่ครบ ควรดูผังสถานีทางการประกอบ</p></div>';
+  exStations.forEach(([t,s])=>{const k=s.la.toFixed(4)+","+s.lo.toFixed(4);if(!SX_EXIT[k]){SX_EXIT[k]=null;sxExits(s).then(()=>{if(S.tab==="st")renderSt();});}});
+}
+async function sxSearch(end){
+  const inp=$(end==="a"?"#sxQA":"#sxQB");let q=inp.value.trim();if(!q)return;
+  if(/[฀-๿]/.test(q)){const p=SX_POP.find(p=>p[0].replace(/\s*\(.*\)/,"").includes(q.replace(/^สถานี/,""))||q.includes(p[0].replace(/\s*\(.*\)/,"")));
+    if(p)q=p[1];else{SX.res[end]=[];SX.res[end].msg="ยังไม่รู้จักชื่อนี้ในภาษาไทย ลองพิมพ์ภาษาอังกฤษหรือญี่ปุ่น เช่น Shinjuku / 新宿";renderSt();return;}}
+  SX.res[end]=[];SX.res[end].msg="⏳ กำลังค้นหา…";renderSt();
+  try{const r=await sxGeocode(q.replace(/\s*(station|駅)$/i,""));SX.res[end]=r;if(!r.length){SX.res[end]=[];SX.res[end].msg="ไม่พบสถานีชื่อนี้ ลองสะกดอีกแบบ เช่น Shimbashi/Shinbashi หรือพิมพ์ภาษาญี่ปุ่น";}}
+  catch(e){SX.res[end]=[];SX.res[end].msg="ค้นหาไม่สำเร็จ (ต้องใช้เน็ต) ลองใหม่อีกครั้ง";}
+  renderSt();
+}
+async function sxRoute(){
+  if(!SX.a||!SX.b){toast("เลือกสถานีต้นทางและปลายทางก่อน");return;}
+  if(SX.a.id===SX.b.id){toast("ต้นทางกับปลายทางเป็นสถานีเดียวกัน");return;}
+  SX.busy=true;SX.err="";SX.its=[];SX.sel=0;renderSt();
+  try{
+    const its=await sxPlan(SX.a,SX.b);
+    SX.its=its.sort((x,y)=>(x.legs.filter(l=>l.mode!=="WALK").length-y.legs.filter(l=>l.mode!=="WALK").length)*600+(x.duration-y.duration)).slice(0,3);
+    if(!SX.its.length)SX.err="ไม่พบเส้นทางรถไฟระหว่าง 2 สถานีนี้ในข้อมูลตอนนี้ (บางสายหรือบางช่วงเวลาอาจไม่มีข้อมูล เช่น ดึกมาก) ลองกด เทียบกับ Google Maps";
+    const rec={a:SX.a,b:SX.b};SX.recent=[rec,...SX.recent.filter(r=>!(r.a.id===rec.a.id&&r.b.id===rec.b.id))].slice(0,5);store.set("sx_recent",SX.recent);
+  }catch(e){SX.err="หาเส้นทางไม่สำเร็จ (ต้องใช้เน็ต หรือเซิร์ฟเวอร์ไม่ว่าง) ลองใหม่อีกครั้ง";}
+  SX.busy=false;renderSt();
+  const o=$("#sxOut");if(o)o.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function sxSet(end,s){SX[end]=s;store.set("sx_"+end,s);SX.res[end]=[];SX.its=[];SX.err="";renderSt();if(SX.a&&SX.b)sxRoute();}
+$("#stView").addEventListener("click",async e=>{
+  const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.sxpick){const end=t.dataset.sxpick;sxSet(end,SX.res[end][+t.dataset.i]);return;}
+  if(t.dataset.sxclr){const end=t.dataset.sxclr;SX[end]=null;store.set("sx_"+end,null);SX.its=[];renderSt();const i=$(end==="a"?"#sxQA":"#sxQB");i.value="";i.focus();return;}
+  if(t.dataset.sxit!=null){SX.sel=+t.dataset.sxit;renderSt();return;}
+  if(t.dataset.sxrec!=null){const r=SX.recent[+t.dataset.sxrec];SX.a=r.a;SX.b=r.b;store.set("sx_a",r.a);store.set("sx_b",r.b);sxRoute();return;}
+  if(t.dataset.sxpop!=null){const p=SX_POP[+t.dataset.sxpop],end=SX.a?"b":"a";const inp=$(end==="a"?"#sxQA":"#sxQB");inp.value=p[1];await sxSearch(end);
+    const r=SX.res[end];if(r&&r.length){const best=r.find(x=>x.ja===p[2])||r[0];sxSet(end,best);}return;}
+  if(t.id==="sxGoA")return sxSearch("a");if(t.id==="sxGoB")return sxSearch("b");
+  if(t.id==="sxSwap"){[SX.a,SX.b]=[SX.b,SX.a];store.set("sx_a",SX.a);store.set("sx_b",SX.b);SX.its=[];renderSt();if(SX.a&&SX.b)sxRoute();return;}
+  if(t.id==="sxNear"){if(!S.pos){toast("ยังไม่รู้ตำแหน่ง กด GPS ด้านบนก่อน");return;}SX.res.a=[];SX.res.a.msg="⏳ หาสถานีใกล้คุณ…";SX.a=null;renderSt();
+    try{const r=await sxNear(S.pos.la,S.pos.lo);SX.res.a=r;if(!r.length){SX.res.a=[];SX.res.a.msg="ไม่พบสถานีใกล้ตำแหน่งนี้";}}catch(_){SX.res.a=[];SX.res.a.msg="หาไม่สำเร็จ (ต้องใช้เน็ต)";}renderSt();return;}
+  if(t.id==="sxShare"){const it=SX.its[SX.sel];if(!it)return;const L=["🚉 "+(SX.a.th||SX.a.en)+" → "+(SX.b.th||SX.b.en)];
+    it.legs.forEach(l=>{if(l.mode==="WALK")return;L.push("• "+sxLineName(l)+" ("+(l.from.en)+" → "+(l.to.en)+", "+((l.intermediateStops||[]).length+1)+" สถานี)");});
+    L.push("~"+Math.round(it.duration/60)+" นาที");doShare(L.join("\n"),"เส้นทางรถไฟ");return;}
+});
+["A","B"].forEach(E=>$("#sxQ"+E).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sxSearch(E.toLowerCase());}}));
+
+{let lastY=0,tk=0;addEventListener("scroll",()=>{if(tk)return;tk=requestAnimationFrame(()=>{tk=0;const y=scrollY;if(y>260&&y>lastY+4)document.body.classList.add("mini");else if(y<120||y<lastY-30)document.body.classList.remove("mini");lastY=y;});},{passive:true});}
 /* ---------- events ---------- */
 const OLD_TAB={f:"food",s:"sight",h:"hotel",n:"conv"};
 /* preset = ทางลัดไปหมวดเดียว (เช่น ห้องน้ำ) แตะซ้ำหรือกด "สำรวจ" = กลับไปหมวดที่เลือกไว้ก่อนหน้า */
@@ -2185,7 +2500,7 @@ $("#list").addEventListener("click",async e=>{
     const on=S.sel.has(id);c.classList.toggle("sel",on);c.setAttribute("aria-checked",on);c.querySelector(".cbx").textContent=on?"✓":"";
     renderSelBar();return;}
   const f=e.target.closest("[data-fav]");
-  if(f){const id=+f.dataset.fav;S.fav.has(id)?S.fav.delete(id):S.fav.add(id);saveFav();render();return;}
+  if(f){const id=+f.dataset.fav;const was=S.fav.has(id);was?S.fav.delete(id):S.fav.add(id);saveFav();toast(was?"เอาออกจากที่บันทึกแล้ว":"★ บันทึกแล้ว · ดูได้ที่ อื่นๆ > บันทึกไว้");const y=scrollY;render();scrollTo(0,y);return;}
   const nv=e.target.closest("[data-nav]");if(nv){openNav(+nv.dataset.nav);return;}
   const ds=e.target.closest("[data-dish]");if(ds){showDish(ds);return;}
   const tb=e.target.closest("[data-rt]");

@@ -439,6 +439,9 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
 .bill-del{border:0;background:transparent;font-size:1.1rem;padding:0 6px}
 .who{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.8rem}
 .who button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:3px 10px;font-size:.84rem}
+.who.treat button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.who.host button[aria-pressed="true"]{background:#B7791F;color:#fff;border-color:#B7791F}
+.bill-gift{border:1px dashed var(--line);border-radius:10px;padding:8px;display:grid;gap:6px}
 .who button[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
 .bill-out{font-size:.88rem;font-variant-numeric:tabular-nums;background:var(--accent-soft);border-radius:10px;padding:6px 10px}
 #cPane[hidden],#bPane[hidden]{display:none!important}
@@ -2882,10 +2885,31 @@ let BILL=store.get("bills2",null)||{people:[{id:"me",n:"ฉัน"}],bills:[]};
 function saveBill(){store.set("bills2",BILL);}
 function billNet(b){const a=calcEval(b.amt||"");if(!isFinite(a))return null;const d=parseFloat(b.disc)||0;return a*(1-Math.min(100,Math.max(0,d))/100);}
 function addBill(o){BILL.bills.push(Object.assign({id:uid(),label:"",amt:"",disc:"",who:BILL.people.map(p=>p.id)},o||{}));saveBill();renderBills();}
+function pName(id){const p=BILL.people.find(x=>x.id===id);return p?p.n:"?";}
+/* คนเลี้ยง (host) จ่ายส่วนของตัวเอง + ส่วนของคนที่ตัวเองเลี้ยง (treat) · คนที่เหลือจ่ายส่วนตัวเอง */
+function billHost(b){return b.host&&b.who.includes(b.host)?b.host:"";}
+function billTreat(b){const h=billHost(b);return h?(b.treat||[]).filter(id=>id!==h&&b.who.includes(id)):[];}
+function billPay(b){const net=billNet(b),pay={};if(net==null||!b.who.length)return pay;const sh=net/b.who.length,h=billHost(b),tr=billTreat(b);
+  b.who.forEach(id=>{pay[id]=(pay[id]||0)+(tr.includes(id)?0:sh);if(tr.includes(id))pay[h]=(pay[h]||0)+sh;});return pay;}
 function billOutHTML(b){
   const net=billNet(b);if(net==null)return '<span class="muted">ใส่ราคาเป็นเยน (พิมพ์ 1200+800 ได้)</span>';
-  const n=b.who.length,d=parseFloat(b.disc)||0;
-  return 'สุทธิ <b>'+fY(net)+'</b> ≈ '+fT(net*FX.jt)+(d>0?' <span class="muted">(ลด '+d+'%)</span>':'')+'<br>'+(n?'หาร '+n+' คน = <b>'+fY(net/n)+'</b> ≈ <b>'+fT(net*FX.jt/n)+'</b> /คน':'<span style="color:var(--warn)">ยังไม่ได้เลือกคนหาร</span>');
+  const n=b.who.length,d=parseFloat(b.disc)||0,h=billHost(b),tr=billTreat(b);
+  let o='สุทธิ <b>'+fY(net)+'</b> ≈ '+fT(net*FX.jt)+(d>0?' <span class="muted">(ลด '+d+'%)</span>':'')+'<br>';
+  if(!n)return o+'<span style="color:var(--warn)">ยังไม่ได้เลือกคนหาร</span>';
+  o+='หาร '+n+' คน = '+fY(net/n)+' ≈ '+fT(net*FX.jt/n)+' /คน';
+  if(h&&tr.length){const pay=billPay(b),self=b.who.filter(id=>id!==h&&!tr.includes(id));
+    o+='<br>🎁 <b>'+esc(pName(h))+'</b> เลี้ยง '+tr.map(id=>esc(pName(id))).join(", ")+' → จ่าย <b>'+fY(pay[h])+'</b> ≈ <b>'+fT(pay[h]*FX.jt)+'</b>';
+    if(self.length)o+='<br>จ่ายส่วนตัวเอง: '+self.map(id=>esc(pName(id))).join(", ")+' คนละ <b>'+fY(net/n)+'</b> ≈ <b>'+fT(net*FX.jt/n)+'</b>';}
+  else if(h)o+='<br><span class="muted">เลือกว่า '+esc(pName(h))+' เลี้ยงใครบ้าง</span>';
+  return o;
+}
+function giftHTML(b){
+  if(!b.gift)return '<button type="button" class="linkbtn" data-gift="1" style="justify-self:start;border:0;background:none">🎁 มีคนเลี้ยงบิลนี้? (จ่ายแทนบางคน)</button>';
+  const h=billHost(b),tr=billTreat(b);
+  return '<div class="bill-gift"><div class="who host"><span class="muted">🎁 ใครเลี้ยง:</span>'+b.who.map(id=>'<button type="button" data-host="'+id+'" aria-pressed="'+(h===id)+'">'+esc(pName(id))+'</button>').join("")+'</div>'+
+    (h?'<div class="who treat"><span class="muted">เลี้ยงใครบ้าง:</span>'+b.who.filter(id=>id!==h).map(id=>'<button type="button" data-treat="'+id+'" aria-pressed="'+tr.includes(id)+'">'+(tr.includes(id)?"✓ ":"")+esc(pName(id))+'</button>').join("")+
+      '<button type="button" data-treatall="1" class="linkbtn" style="border:0;background:none">ทุกคน</button></div>':'')+
+    '<button type="button" class="linkbtn" data-gift="0" style="justify-self:start;border:0;background:none;font-size:.8rem">✕ ไม่มีคนเลี้ยง (หารเท่ากัน)</button></div>';
 }
 function renderBills(){
   $("#people").innerHTML=BILL.people.map(p=>'<span class="pchip">'+esc(p.n)+(BILL.people.length>1?'<button type="button" data-pdel="'+p.id+'" aria-label="ลบ '+esc(p.n)+'">✕</button>':'')+'</span>').join("");
@@ -2893,15 +2917,16 @@ function renderBills(){
     '<div class="bill-r1"><input data-bf="label" value="'+esc(b.label)+'" placeholder="บิลที่ '+(i+1)+': ค่าอะไร เช่น ราเมงมื้อเที่ยง" aria-label="ชื่อบิล" maxlength="40"><button type="button" class="bill-del" data-bdel="'+b.id+'" aria-label="ลบบิล">🗑</button></div>'+
     '<div class="bill-r2"><label>ราคา (เยน)<input data-bf="amt" value="'+esc(b.amt)+'" inputmode="decimal" placeholder="เช่น 5730"></label><label>ลด %<input data-bf="disc" value="'+esc(b.disc)+'" inputmode="decimal" placeholder="0"></label></div>'+
     '<div class="who"><span class="muted">ใครหาร:</span>'+BILL.people.map(p=>'<button type="button" data-who="'+p.id+'" aria-pressed="'+b.who.includes(p.id)+'">'+(b.who.includes(p.id)?"✓ ":"")+esc(p.n)+'</button>').join("")+
-      '<button type="button" data-whoall="1" class="linkbtn" style="border:0;background:none">ทุกคน</button></div>'+
+      '<button type="button" data-whoall="1" class="linkbtn" style="border:0;background:none">ทุกคน</button></div>'+giftHTML(b)+
     '<div class="bill-out" data-bout>'+billOutHTML(b)+'</div></div>').join(""):'<p class="muted" style="margin:0">ยังไม่มีบิล กด ＋ เพิ่มบิล หรือคิดในเครื่องคิดเลขแล้วกด ＋ เป็นบิล</p>';
   renderBillSum();
 }
 function renderBillSum(){
   let tot=0;const per={};BILL.people.forEach(p=>per[p.id]=0);let cnt=0;
-  BILL.bills.forEach(b=>{const net=billNet(b);if(net==null)return;cnt++;tot+=net;if(b.who.length)b.who.forEach(id=>{if(id in per)per[id]+=net/b.who.length;});});
+  const gave={},got={};BILL.bills.forEach(b=>{const net=billNet(b);if(net==null)return;cnt++;tot+=net;const pay=billPay(b);for(const id in pay)if(id in per)per[id]+=pay[id];
+    const h=billHost(b);billTreat(b).forEach(id=>{gave[h]=(gave[h]||0)+1;got[id]=(got[id]||0)+1;});});
   $("#bSum").innerHTML='<div><b>รวม '+cnt+' บิล: '+fY(tot)+'</b> ≈ <b>'+fT(tot*FX.jt)+'</b></div>'+
-    (BILL.people.length>1||cnt?'<table><tr><td class="muted">แต่ละคนจ่าย</td><td class="muted">เยน</td><td class="muted">บาท</td></tr>'+BILL.people.map(p=>'<tr><td>'+esc(p.n)+'</td><td>'+fY(per[p.id])+'</td><td><b>'+fT(per[p.id]*FX.jt)+'</b></td></tr>').join("")+'</table>':'')+
+    (BILL.people.length>1||cnt?'<table><tr><td class="muted">แต่ละคนจ่าย</td><td class="muted">เยน</td><td class="muted">บาท</td></tr>'+BILL.people.map(p=>'<tr><td>'+esc(p.n)+(gave[p.id]?' <span class="muted" style="font-size:.75rem">🎁 เลี้ยง</span>':'')+(got[p.id]&&!per[p.id]?' <span class="muted" style="font-size:.75rem">ได้รับเลี้ยง</span>':'')+'</td><td>'+fY(per[p.id])+'</td><td><b>'+fT(per[p.id]*FX.jt)+'</b></td></tr>').join("")+'</table>':'')+
     '<div class="muted" style="font-size:.78rem">เรท 1 ¥ = '+FX.jt.toFixed(4)+' ฿ · ปัดเศษเพื่อแสดงผล</div>';
 }
 $("#bills").addEventListener("input",e=>{
@@ -2912,10 +2937,14 @@ $("#bills").addEventListener("click",e=>{
   const el=e.target.closest("[data-bid]");if(!el)return;const b=BILL.bills.find(x=>x.id===el.dataset.bid);
   const d=e.target.closest("[data-bdel]");if(d){if(b.amt&&!confirm("ลบบิล "+(b.label||"นี้")+" ?"))return;BILL.bills=BILL.bills.filter(x=>x!==b);saveBill();renderBills();return;}
   const w=e.target.closest("[data-who]");if(w){const id=w.dataset.who;b.who=b.who.includes(id)?b.who.filter(x=>x!==id):[...b.who,id];saveBill();renderBills();return;}
+  const g=e.target.closest("[data-gift]");if(g){b.gift=g.dataset.gift==="1";if(!b.gift){b.host="";b.treat=[];}saveBill();renderBills();return;}
+  const hb=e.target.closest("[data-host]");if(hb){const id=hb.dataset.host;b.host=b.host===id?"":id;b.treat=(b.treat||[]).filter(x=>x!==id);saveBill();renderBills();return;}
+  const tb=e.target.closest("[data-treat]");if(tb){const id=tb.dataset.treat,t=b.treat||[];b.treat=t.includes(id)?t.filter(x=>x!==id):[...t,id];saveBill();renderBills();return;}
+  if(e.target.closest("[data-treatall]")){const others=b.who.filter(id=>id!==b.host),t=billTreat(b);b.treat=t.length===others.length?[]:others;saveBill();renderBills();return;}
   if(e.target.closest("[data-whoall]")){b.who=b.who.length===BILL.people.length?[]:BILL.people.map(p=>p.id);saveBill();renderBills();}
 });
 $("#people").addEventListener("click",e=>{const d=e.target.closest("[data-pdel]");if(!d)return;const id=d.dataset.pdel,p=BILL.people.find(x=>x.id===id);
-  if(!confirm("ลบ "+p.n+" ออกจากทุกบิล?"))return;BILL.people=BILL.people.filter(x=>x.id!==id);BILL.bills.forEach(b=>b.who=b.who.filter(x=>x!==id));saveBill();renderBills();});
+  if(!confirm("ลบ "+p.n+" ออกจากทุกบิล?"))return;BILL.people=BILL.people.filter(x=>x.id!==id);BILL.bills.forEach(b=>{b.who=b.who.filter(x=>x!==id);if(b.host===id)b.host="";b.treat=(b.treat||[]).filter(x=>x!==id);});saveBill();renderBills();});
 function addPerson(){const i=$("#pName"),n=i.value.trim();if(!n)return;const id=uid();
   BILL.bills.forEach(b=>{if(b.who.length===BILL.people.length)b.who.push(id);});/* บิลที่ทุกคนหารอยู่ ให้คนใหม่หารด้วย */
   BILL.people.push({id,n});i.value="";saveBill();renderBills();i.focus();}

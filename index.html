@@ -2067,7 +2067,7 @@ const SX_POP=[
  ["โอตารุ","Otaru","小樽"],["ฮาโกดาเตะ","Hakodate","函館"],["ฮากาตะ (ฟุกุโอกะ)","Hakata","博多"],["เทนจิน","Tenjin","天神"],["นาฮะ สนามบิน","Naha Airport","那覇空港"]
 ];
 /* อ่านชื่อโรมาจิเป็นไทย (ประมาณ) สำหรับสถานีที่ไม่มีชื่อไทยในรายการ */
-const SX_EN_W={airport:"สนามบิน",terminal:"อาคาร",park:"พาร์ก",city:"ซิตี้",universal:"ยูนิเวอร์แซล",skytree:"สกายทรี",line:"สาย",international:"อินเตอร์",port:"พอร์ต",town:"ทาวน์",center:"เซ็นเตอร์",station:"",university:"มหาวิทยาลัย",zoo:"สวนสัตว์",dome:"โดม",stadium:"สเตเดียม",tower:"ทาวเวอร์",garden:"การ์เดน",world:"เวิลด์",bay:"เบย์",hills:"ฮิลส์",mall:"มอลล์"};
+const SX_EN_W={keikyu:"เคคิว",keikyuu:"เคคิว",keisei:"เคเซ",keio:"เคโอ",tokyu:"โตคิว",tokyuu:"โตคิว",odakyu:"โอดาคิว",odakyuu:"โอดาคิว",seibu:"เซบุ",tobu:"โทบุ",toubu:"โทบุ",hankyu:"ฮันคิว",hankyuu:"ฮันคิว",hanshin:"ฮันชิน",kintetsu:"คินเท็ตสึ",keihan:"เคฮัน",nankai:"นันไค",meitetsu:"เมเท็ตสึ",toden:"โทเด็น",teleport:"เทเลพอร์ต",gateway:"เกตเวย์",cruise:"ครูซ",monorail:"โมโนเรล",front:"ฟรอนต์",exit:"ทางออก",east:"ตะวันออก",west:"ตะวันตก",north:"เหนือ",south:"ใต้",main:"หลัก",new:"นิว",airport:"สนามบิน",terminal:"อาคาร",park:"พาร์ก",city:"ซิตี้",universal:"ยูนิเวอร์แซล",skytree:"สกายทรี",line:"สาย",international:"อินเตอร์",port:"พอร์ต",town:"ทาวน์",center:"เซ็นเตอร์",station:"",university:"มหาวิทยาลัย",zoo:"สวนสัตว์",dome:"โดม",stadium:"สเตเดียม",tower:"ทาวเวอร์",garden:"การ์เดน",world:"เวิลด์",bay:"เบย์",hills:"ฮิลส์",mall:"มอลล์"};
 const SX_TC={k:"ก",g:"ก",s:"ซ",z:"ซ",t:"ต",d:"ด",n:"น",h:"ฮ",b:"บ",p:"พ",m:"ม",y:"ย",r:"ร",w:"ว",f:"ฟ",j:"จ",ch:"จ",sh:"ช",ts:"ส","":"อ"};
 const SX_GL={kya:"เกีย",kyu:"คิว",kyo:"เกียว",gya:"เกีย",gyu:"กิว",gyo:"เกียว",sha:"ชะ",shu:"ชุ",sho:"โช",cha:"ชะ",chu:"ชู",cho:"โจ",ja:"จะ",tsu:"สึ",ju:"จู",jo:"โจ",nya:"เนีย",nyu:"นิว",nyo:"เนียว",hya:"เฮีย",hyu:"ฮิว",hyo:"เฮียว",
  mya:"เมีย",myu:"มิว",myo:"เมียว",rya:"เรีย",ryu:"ริว",ryo:"เรียว",bya:"เบีย",byu:"บิว",byo:"เบียว",pya:"เปีย",pyu:"ปิว",pyo:"เปียว"};
@@ -2100,7 +2100,7 @@ function sxThai(en,ja){
   const clean=en.replace(/\s*\((.*?)\)/g," $1").replace(/[·・]/g," ").trim();
   const nz=t=>t.toLowerCase().replace(/[^a-z0-9]/g,""),c0=nz(clean);
   const pop=SX_POP.find(p=>nz(p[1])===c0||(ja&&p[2]===ja));if(pop)return pop[0];
-  return clean.split(/[\s\-]+/).filter(Boolean).map(w=>/^\d/.test(w)?w:sxThaiWord(w)).join(" ").replace(/\s{2,}/g," ").trim();
+  return clean.split(/[\s\-]+/).filter(Boolean).map(w=>{if(/^\d/.test(w))return w;const t=sxThaiWord(w);return /[a-z]/i.test(t)?w:t;}).join(" ").replace(/\s{2,}/g," ").trim();
 }
 function sxTitle(s){return s&&s===s.toUpperCase()&&/[A-Z]{3}/.test(s)?s.toLowerCase().replace(/(^|[\s\-(])([a-z])/g,(m,a,b)=>a+b.toUpperCase()):s;}
 function sxJa(s){return (s||"").replace(/\s+[A-Za-z][A-Za-z .\-]*$/,"").trim();}
@@ -2315,10 +2315,12 @@ const SXB={open:{a:false,b:false},city:{a:store.get("sxb_city")??0,b:store.get("
 const SX_CODECOL={G:"#ff9500",M:"#f62e36",Mb:"#f62e36",H:"#b5b5ac",T:"#009bbf",C:"#00bb85",Y:"#c1a470",Z:"#8f76d6",N:"#00ac9b",F:"#9c5e31",A:"#e85298",I:"#0079c2",S:"#6cbb5a",E:"#b6007a",JY:"#80c241",JC:"#f15a22",JB:"#ffd400",JK:"#00b2e5",JA:"#00ac9a",JS:"#e21f26",JT:"#f68b1e",JO:"#0070b9",JU:"#f68b1e",JJ:"#1daed1",JE:"#c9252f",JL:"#00b261",JN:"#ffd400",KS:"#1e50a2",TY:"#da0442",DT:"#20a288",OH:"#2288cc",KO:"#dd0077",IN:"#4b0082",SS:"#f8a800",SI:"#f8a800",TJ:"#0f3d86",TS:"#0f3d86",MO:"#e3007f",U:"#27408b",R:"#00418e",TX:"#2e3192",KK:"#00bfff"};
 function sxCodeChip(c){const p=(c.match(/^[A-Z][A-Za-z]?(?=\d)|^[A-Z]+/)||[""])[0],col=SX_CODECOL[p]||SX_CODECOL[p[0]]||"#8a8f98";return '<i class="sx-cc" style="--c:'+col+'">'+esc(c)+'</i>';}
 function sxSplitName(n){n=(n||"").trim();const m=n.match(/^([^A-Za-z]*[　-鿿＀-￯][^A-Za-z]*?)\s+([A-Za-z].*)$/);if(m)return {ja:m[1].trim(),en:m[2].trim()};return /[A-Za-z]/.test(n)&&!/[぀-鿿]/.test(n)?{en:n,ja:""}:{en:"",ja:n};}
+const sxNzJa=t=>(t||"").replace(/[(（〈【][^)）〉】]*[)）〉】]/g,"").replace(/ケ/g,"ヶ").replace(/[０-９]/g,d=>String.fromCharCode(d.charCodeAt(0)-0xFEE0)).replace(/[・･\s]/g,"").replace(/^モノレール/,"");
+const sxNzEn=t=>(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\(.*?\)/g,"").replace(/^monorail\s*/,"").replace(/[^a-z0-9]/g,"");
 async function sxStopsArea(la,lo,r){
   const key=la.toFixed(4)+","+lo.toFixed(4)+","+r;
   if(SXB.mem[key])return SXB.mem[key];
-  const c=store.get("stn_"+key);if(c&&c.t&&Date.now()-c.t<7*864e5&&Array.isArray(c.d)){SXB.mem[key]=c.d;return c.d;}
+  const c=store.get("stn2_"+key);if(c&&c.t&&Date.now()-c.t<7*864e5&&Array.isArray(c.d)){SXB.mem[key]=c.d;return c.d;}
   const dla=r/111,dlo=r/(111*Math.cos(la*Math.PI/180)),bb="min="+(la-dla).toFixed(5)+","+(lo-dlo).toFixed(5)+"&max="+(la+dla).toFixed(5)+","+(lo+dlo).toFixed(5);
   const [en,ja]=await Promise.all([sxGet("/v1/map/stops?"+bb+"&language=en"),sxGet("/v1/map/stops?"+bb+"&language=ja").catch(()=>[])]);
   const JA={};(ja||[]).forEach(s=>JA[s.stopId]=s.name);
@@ -2328,7 +2330,7 @@ async function sxStopsArea(la,lo,r){
     const k=s.parentId||s.stopId,n1=sxSplitName(s.name),n2=sxSplitName(JA[s.stopId]||"");
     let g=G.get(k);if(!g){g={id:k,en:"",ja:"",la:s.lat,lo:s.lon,codes:[],modes:[],lines:[]};G.set(k,g);}
     g.en=g.en||sxTitle(n1.en||n2.en||"");g.ja=g.ja||sxJa(n2.ja||n1.ja||"");
-    if(s.stopCode&&!g.codes.includes(s.stopCode))g.codes.push(s.stopCode);
+    const sc=(s.stopCode||"").replace(/-/g,"");if(sc&&!g.codes.includes(sc))g.codes.push(sc);
     (s.modes||[]).forEach(m=>{if(!g.modes.includes(m))g.modes.push(m);});
     const lm=/^jp-tokyo-rail_([^.]+)\.([^.]+)\./.exec(s.stopId);if(lm&&!g.lines.includes(lm[2]))g.lines.push(lm[2]);
   });
@@ -2336,14 +2338,14 @@ async function sxStopsArea(la,lo,r){
   const out=[];
   [...G.values()].sort((x,y)=>(/tokyo-rail/.test(y.id)?1:0)-(/tokyo-rail/.test(x.id)?1:0)).forEach(g=>{
     if(!g.en&&!g.ja)return;
-    const d=out.find(o=>dist(o.la,o.lo,g.la,g.lo)<0.4&&(o.ja&&o.ja===g.ja||o.en&&g.en&&o.en.toLowerCase()===g.en.toLowerCase()));
-    if(d){d.ja=d.ja||g.ja;d.en=d.en||g.en;g.codes.forEach(c=>{if(!d.codes.includes(c))d.codes.push(c);});g.modes.forEach(m=>{if(!d.modes.includes(m))d.modes.push(m);});return;}
+    const d=out.find(o=>dist(o.la,o.lo,g.la,g.lo)<0.4&&(sxNzJa(o.ja)&&sxNzJa(o.ja)===sxNzJa(g.ja)||sxNzEn(o.en)&&sxNzEn(o.en)===sxNzEn(g.en)));
+    if(d){if(!d.en||(g.en&&/[()]/.test(d.en)&&!/[()]/.test(g.en)))d.en=g.en||d.en;if(!d.ja||/[(（]/.test(d.ja))d.ja=g.ja||d.ja;d.en=d.en||g.en;g.codes.forEach(c=>{if(!d.codes.includes(c))d.codes.push(c);});g.modes.forEach(m=>{if(!d.modes.includes(m))d.modes.push(m);});return;}
     out.push(g);
   });
   out.forEach(g=>{g.ja=g.ja||sxPopJa(g.en);g.th=sxThai(g.en,g.ja);g.d=dist(la,lo,g.la,g.lo);g.codes.sort();});
   out.sort((x,y)=>x.d-y.d);
   const res=out.map(({id,en,ja,th,la,lo,codes,modes,d})=>({id,en,ja,th,la,lo,codes,modes,d:Math.round(d*1000)}));
-  SXB.mem[key]=res;store.set("stn_"+key,{t:Date.now(),d:res});
+  SXB.mem[key]=res;store.set("stn2_"+key,{t:Date.now(),d:res});
   return res;
 }
 /* จำกัดการโหลดพร้อมกัน 4 ย่าน */

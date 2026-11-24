@@ -1,13 +1,16 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>lab</title></head><body style="font:13px sans-serif">
-<iframe id="g" width="380" height="420" style="border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
- src="https://maps.google.com/maps?saddr=35.6995,139.7740&daddr=35.6712,139.7618&dirflg=r&output=embed&hl=th"></iframe>
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>lab</title></head><body style="font:12px monospace">
 <pre id="o"></pre>
 <script>
 const o=document.getElementById("o");const log=t=>o.textContent+=t+"\n";
+const T=[["Akiba-Ginza",35.6995,139.7740,35.6712,139.7618],["Namba-Umeda",34.6660,135.5010,34.7025,135.4959],["KyotoSt-Kiyomizu",34.9858,135.7588,34.9949,135.7850],["Shinjuku-Asakusa",35.6900,139.7003,35.7148,139.7967]];
 (async()=>{
- for(const v of ["v5","v4","v3","v2","v1"]){
-  const u="https://api.transitous.org/api/"+v+"/plan?fromPlace=35.6995,139.7740&toPlace=35.6712,139.7618&numItineraries=2";
-  try{const r=await fetch(u);const t=await r.text();log(v+" "+r.status+" "+t.slice(0,1500));if(r.ok)break;}catch(e){log(v+" ERR "+e);}
+ for(const [n,a,b,c,d] of T){
+  const u="https://api.transitous.org/api/v5/plan?fromPlace="+a+","+b+"&toPlace="+c+","+d+"&numItineraries=3";
+  try{const r=await fetch(u);const j=await r.json();log("== "+n+" itins "+j.itineraries.length);
+   j.itineraries.slice(0,3).forEach(it=>{log(" dur "+it.duration/60+" tr "+it.transfers);
+    it.legs.forEach(l=>log("   "+l.mode+" | "+(l.routeShortName||"")+" | "+(l.routeLongName||"")+" | "+(l.agencyName||"")+" | hs:"+(l.headsign||"")+" | "+l.from.name+" -> "+l.to.name+" | "+Math.round(l.duration/60)+"m dist:"+Math.round(l.distance||0)+" stops:"+((l.intermediateStops||[]).length)+" geom:"+JSON.stringify(l.legGeometry||{}).slice(0,60)+" color:"+(l.routeColor||"")+" keys:"+Object.keys(l).join(",")));});
+  }catch(e){log(n+" ERR "+e);}
  }
+ log("DONE");
 })();
 </script></body></html>

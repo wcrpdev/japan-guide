@@ -1,5 +1,5 @@
 /* ไกด์ญี่ปุ่น: เก็บไว้ใช้ออฟไลน์ */
-const V="1795507013",CORE="core-"+V,RUN="run-"+V,TILE="tiles-"+V;
+const V="1795507140",CORE="core-"+V,RUN="run-"+V,TILE="tiles-"+V;
 const FILES=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./apple-touch-icon.png",
  "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js","https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css","https://tiles.openfreemap.org/styles/liberty"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CORE).then(c=>Promise.all(FILES.map(f=>c.add(f).catch(()=>{})))).then(()=>self.skipWaiting()));});

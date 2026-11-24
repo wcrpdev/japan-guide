@@ -1827,7 +1827,7 @@ async function tessWorker(lang){
 const JA_RE=/[぀-ヿ㐀-鿿ｦ-ﾟ]/;
 function cleanOcr(t){
   return t.split(/\n+/).map(l=>l.replace(/(?<=[　-鿿＀-￯])\s+(?=[　-鿿＀-￯])/g,"").replace(/\s{2,}/g," ").trim())
-    .filter(l=>l&&(JA_RE.test(l)||/[A-Za-z0-9]{2,}/.test(l))&&!/^[\W_|]+$/.test(l)).join("\n");
+    .filter(l=>l&&(JA_RE.test(l)||/[A-Za-z0-9]{2,}/.test(l))&&!/^[\s\p{P}\p{S}_|]+$/u.test(l)).join("\n");
 }
 function imgToCanvas(src,max){
   return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);ok(c);};im.onerror=no;im.src=src;});
@@ -1841,7 +1841,8 @@ async function runOcr(src){
     const cv=await imgToCanvas(src,1600);
     const w=await tessWorker($("#trVert").checked?"jpn_vert":"jpn");
     const {data}=await w.recognize(cv);
-    const txt=cleanOcr(data.text||"");
+    const raw=(data.text||"").trim(),txt=cleanOcr(raw);
+    if(!txt&&raw){$("#trJa").value=raw;trStat("อ่านได้แต่ไม่ชัด (ความมั่นใจ "+Math.round(data.confidence||0)+"%) ตรวจ/แก้ข้อความด้านล่างก่อนกดแปล");return;}
     if(!txt){trStat("ไม่เจอตัวอักษรญี่ปุ่นในรูป ลองถ่ายใกล้ขึ้น ให้ตัวหนังสือตรงและชัด หรือติ๊ก แนวตั้ง ถ้าป้ายเขียนลงมาเป็นแถว");return;}
     $("#trJa").value=txt;trStat("✓ อ่านได้ "+txt.split("\n").length+" บรรทัด (แก้ข้อความได้ถ้าอ่านผิด)");
     TR_BUSY=false;await translateJa();

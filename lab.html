@@ -1,0 +1,13 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>lab</title></head><body style="font:13px sans-serif">
+<iframe id="g" width="380" height="420" style="border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+ src="https://maps.google.com/maps?saddr=35.6995,139.7740&daddr=35.6712,139.7618&dirflg=r&output=embed&hl=th"></iframe>
+<pre id="o"></pre>
+<script>
+const o=document.getElementById("o");const log=t=>o.textContent+=t+"\n";
+(async()=>{
+ for(const v of ["v5","v4","v3","v2","v1"]){
+  const u="https://api.transitous.org/api/"+v+"/plan?fromPlace=35.6995,139.7740&toPlace=35.6712,139.7618&numItineraries=2";
+  try{const r=await fetch(u);const t=await r.text();log(v+" "+r.status+" "+t.slice(0,1500));if(r.ok)break;}catch(e){log(v+" ERR "+e);}
+ }
+})();
+</script></body></html>

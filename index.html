@@ -2472,7 +2472,7 @@ async function fillWalkGeom(its){/* ช่วงเดินที่ไม่�
     if(dist(l.flat,l.flon,l.tlat,l.tlon)<0.04)continue;n++;
     try{const r=await fetchRoute("walk",{la:l.flat,lo:l.flon},{la:l.tlat,lo:l.tlon});l.geom=r.geom.coordinates;}catch(e){}}
 }
-function lineName(l){
+function tLineName(l){
   const ok=t=>t&&!/^\d{4,}$/.test(t),ln=l.routeLongName||"",sn=l.routeShortName||"",dn=l.displayName||"";
   let n=ok(ln)?ln:ok(dn)?dn:"";
   if(!n&&l.routeColor&&/^JR/.test(l.agencyName||""))n=JR_COL[l.routeColor.toLowerCase()]||"";

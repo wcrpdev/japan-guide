@@ -1,7 +1,0 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>lab</title></head><body style="font:13px monospace"><pre id="o"></pre>
-<script>
-const o=document.getElementById("o");const log=t=>o.textContent+=t+"\n";
-async function t(u,lab){const s=performance.now();try{const c=new AbortController(),tm=setTimeout(()=>c.abort(),8000);const r=await fetch(u,{signal:c.signal,cache:"no-store"});const txt=await r.text();clearTimeout(tm);log(lab+" status "+r.status+" "+Math.round(performance.now()-s)+"ms len "+txt.length+" its "+(JSON.parse(txt).itineraries||[]).length);}catch(e){log(lab+" ERR "+e+" "+Math.round(performance.now()-s)+"ms");}}
-const b="https://api.transitous.org/api/v5/plan?fromPlace=35.670000,139.739000&toPlace=35.6712,139.7618&numItineraries=6";
-(async()=>{await Promise.all([t(b,"rail"),t(b+"&transitModes=BUS","bus")]);log("DONE");})();
-</script></body></html>

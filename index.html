@@ -1941,7 +1941,7 @@ const IN_FRAME=(()=>{try{return window.self!==window.top}catch(e){return true}})
 const CAN_NET=!IN_FRAME&&/^https?:$/.test(location.protocol);
 const CAT_ICON={budget:"🛏️",mid:"🏨",premium:"✨",er:"🚑",hosp:"🏥",ramen:"🍜",sushi:"🍣",beef:"🥩",fried:"🍤",local:"🍱",market:"🏮",sweet:"🍡",izakaya:"🍶",temple:"⛩️",view:"🌄",photo:"📸",shop:"🛍️",sight:"🏯"};
 const WIKI_T={"日枝神社 山王鳥居":"日枝神社 (千代田区)","思い出横丁":"思い出横丁","夕やけだんだん":"谷中銀座商店街","数寄屋橋交差点":"数寄屋橋","巽橋 祇園白川":"祇園新橋","八坂庚申堂":"八坂庚申堂","キモノフォレスト (嵐山駅)":"嵐山駅 (京福電気鉄道)","法善寺横丁":"法善寺","大阪城 西の丸庭園":"大阪城公園","下吉田 本町通り":"富士吉田市","河口湖 天上山公園":"天上山公園","白川郷 城山展望台":"白川郷","鎌倉大仏 (高徳院)":"高徳院","八坂の塔 (法観寺)":"法観寺","嵐山 竹林の小径":"嵐山","新倉山浅間公園 忠霊塔":"新倉山浅間公園","厳島神社 大鳥居":"厳島神社","東京都庁 展望室":"東京都庁舎","渋谷スカイ":"渋谷スクランブルスクエア","チームラボプラネッツ":"チームラボプラネッツ TOKYO DMM","ユニコーンガンダム立像":"ダイバーシティ東京","グリコサイン":"グリコサイン","梅田スカイビル 空中庭園":"梅田スカイビル","あべのハルカス 展望台":"あべのハルカス","HEP FIVE 観覧車":"HEP FIVE","ローソン 河口湖駅前店":"河口湖","大石公園":"大石公園 (富士河口湖町)","将軍塚青龍殿":"将軍塚","皇居東御苑":"皇居東御苑","さっぽろテレビ塔":"さっぽろテレビ塔","第一牧志公設市場":"第一牧志公設市場","築地場外市場":"築地場外市場","横浜中華街":"横浜中華街","中洲屋台":"屋台","宮島":"厳島"};
-let PHOTO=store.get("photo",{});
+let PHOTO=store.get("photo2",{});
 function wikiTitle(x){return WIKI_T[x.j]||x.j.replace(/\s*\(.*\)$/,"").split(" ")[0];}
 function photoable(x){return x.t==="s"||x.c==="market";}
 function thumbHTML(x){
@@ -1965,7 +1965,7 @@ function fetchAllPhotos(){
         Object.values(q.pages||{}).forEach(pg=>P[pg.title]=pg.thumbnail&&pg.thumbnail.source||"");
         g.forEach(x=>{let t=wikiTitle(x);t=N[t]||t;t=Rd[t]||t;PHOTO[x.id]=P[t]||"";});
       });
-  })).then(()=>{store.set("photo",PHOTO);document.querySelectorAll(".thumb[data-ph]").forEach(el=>paintThumb(el,PHOTO[+el.dataset.ph]));})
+  })).then(()=>{store.set("photo2",PHOTO);document.querySelectorAll(".thumb[data-ph]").forEach(el=>paintThumb(el,PHOTO[+el.dataset.ph]));})
     .catch(()=>{}).then(()=>{PH_LOADING=null;});
   return PH_LOADING;
 }

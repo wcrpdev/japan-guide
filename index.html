@@ -1883,7 +1883,7 @@ function render(){
   if(S.tab==="map"){renderMap();return;}
   if(S.tab==="more")return;
   if(S.tab==="tr"){renderTr();return;}
-  if(S.tab==="st"){renderSt();return;}
+  if(S.tab==="st"){renderSt();if(SX.a&&SX.d.length&&!SX.segs.length&&!SX.busy&&!SX.err&&!SX.auto){SX.auto=1;sxRoute(true);}return;}
   renderTabBox();
   const {arr,base,pool}=filtered();
   renderChips(pool,base);
@@ -2103,7 +2103,7 @@ function sxThai(en,ja){
   const pop=SX_POP.find(p=>nz(p[1])===c0||(ja&&p[2]===ja));if(pop)return pop[0];
   return clean.split(/[\s\-]+/).filter(Boolean).map(w=>{if(/^\d/.test(w))return w;const t=sxThaiWord(w);return /[a-z]/i.test(t)?w:t;}).join(" ").replace(/\s{2,}/g," ").trim();
 }
-function sxTitle(s){return s&&s===s.toUpperCase()&&/[A-Z]{3}/.test(s)?s.toLowerCase().replace(/(^|[\s\-(])([a-z])/g,(m,a,b)=>a+b.toUpperCase()):s;}
+function sxTitle(s){s=s&&s===s.toUpperCase()&&/[A-Z]{3}/.test(s)?s.toLowerCase().replace(/(^|[\s\-(])([a-z])/g,(m,a,b)=>a+b.toUpperCase()):s;return s?s.replace(/\bJr\b/g,"JR"):s;}
 function sxJa(s){return (s||"").replace(/\s+[A-Za-z][A-Za-z .\-]*$/,"").trim();}
 const SX_RAIL=/RAIL|SUBWAY|TRAM|METRO|FUNICULAR|MONORAIL|HIGHSPEED|LONG_DISTANCE|NIGHT_RAIL|SUBURBAN/;
 async function sxGet(path){const r=await fetch(SX_API+path);if(!r.ok)throw new Error("http "+r.status);return r.json();}
@@ -2132,6 +2132,7 @@ function sxMerge(en,ja){
   const out=[];
   (en||[]).concat((ja||[]).filter(s=>!(en||[]).some(e=>e.id===s.id))).forEach(s=>{
     if(s.type!=="STOP"||!(s.modes||[]).some(m=>SX_RAIL.test(m)))return;
+    if(s.country&&s.country!=="JP"||!/^jp-/.test(s.id||""))return;
     const e=sxTitle(/[A-Za-z]/.test(s.name)?s.name:""),j=J[s.id]||(/[A-Za-z]/.test(s.name)?"":s.name);
     const area=(s.areas||[]).filter(a=>a.adminLevel===7||a.adminLevel===4).map(a=>a.name).join(", ");
     const x={id:s.id,en:e,ja:j||sxPopJa(e),la:s.lat,lo:s.lon,area,modes:s.modes||[]};
@@ -2146,7 +2147,7 @@ function sxMerge(en,ja){
 /* ---------- route ---------- */
 async function sxPlan(a,b){
   const base="/v5/plan?numItineraries=4&transitModes=RAIL,SUBWAY,TRAM,FUNICULAR&fromPlace="+encodeURIComponent(a.id)+"&toPlace="+encodeURIComponent(b.id);
-  const [en,ja]=await Promise.all([sxGet(base+"&language=en"),sxGet(base+"&language=ja").catch(()=>null)]);
+  const [en,ja]=await Promise.all([sxGet(base+"&language=en"),sxGet(base+"&language=ja").catch(()=>new Promise(r=>setTimeout(r,800)).then(()=>sxGet(base+"&language=ja")).catch(()=>null))]);
   const JA={},HJ={};
   if(ja)(ja.itineraries||[]).forEach(it=>it.legs.forEach(l=>{[l.from,l.to,...(l.intermediateStops||[])].forEach(s=>{if(s&&s.stopId)JA[s.stopId]=sxJa(s.name);});if(l.tripId){HJ[l.tripId]={h:l.headsign,n:l.routeLongName||l.routeShortName};}}));
   const its=(en.itineraries||[]).filter(it=>it.legs.some(l=>l.mode!=="WALK"));
@@ -2165,7 +2166,8 @@ function sxHead(l){const h=l.headsign||(l.tripTo&&l.tripTo.name)||"",m=h.match(/
 const SX_SHIN={"のぞみ":"Nozomi","ひかり":"Hikari","こだま":"Kodama","みずほ":"Mizuho","さくら":"Sakura","つばめ":"Tsubame","はやぶさ":"Hayabusa","はやて":"Hayate","やまびこ":"Yamabiko","なすの":"Nasuno","こまち":"Komachi","つばさ":"Tsubasa","かがやき":"Kagayaki","はくたか":"Hakutaka","あさま":"Asama","つるぎ":"Tsurugi","とき":"Toki","たにがわ":"Tanigawa","かもめ":"Kamome","はやま":"Hayama"};
 function sxShin(l){const t=(l.routeShortName||l.routeLongName||l.displayName||"").trim(),m=t.match(/^(のぞみ|ひかり|こだま|みずほ|さくら|つばめ|はやぶさ|はやて|やまびこ|なすの|こまち|つばさ|かがやき|はくたか|あさま|つるぎ|とき|たにがわ|かもめ)\s*(\d+)?号?/);
   if(!m&&!/HIGHSPEED/.test(l.mode||""))return null;return {name:"ชินคันเซ็น "+(m?SX_SHIN[m[1]]+(m[2]?" "+m[2]:""):""),ja:t,chip:"🚄"};}
-function sxLineName(l){const sh=sxShin(l);if(sh)return sh.name.trim()+(sh.ja?" · "+sh.ja:"");const n=(l.routeLongName||"").trim(),s=(l.routeShortName||"").trim();return (n||s||l.agencyName||"รถไฟ")+(l.lineJa&&l.lineJa!==n?" · "+l.lineJa:"");}
+const sxNoNum=t=>/^\d{4,}$/.test((t||"").trim())?"":(t||"").trim();
+function sxLineName(l){const sh=sxShin(l);if(sh)return sh.name.trim()+(sh.ja?" · "+sh.ja:"");const n=sxNoNum(l.routeLongName),s=sxNoNum(l.routeShortName);if(!n&&!s&&l.agencyName)return l.agencyName+(l.lineJa&&!/^\d+$/.test(l.lineJa)?" · "+l.lineJa:"");return (n||s||l.agencyName||"รถไฟ")+(l.lineJa&&l.lineJa!==n?" · "+l.lineJa:"");}
 function sxCode(s){return s.stopCode&&/^[A-Z]{1,3}\d{1,3}$/.test(s.stopCode)?'<span class="sx-code">'+esc(s.stopCode)+'</span>':"";}
 function sxStn(s,cls,note){
   return '<li class="sx-st '+(cls||"")+'"><span class="sx-dot"></span><div class="sx-nm"><b>'+esc(s.th||s.en||s.ja)+'</b>'+sxCode(s)+
@@ -2184,7 +2186,8 @@ function sxItHTML(it){
   it.legs.forEach((l,i)=>{
     if(l.mode==="WALK"){
       const prev=it.legs[i-1],next=it.legs[i+1];if(!prev||!next)return;
-      const samePar=l.from.parentId&&l.from.parentId===l.to.parentId,diffCo=prev.agencyName!==next.agencyName;
+      const sameName=(l.from.en||"").toLowerCase().replace(/[^a-z]/g,"")===(l.to.en||"").toLowerCase().replace(/[^a-z]/g,"")&&!!l.from.en;
+      const samePar=(l.from.parentId&&l.from.parentId===l.to.parentId)||sameName,diffCo=prev.agencyName!==next.agencyName;
       h+='<li class="sx-walk"><div class="sx-wk">🔁 <b>เปลี่ยนสาย</b> · เดิน ~'+Math.max(1,Math.round(l.duration/60))+' นาที<br>'+
         (samePar?'อยู่ในสถานีเดียวกัน ตามป้าย <b lang="ja">乗換</b> / <b>Transfer</b> ไปยัง <b style="color:'+sxCol(next)+'">'+esc(sxLineName(next))+'</b>'+(next.from.stopCode?' (ชานชาลารหัส '+esc(next.from.stopCode)+')':''):
           'เดินจาก<b>สถานี '+esc(l.from.th||l.from.en)+'</b> ไป<b>สถานี '+esc(l.to.th||l.to.en)+'</b> (ชื่อสถานีต่างกัน) · มองหาป้าย <b>乗換 / Transfer</b> ก่อน บางที่มีทางเดินเชื่อมใต้ดิน · ถ้าไม่มี ให้ออกจากสถานีแล้วเดินบนถนน ดูทางออก/ลิฟต์ด้านล่าง')+
@@ -2193,7 +2196,7 @@ function sxItHTML(it){
       return;
     }
     const c=sxCol(l),mid=l.intermediateStops||[],n=mid.length+1;
-    h+='<li class="sx-leg" style="--c:'+c+'"><div class="sx-lh"><span class="sx-chip" style="background:'+c+'">'+esc(sxShin(l)?"🚄":(l.routeShortName||l.displayName||"🚆"))+'</span> <b>'+esc(sxLineName(l))+'</b>'+
+    h+='<li class="sx-leg" style="--c:'+c+'"><div class="sx-lh"><span class="sx-chip" style="background:'+c+'">'+esc(sxShin(l)?"🚄":(sxNoNum(l.routeShortName)||sxNoNum(l.displayName)||(/SUBWAY|METRO/.test(l.mode||"")?"🚇":"🚆")))+'</span> <b>'+esc(sxLineName(l))+'</b>'+
       '<div class="muted">'+esc(l.agencyName||"")+' · มุ่งหน้า <b>'+esc(sxHead(l).to)+'</b>'+(l.headJa?' (<span lang="ja">'+esc(l.headJa.replace(/^[（(【].*?[)）】]\s*/,""))+'</span>)':"")+(!sxShin(l)&&sxHead(l).ty?' · รถ'+esc(sxHead(l).ty):"")+' · นั่ง <b>'+n+' สถานี</b> ~'+Math.round(l.duration/60)+' นาที</div>'+(sxShin(l)?'<div class="sx-shin">🎫 ชินคันเซ็นต้องมี<b>ตั๋วชินคันเซ็น</b> (ซื้อที่เครื่อง/เคาน์เตอร์ JR หรือแอป เช่น smartEX) · บัตร IC อย่างเดียวมักผ่านประตูชินคันเซ็นไม่ได้ · ใช้ JR Pass ได้แต่ Nozomi/Mizuho ต้องจ่ายเพิ่ม</div>':'')+'</div><ul class="sx-sts">'+
       sxStn(l.from,"on","🟢 ขึ้นรถที่นี่ · ออก "+hhmm(l.startTime)+(l.from.track?" · ชานชาลา "+esc(l.from.track):""))+
       (mid.length>6?mid.slice(0,2).map(s=>sxStn(s,"mid")).join("")+'<li class="sx-more"><details><summary>ผ่านอีก '+(mid.length-4)+' สถานี ▾</summary><ul class="sx-sts">'+mid.slice(2,-2).map(s=>sxStn(s,"mid")).join("")+'</ul></details></li>'+mid.slice(-2).map(s=>sxStn(s,"mid")).join(""):mid.map(s=>sxStn(s,"mid")).join(""))+
@@ -2304,13 +2307,13 @@ async function sxSearch(end){
   catch(e){SX.res[end]=[];SX.res[end].msg="ค้นหาไม่สำเร็จ (ต้องใช้เน็ต) ลองใหม่อีกครั้ง";}
   renderSt();
 }
-async function sxRoute(){
+async function sxRoute(quiet){
   if(!SX.a||!SX.d.length){toast("เลือกสถานีต้นทางและปลายทางก่อน");return;}
   const pts=[SX.a,...SX.d];
   for(let i=1;i<pts.length;i++)if(pts[i].id===pts[i-1].id){toast("ลำดับที่ "+i+" กับจุดก่อนหน้าเป็นสถานีเดียวกัน");return;}
   SX.busy=true;SX.err="";SX.segs=[];renderSt();
   const rank=its=>its.sort((x,y)=>(x.legs.filter(l=>l.mode!=="WALK").length-y.legs.filter(l=>l.mode!=="WALK").length)*600+(x.duration-y.duration)).slice(0,3);
-  const res=await Promise.all(pts.slice(1).map((to,i)=>sxPlan(pts[i],to).then(its=>({from:pts[i],to,its:rank(its),sel:0,err:its.length?"":"ไม่พบเส้นทางรถไฟช่วงนี้ในข้อมูลตอนนี้ (บางสาย/บางเวลาอาจไม่มีข้อมูล)"}),()=>({from:pts[i],to,its:[],sel:0,err:"หาเส้นทางช่วงนี้ไม่สำเร็จ (ต้องใช้เน็ต) ลองใหม่"}))));
+  const res=[];for(let i=0;i<pts.length-1;i++){const to=pts[i+1];res.push(await sxPlan(pts[i],to).then(its=>({from:pts[i],to,its:rank(its),sel:0,err:its.length?"":"ไม่พบเส้นทางรถไฟช่วงนี้ในข้อมูลตอนนี้ (บางสาย/บางเวลาอาจไม่มีข้อมูล)"}),()=>({from:pts[i],to,its:[],sel:0,err:"หาเส้นทางช่วงนี้ไม่สำเร็จ (ต้องใช้เน็ต) ลองใหม่"})));}
   SX.segs=res;
   if(res.every(g=>!g.its.length))SX.err=res.length>1?"หาเส้นทางไม่ได้เลยสักช่วง (ต้องใช้เน็ต หรือไม่มีข้อมูล) ลองใหม่อีกครั้ง":res[0].err+' · ลองกด <a href="https://www.google.com/maps/dir/?api=1&origin='+SX.a.la+','+SX.a.lo+'&destination='+SX.d[0].la+','+SX.d[0].lo+'&travelmode=transit" target="_blank" rel="noopener">เทียบกับ Google Maps ↗</a>';
   const rec={a:SX.a,d:SX.d.slice()},key=r=>[r.a.id].concat((r.d||[r.b]).map(x=>x.id)).join(">");
@@ -2318,7 +2321,7 @@ async function sxRoute(){
   const r0=SX.recent[0],sameTrip=r0&&r0.a.id===rec.a.id&&Date.now()-(SX.recT||0)<10*60e3;
   SX.recent=[rec,...SX.recent.slice(sameTrip?1:0).filter(r=>key(r)!==key(rec))].slice(0,5);SX.recT=Date.now();store.set("sx_recent",SX.recent);
   SX.busy=false;renderSt();
-  const o=$("#sxOut");if(o)o.scrollIntoView({behavior:"smooth",block:"start"});
+  const o=$("#sxOut");if(o&&!quiet)o.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function sxSet(end,s){
   if(end==="a"){SX.a=s;store.set("sx_a",s);}

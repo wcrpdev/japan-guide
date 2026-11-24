@@ -67,7 +67,7 @@ html[data-big] header.top{position:static}
 .chips::-webkit-scrollbar{display:none}
 #stView{display:grid;gap:12px}
 .sx-form h3{margin:0 0 8px}.sx-end{display:grid;gap:6px}.sx-lbl{font-size:.82rem;font-weight:700}
-.sx-in{display:flex;gap:6px}.sx-in[hidden]{display:none}.sx-in input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font:inherit;background:var(--surface);color:var(--ink)}
+#stView{grid-template-columns:minmax(0,1fr)}.sx-form{grid-template-columns:minmax(0,1fr)}.sx-in input{width:0}#stView .tbox{min-width:0}.sx-chips{flex-wrap:wrap}.sx-in>.btn{flex:none;white-space:nowrap}.sx-in{display:flex;gap:6px}.sx-brbtn{display:block;width:100%;margin-top:6px;text-align:left;border:1px dashed var(--line);background:var(--surface);color:var(--accent);border-radius:10px;padding:8px 10px;font:inherit;font-size:.88rem;font-weight:600;cursor:pointer}.sx-brbtn[aria-expanded="true"]{border-style:solid;background:var(--bg)}#sxBxA[hidden],#sxBxB[hidden],.sx-br[hidden],.sx-brrow[hidden]{display:none}.sx-br{margin-top:6px;border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--bg)}.sx-brsel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}.sx-brsel label{min-width:0}.sx-brsel select{min-width:0;max-width:100%;text-overflow:ellipsis}.sx-br,.sx-brl{min-width:0;max-width:100%}.sx-brcity .sx-brrow{width:100%;margin-top:4px}.sx-brrow{min-width:0}.sx-brsel label{display:grid;gap:2px;font-size:.75rem;color:var(--muted)}.sx-brsel select,.sx-brq{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px;font:inherit;font-size:.9rem;background:var(--surface);color:var(--ink)}.sx-brq{margin-top:6px}.sx-brl{max-height:52vh;overflow:auto;margin-top:6px;display:grid;gap:4px;overscroll-behavior:contain}.sx-brh{position:sticky;top:0;background:var(--bg);font-size:.8rem;font-weight:700;color:var(--muted);padding:6px 2px 2px;z-index:1}.sx-brrow{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:7px 9px;font:inherit;cursor:pointer}.sx-brn{display:grid;min-width:0}.sx-brn .sx-sub{font-size:.75rem}.sx-codes{display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;max-width:48%}.sx-cc{font-style:normal;font-size:.68rem;font-weight:700;border:1.5px solid var(--c,#8a8f98);color:var(--ink);border-radius:5px;padding:0 4px;line-height:1.5;background:var(--surface)}.sx-brmsg{font-size:.82rem;color:var(--muted);padding:6px 2px}.sx-brcity{border:1px solid var(--line);border-radius:10px;background:var(--surface)}.sx-brcity>summary{cursor:pointer;padding:9px 10px}.sx-brcity[open]{padding:0 6px 6px}.sx-brcity[open]>summary{padding:9px 4px}.sx-brfoot{font-size:.72rem;color:var(--muted);margin:6px 2px 0}.sx-in[hidden]{display:none}.sx-in input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font:inherit;background:var(--surface);color:var(--ink)}
 .sx-swap{justify-self:start;margin:6px 0}
 .sx-res{list-style:none;margin:2px 0;padding:0;display:grid;gap:4px}.sx-res button{width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 10px;display:grid;gap:1px;cursor:pointer;font:inherit}
 .sx-sub{font-size:.78rem;color:var(--muted)}
@@ -620,10 +620,12 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px;text-align:center}
       <h3>🚉 นั่งรถไฟจากสถานีไหน ไปสถานีไหน</h3>
       <div class="sx-end"><div class="sx-lbl">🟢 ต้นทาง</div>
         <div class="sx-in" id="sxInA"><input id="sxQA" type="search" placeholder="เช่น Shinjuku · 新宿 · ชินจูกุ" autocomplete="off" enterkeyhint="search" aria-label="สถานีต้นทาง"><button type="button" class="btn" id="sxGoA">ค้นหา</button><button type="button" class="btn" id="sxNear">📍 ใกล้ฉัน</button></div>
+        <div id="sxBxA"><button type="button" class="sx-brbtn" id="sxBrBtnA" data-sxbrowse="a" aria-expanded="false">📋 เลือกจากรายการ: เมือง › ย่าน › สถานี</button><div class="sx-br" id="sxBrA" hidden></div></div>
         <div id="sxPickA"></div></div>
       <button type="button" class="linkbtn sx-swap" id="sxSwap">⇅ สลับ</button>
       <div class="sx-end"><div class="sx-lbl">🔴 ปลายทาง</div>
         <div class="sx-in" id="sxInB"><input id="sxQB" type="search" placeholder="เช่น Asakusa · 浅草 · อาซากุสะ" autocomplete="off" enterkeyhint="search" aria-label="สถานีปลายทาง"><button type="button" class="btn" id="sxGoB">ค้นหา</button></div>
+        <div id="sxBxB"><button type="button" class="sx-brbtn" id="sxBrBtnB" data-sxbrowse="b" aria-expanded="false">📋 เลือกจากรายการ: เมือง › ย่าน › สถานี</button><div class="sx-br" id="sxBrB" hidden></div></div>
         <div id="sxPickB"></div></div>
       <details class="sx-popd"><summary>⭐ สถานียอดนิยม (แตะเพื่อเลือก)</summary><div class="sx-chips" id="sxPop"></div></details>
       <div class="sx-chips" id="sxRecent"></div>
@@ -2240,7 +2242,7 @@ function sxPickHTML(end){
 }
 function renderSt(){
   $("#sxPickA").innerHTML=sxPickHTML("a");$("#sxPickB").innerHTML=sxPickHTML("b");
-  $("#sxInA").hidden=!!SX.a;$("#sxInB").hidden=!!SX.b;
+  $("#sxInA").hidden=!!SX.a;$("#sxInB").hidden=!!SX.b;$("#sxBxA").hidden=!!SX.a;$("#sxBxB").hidden=!!SX.b;
   $("#sxRecent").innerHTML=SX.recent.length?'<span class="muted">ล่าสุด:</span>'+SX.recent.map((r,i)=>'<button type="button" class="chip" data-sxrec="'+i+'">'+esc(r.a.th||r.a.en)+' → '+esc(r.b.th||r.b.en)+'</button>').join(""):"";
   $("#sxPop").innerHTML=SX_POP.slice(0,24).map((p,i)=>'<button type="button" class="chip" data-sxpop="'+i+'">'+esc(p[0])+'</button>').join("");
   const o=$("#sxOut");
@@ -2307,6 +2309,105 @@ addEventListener("scroll",()=>{if(tk)return;tk=requestAnimationFrame(()=>{tk=0;c
   if(!B.classList.contains("mini")){if(y>300&&dy>6){B.classList.add("mini");lock=now+450;}}
   else if(y<60||up>140){B.classList.remove("mini");lock=now+450;}
   lastY=y;});},{passive:true});}
+const STN_TREE=[["โตเกียว","Tokyo",[["ชินจูกุ",35.69,139.7003,1.0],["ชิบุยะ",35.658,139.7016,1.0],["ฮาราจุกุ",35.6702,139.7027,1.0],["อาซากุสะ",35.711,139.7964,1.0],["อุเอโนะ",35.7138,139.7773,1.0],["อากิฮาบาระ",35.6984,139.7731,1.0],["กินซ่า",35.6717,139.765,1.0],["สึกิจิ",35.6655,139.7707,1.0],["มารุโนะอุจิ",35.6812,139.7671,1.0],["รปปงงิ",35.6628,139.7314,1.0],["เอบิสึ",35.6467,139.7101,1.0],["อิเคบุคุโระ",35.7295,139.7109,1.0],["โอไดบะ",35.6267,139.775,1.0],["โทโยสุ",35.655,139.796,1.0],["โอชิอาเกะ",35.7101,139.8107,1.0],["ชิโมคิตะซาวะ",35.6613,139.668,1.0],["สึกิชิมะ",35.6627,139.7835,1.0],["ชินางาวะ",35.6285,139.7387,1.0],["โอตะ",35.5613,139.716,1.4],["มินาโตะ",35.6581,139.7516,1.4],["ยานากะ",35.7203,139.761,1.0],["นากาโนะ",35.7074,139.6638,1.2],["เมกุโระ",35.6339,139.7157,1.2],["โคโตะ",35.6727,139.8174,1.4],["คาบุกิโจ",35.694,139.703,1.0],["สนามบินฮาเนดะ",35.5494,139.7798,1.2],["สนามบินนาริตะ",35.772,140.3929,1.2]]],["โอซาก้า","Osaka",[["นัมบะ",34.666,135.501,1.0],["อุเมดะ",34.7025,135.4959,1.0],["เทนโนจิ",34.6466,135.513,1.0],["ปราสาทโอซาก้า",34.6873,135.5262,1.0],["เบย์แอเรีย",34.6654,135.4323,1.0],["สนามบินคันไซ",34.432,135.2304,1.2],["สนามบินอิตามิ",34.7855,135.4382,1.2]]],["เกียวโต","Kyoto",[["กิออน",35.0037,135.775,1.2],["ฮิงาชิยามะ",34.996,135.781,1.2],["อาราชิยามะ",35.0094,135.667,1.2],["ฟุชิมิ",34.9671,135.7727,1.2],["สถานีเกียวโต",34.9858,135.7588,1.2],["ใจกลางเกียวโต",35.005,135.7648,1.2],["ซาเคียว",35.02,135.7945,1.2],["คินคะคุจิ",35.0394,135.7292,1.2]]],["โยโกฮามะ","Yokohama",[["สถานีโยโกฮามะ",35.4658,139.6223,1.0],["มินาโตะมิไร",35.4573,139.6325,1.0],["คันไน/ไชน่าทาวน์",35.4437,139.639,1.0]]],["นาโกย่า","Nagoya",[["สถานีนาโกย่า",35.1709,136.8815,1.0],["ซาคาเอะ",35.17,136.9083,1.0],["ปราสาทนาโกย่า",35.1856,136.8996,1.0],["สนามบินชูบุ",34.8584,136.8054,1.2]]],["โกเบ","Kobe",[["ซันโนะมิยะ",34.6946,135.1957,1.0],["สถานีโกเบ/ฮาร์เบอร์แลนด์",34.6797,135.1781,1.0]]],["นารา","Nara",[["ใจกลางนารา",34.6845,135.832,1.5]]],["ฮิโรชิมะ","Hiroshima",[["สถานีฮิโรชิมะ",34.3973,132.4753,1.0],["สวนสันติภาพ/ฮัตโจโบริ",34.394,132.457,1.2],["มิยาจิมะ",34.2959,132.3199,2.0]]],["ฟุกุโอกะ","Fukuoka",[["ฮากาตะ",33.59,130.41,1.0],["เท็นจิน",33.59,130.399,1.0],["ดาไซฟุ",33.5215,130.5349,1.0],["สนามบินฟุกุโอกะ",33.5859,130.4507,1.0]]],["ซัปโปโร","Sapporo",[["สถานีซัปโปโร",43.0687,141.3508,1.0],["โอโดริ/ซุซุกิโนะ",43.058,141.353,1.0],["สนามบินชิโตเสะ",42.7752,141.6923,1.2]]],["คานาซาวะ","Kanazawa",[["สถานีคานาซาวะ",36.5781,136.6478,1.5]]],["ฮาโกดาเตะ","Hakodate",[["ใจกลางฮาโกดาเตะ",41.774,140.726,2.0]]],["โอตารุ","Otaru",[["ใจกลางโอตารุ",43.199,141.002,1.5]]],["คามาคุระ","Kamakura",[["ใจกลางคามาคุระ",35.319,139.55,1.8]]],["ฮาโกเนะ","Hakone",[["ฮาโกเนะ",35.2324,139.105,2.5]]],["คาวากุจิโกะ (ฟูจิ)","Kawaguchiko",[["คาวากุจิโกะ",35.498,138.768,2.0]]],["นิกโก","Nikko",[["ใจกลางนิกโก",36.75,139.6,2.0]]],["โอกินาว่า","Okinawa",[["นาฮะ (โมโนเรล)",26.2125,127.681,2.5],["สนามบินนาฮะ",26.2058,127.6466,1.0]]]];
+/* ---------- เลือกสถานีจากรายการ เมือง › ย่าน › สถานี (ข้อมูลจริงจาก Transitous map/stops) ---------- */
+const SXB={open:{a:false,b:false},city:{a:store.get("sxb_city")??0,b:store.get("sxb_city")??0},area:{a:"",b:""},q:{a:"",b:""},mem:{},busy:{},byKey:{}};
+const SX_CODECOL={G:"#ff9500",M:"#f62e36",Mb:"#f62e36",H:"#b5b5ac",T:"#009bbf",C:"#00bb85",Y:"#c1a470",Z:"#8f76d6",N:"#00ac9b",F:"#9c5e31",A:"#e85298",I:"#0079c2",S:"#6cbb5a",E:"#b6007a",JY:"#80c241",JC:"#f15a22",JB:"#ffd400",JK:"#00b2e5",JA:"#00ac9a",JS:"#e21f26",JT:"#f68b1e",JO:"#0070b9",JU:"#f68b1e",JJ:"#1daed1",JE:"#c9252f",JL:"#00b261",JN:"#ffd400",KS:"#1e50a2",TY:"#da0442",DT:"#20a288",OH:"#2288cc",KO:"#dd0077",IN:"#4b0082",SS:"#f8a800",SI:"#f8a800",TJ:"#0f3d86",TS:"#0f3d86",MO:"#e3007f",U:"#27408b",R:"#00418e",TX:"#2e3192",KK:"#00bfff"};
+function sxCodeChip(c){const p=(c.match(/^[A-Z][A-Za-z]?(?=\d)|^[A-Z]+/)||[""])[0],col=SX_CODECOL[p]||SX_CODECOL[p[0]]||"#8a8f98";return '<i class="sx-cc" style="--c:'+col+'">'+esc(c)+'</i>';}
+function sxSplitName(n){n=(n||"").trim();const m=n.match(/^([^A-Za-z]*[　-鿿＀-￯][^A-Za-z]*?)\s+([A-Za-z].*)$/);if(m)return {ja:m[1].trim(),en:m[2].trim()};return /[A-Za-z]/.test(n)&&!/[぀-鿿]/.test(n)?{en:n,ja:""}:{en:"",ja:n};}
+async function sxStopsArea(la,lo,r){
+  const key=la.toFixed(4)+","+lo.toFixed(4)+","+r;
+  if(SXB.mem[key])return SXB.mem[key];
+  const c=store.get("stn_"+key);if(c&&c.t&&Date.now()-c.t<7*864e5&&Array.isArray(c.d)){SXB.mem[key]=c.d;return c.d;}
+  const dla=r/111,dlo=r/(111*Math.cos(la*Math.PI/180)),bb="min="+(la-dla).toFixed(5)+","+(lo-dlo).toFixed(5)+"&max="+(la+dla).toFixed(5)+","+(lo+dlo).toFixed(5);
+  const [en,ja]=await Promise.all([sxGet("/v1/map/stops?"+bb+"&language=en"),sxGet("/v1/map/stops?"+bb+"&language=ja").catch(()=>[])]);
+  const JA={};(ja||[]).forEach(s=>JA[s.stopId]=s.name);
+  const G=new Map();
+  (en||[]).forEach(s=>{
+    if(!(s.modes||[]).some(m=>SX_RAIL.test(m)))return;
+    const k=s.parentId||s.stopId,n1=sxSplitName(s.name),n2=sxSplitName(JA[s.stopId]||"");
+    let g=G.get(k);if(!g){g={id:k,en:"",ja:"",la:s.lat,lo:s.lon,codes:[],modes:[],lines:[]};G.set(k,g);}
+    g.en=g.en||sxTitle(n1.en||n2.en||"");g.ja=g.ja||sxJa(n2.ja||n1.ja||"");
+    if(s.stopCode&&!g.codes.includes(s.stopCode))g.codes.push(s.stopCode);
+    (s.modes||[]).forEach(m=>{if(!g.modes.includes(m))g.modes.push(m);});
+    const lm=/^jp-tokyo-rail_([^.]+)\.([^.]+)\./.exec(s.stopId);if(lm&&!g.lines.includes(lm[2]))g.lines.push(lm[2]);
+  });
+  /* ฟีดทั่วประเทศซ้ำกับฟีดโตเกียว: รวมเป็นสถานีเดียว (ชื่อเดียวกัน ห่างไม่เกิน 400 ม.) */
+  const out=[];
+  [...G.values()].sort((x,y)=>(/tokyo-rail/.test(y.id)?1:0)-(/tokyo-rail/.test(x.id)?1:0)).forEach(g=>{
+    if(!g.en&&!g.ja)return;
+    const d=out.find(o=>dist(o.la,o.lo,g.la,g.lo)<0.4&&(o.ja&&o.ja===g.ja||o.en&&g.en&&o.en.toLowerCase()===g.en.toLowerCase()));
+    if(d){d.ja=d.ja||g.ja;d.en=d.en||g.en;g.codes.forEach(c=>{if(!d.codes.includes(c))d.codes.push(c);});g.modes.forEach(m=>{if(!d.modes.includes(m))d.modes.push(m);});return;}
+    out.push(g);
+  });
+  out.forEach(g=>{g.ja=g.ja||sxPopJa(g.en);g.th=sxThai(g.en,g.ja);g.d=dist(la,lo,g.la,g.lo);g.codes.sort();});
+  out.sort((x,y)=>x.d-y.d);
+  const res=out.map(({id,en,ja,th,la,lo,codes,modes,d})=>({id,en,ja,th,la,lo,codes,modes,d:Math.round(d*1000)}));
+  SXB.mem[key]=res;store.set("stn_"+key,{t:Date.now(),d:res});
+  return res;
+}
+/* จำกัดการโหลดพร้อมกัน 4 ย่าน */
+let sxbRun=0;const sxbQ=[];
+function sxbLoad(ci,ai,cb){const [n,la,lo,r]=STN_TREE[ci][2][ai],k=ci+"/"+ai;
+  const key=la.toFixed(4)+","+lo.toFixed(4)+","+r;if(SXB.mem[key])return SXB.mem[key];
+  if(SXB.busy[k]==="err")return "err";
+  if(!SXB.busy[k]){SXB.busy[k]=1;sxbQ.push(()=>sxStopsArea(la,lo,r).then(()=>{delete SXB.busy[k];},()=>{SXB.busy[k]="err";}).finally(()=>{sxbRun--;sxbPump();cb();}));sxbPump();}
+  return null;}
+function sxbPump(){while(sxbRun<4&&sxbQ.length){sxbRun++;sxbQ.shift()();}}
+function sxbRows(end,list,ci,ai,seen){
+  return list.filter(s=>{if(seen){if(seen.has(s.id))return false;seen.add(s.id);}return true;}).map(s=>{
+    const key=s.id+"@"+ci+"/"+ai;SXB.byKey[key]={s,ci,ai};
+    const codes=s.codes.slice(0,8).map(sxCodeChip).join("")+(s.codes.length>8?'<i class="sx-cc">+'+(s.codes.length-8)+'</i>':"");
+    return '<button type="button" class="sx-brrow" data-sxbpick="'+end+'" data-k="'+esc(key)+'" data-f="'+esc((s.th+" "+s.en+" "+s.ja).toLowerCase())+'"><span class="sx-brn"><b>'+esc(s.th||s.en||s.ja)+'</b><span class="sx-sub">'+esc(s.en||"")+(s.ja?' · <span lang="ja">'+esc(s.ja)+'</span>':"")+'</span></span><span class="sx-codes">'+codes+'</span></button>';}).join("");
+}
+function sxbAreaBlock(end,ci,ai,seen,showHead){
+  const a=STN_TREE[ci][2][ai],r=sxbLoad(ci,ai,()=>sxbList(end));
+  const head=showHead?'<div class="sx-brh">📍 '+esc(a[0])+'</div>':"";
+  if(r==="err")return head+'<div class="sx-brmsg">โหลดไม่สำเร็จ (ต้องใช้เน็ต) <button type="button" class="linkbtn" data-sxbretry="'+ci+'/'+ai+'" data-end="'+end+'">ลองใหม่</button></div>';
+  if(!r)return head+'<div class="sx-brmsg">⏳ กำลังโหลดสถานี…</div>';
+  const rows=sxbRows(end,r,ci,ai,seen);
+  return rows?head+rows:(showHead?"":'<div class="sx-brmsg">ไม่พบสถานีรถไฟในย่านนี้</div>');
+}
+function sxbList(end){
+  const L=$("#sxBrL"+end.toUpperCase());if(!L||!SXB.open[end])return;
+  const ci=SXB.city[end],ai=SXB.area[end];let h="";
+  if(ci===""){h=STN_TREE.map((c,i)=>'<details class="sx-brcity" data-sxbcity="'+i+'"'+(SXB.cityOpen&&SXB.cityOpen[end+i]?" open":"")+'><summary><b>'+esc(c[0])+'</b> <span class="sx-sub">'+esc(c[1])+' · '+c[2].length+' ย่าน</span></summary>'+
+      (SXB.cityOpen&&SXB.cityOpen[end+i]?(()=>{const seen=new Set();return c[2].map((_,j)=>sxbAreaBlock(end,i,j,seen,true)).join("");})():"")+'</details>').join("");}
+  else if(ai===""){const seen=new Set(),ar=STN_TREE[ci][2];h=ar.map((_,j)=>sxbAreaBlock(end,+ci,j,seen,true)).join("");
+    if(ar.every((_,j)=>SXB.busy[ci+"/"+j]==="err"))h='<div class="sx-brmsg">โหลดรายชื่อสถานีไม่สำเร็จ (ต้องใช้เน็ต) <button type="button" class="linkbtn" data-sxbretryall="'+ci+'" data-end="'+end+'">ลองใหม่</button></div>';}
+  else h=sxbAreaBlock(end,+ci,+ai,null,false);
+  L.innerHTML=h;sxbFilter(end);
+}
+function sxbFilter(end){const L=$("#sxBrL"+end.toUpperCase());if(!L)return;const q=(SXB.q[end]||"").trim().toLowerCase();
+  L.querySelectorAll(".sx-brrow").forEach(b=>b.hidden=!!q&&!b.dataset.f.includes(q));}
+function sxbRender(end){
+  const box=$("#sxBr"+end.toUpperCase());if(!box)return;box.hidden=!SXB.open[end];
+  $("#sxBrBtn"+end.toUpperCase()).setAttribute("aria-expanded",SXB.open[end]);
+  if(!SXB.open[end]){box.innerHTML="";return;}
+  const ci=SXB.city[end];
+  box.innerHTML='<div class="sx-brsel"><label><span>เมือง</span><select data-sxbc="'+end+'"><option value="">🗾 ทั้งหมด (ทุกเมือง)</option>'+STN_TREE.map((c,i)=>'<option value="'+i+'"'+(String(ci)===String(i)?" selected":"")+'>'+esc(c[0])+'</option>').join("")+'</select></label>'+
+    '<label><span>ย่าน</span><select data-sxba="'+end+'"'+(ci===""?" disabled":"")+'><option value="">ทั้งเมือง (ทุกย่าน)</option>'+(ci===""?"":STN_TREE[ci][2].map((a,j)=>'<option value="'+j+'"'+(String(SXB.area[end])===String(j)?" selected":"")+'>'+esc(a[0])+'</option>').join(""))+'</select></label></div>'+
+    '<input type="search" class="sx-brq" data-sxbq="'+end+'" placeholder="กรองชื่อสถานีในรายการ…" value="'+esc(SXB.q[end]||"")+'" autocomplete="off">'+
+    '<div class="sx-brl" id="sxBrL'+end.toUpperCase()+'"></div>'+
+    '<p class="sx-brfoot">รหัสสีคือสาย/สถานีที่จอด (เช่น JY = JR Yamanote) · รายชื่อจากข้อมูลผู้ให้บริการผ่าน Transitous</p>';
+  sxbList(end);
+}
+$("#stView").addEventListener("change",e=>{const t=e.target;
+  if(t.dataset.sxbc){const end=t.dataset.sxbc;SXB.city[end]=t.value===""?"":+t.value;SXB.area[end]="";store.set("sxb_city",SXB.city[end]);sxbRender(end);}
+  else if(t.dataset.sxba){const end=t.dataset.sxba;SXB.area[end]=t.value===""?"":+t.value;sxbList(end);}
+});
+$("#stView").addEventListener("input",e=>{const t=e.target;if(t.dataset.sxbq){SXB.q[t.dataset.sxbq]=t.value;sxbFilter(t.dataset.sxbq);}});
+$("#stView").addEventListener("toggle",e=>{const d=e.target;if(!d.classList||!d.classList.contains("sx-brcity"))return;const L=d.closest(".sx-brl"),end=L&&L.id.slice(-1).toLowerCase();if(!end)return;
+  SXB.cityOpen=SXB.cityOpen||{};const was=!!SXB.cityOpen[end+d.dataset.sxbcity];SXB.cityOpen[end+d.dataset.sxbcity]=d.open;if(was!==d.open)sxbList(end);},true);
+$("#stView").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.sxbrowse){const end=t.dataset.sxbrowse;SXB.open[end]=!SXB.open[end];sxbRender(end);return;}
+  if(t.dataset.sxbretryall!=null){const ci=t.dataset.sxbretryall;STN_TREE[ci][2].forEach((_,j)=>delete SXB.busy[ci+"/"+j]);sxbList(t.dataset.end);return;}
+  if(t.dataset.sxbretry){const [ci,ai]=t.dataset.sxbretry.split("/");delete SXB.busy[ci+"/"+ai];sxbList(t.dataset.end);return;}
+  if(t.dataset.sxbpick){const end=t.dataset.sxbpick,o=SXB.byKey[t.dataset.k];if(!o)return;const s=o.s,c=STN_TREE[o.ci];
+    SXB.open[end]=false;sxbRender(end);
+    sxSet(end,{id:s.id,en:s.en,ja:s.ja,th:s.th,la:s.la,lo:s.lo,modes:s.modes,area:c[0]+" · "+c[2][o.ai][0]});}
+});
+
 /* ---------- events ---------- */
 const OLD_TAB={f:"food",s:"sight",h:"hotel",n:"conv"};
 /* preset = ทางลัดไปหมวดเดียว (เช่น ห้องน้ำ) แตะซ้ำหรือกด "สำรวจ" = กลับไปหมวดที่เลือกไว้ก่อนหน้า */

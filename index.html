@@ -849,7 +849,6 @@ HOSP.forEach(([n,j,la,lo,a,tel,er,note])=>PLACES.push({id:PLACES.length,t:"m",c:
 /* ---------- จุดถ่ายรูปเพิ่มเติม คัดจากคู่มือ/รีวิวถ่ายภาพหลายแหล่ง (พ.ย. 2026) ---------- */
 const PHOTOSPOTS=[
 ["ศาลเจ้าฮิเอะ อุโมงค์โทริอิ","日枝神社 山王鳥居",35.6743,139.7396,"อากาซากะ, โตเกียว","บันไดใต้อุโมงค์โทริอิแดงกลางเมือง ได้ฟีลฟุชิมิอินาริแต่คนน้อยกว่ามาก"],
-["โอโมอิเดะโยโกโจ","思い出横丁",35.6930,139.6994,"ชินจูกุ, โตเกียว","ซอยร้านยากิโทริเล็กๆ โคมแดงเรียงแน่น บรรยากาศโตเกียวยุคโชวะ"],
 ["สะพานอาซึมะ (วิวสกายทรี)","吾妻橋",35.7106,139.7988,"อาซากุสะ, โตเกียว","สะพานแดงที่เห็นโตเกียวสกายทรีคู่ตึกอาซาฮีไอคอนิก"],
 ["วัดโซโจจิ + โตเกียวทาวเวอร์","増上寺",35.6575,139.7484,"ชิบะ, โตเกียว","วัดเก่าที่มีโตเกียวทาวเวอร์ตั้งตระหง่านด้านหลัง ภาพเก่า-ใหม่ในเฟรมเดียว"],
 ["สะพานฮิจิริ (รถไฟ 3 สาย)","聖橋",35.7006,139.7650,"โอชาโนมิซึ, โตเกียว","จุดที่เห็นรถไฟสายมารุโนะอุจิสีแดงโผล่จากอุโมงค์ตัดกับรถไฟ JR บนแม่น้ำ"],
@@ -1207,8 +1206,8 @@ function card(x){
   const fav=S.fav.has(x.id),sel=S.sel.has(x.id);
   return '<article class="card'+(S.selMode?' selectable':'')+(sel?' sel':'')+'" id="p'+x.id+'" data-id="'+x.id+'"'+(S.selMode?' role="checkbox" aria-checked="'+sel+'" tabindex="0"':'')+'>'+
     (S.selMode?'<span class="cbx" aria-hidden="true">'+(sel?'✓':'')+'</span>':'')+
-    (PTIP[x.j]?'<div class="thumb pban" data-ph="'+x.id+'"'+(PHOTO[x.id]?' style="background-image:url(\''+esc(PHOTO[x.id])+'\')"':'')+' aria-hidden="true">📸</div>':'')+
-    '<div class="c-top"><div class="c-head">'+(PTIP[x.j]?'':thumbHTML(x))+'<div><div class="c-name">'+(fav?'<span style="color:var(--torii)" title="บันทึกไว้">★ </span>':'')+esc(x.n)+'</div><div class="c-jp" lang="ja">'+esc(x.j)+'</div></div></div>'+
+    (PTIP[x.j]&&photoable(x)?'<div class="thumb pban" data-ph="'+x.id+'"'+(PHOTO[x.id]?' style="background-image:url(\''+esc(PHOTO[x.id])+'\')"':'')+' aria-hidden="true">📸</div>':'')+
+    '<div class="c-top"><div class="c-head">'+(PTIP[x.j]&&photoable(x)?'':thumbHTML(x))+'<div><div class="c-name">'+(fav?'<span style="color:var(--torii)" title="บันทึกไว้">★ </span>':'')+esc(x.n)+'</div><div class="c-jp" lang="ja">'+esc(x.j)+'</div></div></div>'+
     '<div class="dist"><div class="km">'+ARR[di]+' '+fmtKm(x.k)+'</div><div class="walk">'+(x.k<=2.5?"เดิน ~"+walkMin(x.k)+" นาที":"ทาง"+DIRS[di])+'</div></div></div>'+
     '<div class="meta"><span class="tag" style="color:'+cat.c+'">'+cat.l+'</span><span class="area">'+esc(x.a)+'</span>'+(x.p?'<span class="price" title="ระดับราคา">'+x.p+'</span>':'')+'</div>'+
     '<div class="c-desc">'+esc(x.d)+'</div>'+

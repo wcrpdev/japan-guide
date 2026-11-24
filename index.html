@@ -2368,7 +2368,7 @@ async function fetchTransit(from,to){
   const seen=new Set();
   return (j.itineraries||[]).filter(it=>it.legs.some(l=>l.mode!=="WALK")).filter(it=>{
       const k=it.legs.filter(l=>l.mode!=="WALK").map(l=>lineName(l)+l.from.name+l.to.name).join("|");if(seen.has(k))return false;seen.add(k);return true;})
-    .sort((a,b)=>(Date.parse(a.endTime)-Date.parse(b.endTime))||a.transfers-b.transfers).slice(0,4)
+    .sort((a,b)=>(Date.parse(a.endTime)+a.transfers*300e3)-(Date.parse(b.endTime)+b.transfers*300e3)).slice(0,4)
     .map(it=>({dur:it.duration,tr:it.transfers,start:it.startTime,end:it.endTime,legs:it.legs.map(l=>({mode:l.mode,from:l.from.name,to:l.to.name,flat:l.from.lat,flon:l.from.lon,tlat:l.to.lat,tlon:l.to.lon,
       dur:l.duration,dist:l.distance||0,dep:l.startTime,arr:l.endTime,name:l.mode==="WALK"?"":lineName(l),c:l.routeColor?"#"+l.routeColor:null,hs:l.headsign||"",n:(l.intermediateStops||[]).length+1,geom:decodePoly(l.legGeometry)}))}));
 }
@@ -2388,7 +2388,7 @@ function transitHTML(){
   it.legs.forEach((l,i)=>{
     const last=i===it.legs.length-1;
     if(l.mode==="WALK"){
-      if(l.from===l.to||(!l.dist&&i>0&&!last))h+='<li class="walk"><span class="ti">🔁</span><div>เปลี่ยนสายในสถานี <b>'+esc(stName(l.to))+'</b> · ~'+fmtDur(l.dur)+'</div></li>';
+      if(l.from===l.to)h+='<li class="walk"><span class="ti">🔁</span><div>เปลี่ยนสายในสถานี <b>'+esc(stName(l.to))+'</b> · ~'+fmtDur(l.dur)+'</div></li>';
       else h+='<li class="walk"><span class="ti">🚶</span><div>เดิน '+fmtDur(l.dur)+(l.dist?' ('+fmtKm(l.dist/1000)+')':'')+' ไป <b>'+esc(stName(l.to))+'</b></div></li>';
     }else{
       h+='<li class="ride" style="--lc:'+(l.c||"#1F6FA8")+'"><span class="ti">'+(TMODE[l.mode]||"🚆")+'</span><div><span class="lchip">'+esc(l.name)+'</span>'+(l.hs?' <span class="muted">ไปทาง '+esc(stName(l.hs))+'</span>':'')+

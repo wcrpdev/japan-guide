@@ -1520,7 +1520,7 @@ function tabelogHTML(x){
     '<div class="tbl-b">'+(d?'<span>🌙 งบมื้อเย็น <b>'+yenRange(d)+'</b> <small class="muted">≈ '+bahtRange(d)+'</small></span>':'')+(l?'<span>☀️ งบมื้อกลางวัน <b>'+yenRange(l)+'</b> <small class="muted">≈ '+bahtRange(l)+'</small></span>':'')+'</div>'+
     (t[4]?'<div class="tbl-n">ℹ️ '+esc(t[4])+'</div>':'')+
     (t[6]?'<div class="tbl-s">💬 <b>สรุปจากรีวิว:</b> '+esc(t[6])+'</div>':'')+
-    '<div class="tbl-a"><a href="'+tbUrl(x)+'" target="_blank" rel="noopener">หน้าร้าน ↗</a><a href="'+tbUrl(x,"dtlrvwlst/")+'" target="_blank" rel="noopener">รีวิวทั้งหมด ↗</a><a href="'+tbUrl(x,"dtlphotolst/")+'" target="_blank" rel="noopener">รูปอาหาร ↗</a><span class="muted">ข้อมูล ณ '+TBL_DATE+'</span></div></div>';
+    '<div class="tbl-a">'+(t[5]?'<a href="'+tbUrl(x)+'" target="_blank" rel="noopener">หน้าร้าน ↗</a><a href="'+tbUrl(x,"dtlrvwlst/")+'" target="_blank" rel="noopener">รีวิวทั้งหมด ↗</a><a href="'+tbUrl(x,"dtlphotolst/")+'" target="_blank" rel="noopener">รูปอาหาร ↗</a>':'<a href="https://tabelog.com/rstLst/?sw='+encodeURIComponent(x.j)+'" target="_blank" rel="noopener">ค้นร้านใน Tabelog ↗</a>')+'<span class="muted">ข้อมูล ณ '+TBL_DATE+'</span></div></div>';
 }
 function card(x){
   const cat=CAT[x.c],p=S.pos,b=bearing(p.la,p.lo,x.la,x.lo),di=Math.round(b/45)%8;
@@ -1548,7 +1548,7 @@ function card(x){
 /* ================= ร้านค้ารอบตัว: ดึงสดจาก OpenStreetMap (Overpass) ================= */
 let LIVE={st:"",n:0,R:0,la:0,lo:0,seq:0};
 function liveR(){return Math.max(0.3,Math.min(S.radius,2));}
-const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://overpass.private.coffee/api/interpreter"];
+const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
 const BRAND_TH=[[/7-?eleven|セブン-?イレブン/i,"เซเว่น อีเลฟเว่น"],[/natural ?lawson|ナチュラルローソン/i,"เนเชอรัล ลอว์สัน"],[/lawson ?store ?100|ローソンストア100/i,"ลอว์สัน 100 เยน"],[/lawson|ローソン/i,"ลอว์สัน"],[/family ?mart|ファミリーマート/i,"แฟมิลี่มาร์ท"],
  [/ministop|ミニストップ/i,"มินิสต็อป"],[/daily ?yamazaki|デイリーヤマザキ/i,"เดลี่ยามาซากิ"],[/newdays|ニューデイズ/i,"นิวเดย์ส"],[/seico ?mart|セイコーマート/i,"เซโกะมาร์ท"],[/poplar|ポプラ/i,"ป็อปลาร์"],
  [/matsumoto ?kiyoshi|マツモトキヨシ|マツキヨ/i,"มัตสึโมโตะ คิโยชิ"],[/sugi|スギ薬局/i,"ร้านยาสึงิ"],[/welcia|ウエルシア/i,"เวลเซีย"],[/tsuruha|ツルハ/i,"สึรุฮะ"],[/sundrug|サンドラッグ/i,"ซันดรัก"],
@@ -1562,6 +1562,7 @@ function liveItem(e){
   const T=e.tags||{},la=e.lat!=null?e.lat:e.center&&e.center.lat,lo=e.lon!=null?e.lon:e.center&&e.center.lon;if(la==null)return null;
   const all=[T.brand,T["brand:en"],T["brand:ja"],T.name,T["name:en"],T["name:ja"]].filter(Boolean).join(" ");
   let c;
+  if(T.shop==="chemist"&&T.amenity!=="pharmacy"&&T.healthcare!=="pharmacy"&&T.dispensing!=="yes"&&!/薬|ドラッグ|drug|pharm|kusuri/i.test(all)&&!BRAND_TH.slice(10,21).some(([r])=>r.test(all)))return null;/* chemist ใน OSM รวมร้านเครื่องสำอาง (เช่น CHANEL) ตัดทิ้ง */
   if(T.amenity==="pharmacy"||T.shop==="chemist")c="pharm";
   else if(T.shop==="convenience")c="conv";
   else if(T.amenity==="cafe")c=/starbucks|スターバックス/i.test(all)?"sbux":"coffee";
@@ -1588,22 +1589,37 @@ function liveItem(e){
 }
 async function overpass(q){
   for(const ep of OVERPASS){
-    const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),25000);
+    const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),12000);
     try{const r=await fetch(ep,{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"},signal:ctl.signal});
       clearTimeout(t);if(!r.ok)continue;const j=await r.json();if(j&&j.elements)return j.elements;}catch(e){clearTimeout(t);}
   }
   throw new Error("overpass");
 }
+/* สำรอง: ถ้า Overpass ล่ม ใช้ Nominatim ค้นทีละหมวด (จำกัด 1 ครั้ง/วินาทีตามกติกา) */
+const NOMI_Q=[["pharmacy",1],["chemist",1],["convenience store",0.8],["Don Quijote",1],["variety store",1],["department store",1],["Starbucks",1],["cafe",0.7]];
+async function nominatimShops(la,lo,R){
+  const out=[],sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  for(let i=0;i<NOMI_Q.length;i++){
+    const [q,f]=NOMI_Q[i],r=Math.min(R,R*f),dla=r/111,dlo=r/(111*Math.cos(la*Math.PI/180));
+    const u="https://nominatim.openstreetmap.org/search?format=jsonv2&limit=40&bounded=1&extratags=1&namedetails=1&q="+encodeURIComponent(q)+
+      "&viewbox="+[(lo-dlo).toFixed(5),(la+dla).toFixed(5),(lo+dlo).toFixed(5),(la-dla).toFixed(5)].join(",");
+    try{const j=await (await fetch(u)).json();
+      (j||[]).forEach(e=>{const nd=e.namedetails||{},T=Object.assign({},e.extratags||{},nd);T[e.category]=e.type;out.push({lat:+e.lat,lon:+e.lon,tags:T});});}catch(e){}
+    if(i<NOMI_Q.length-1)await sleep(1100);
+  }
+  if(!out.length)throw new Error("nominatim");
+  return out;
+}
 function ensureLive(force){
   const p=S.pos;if(!p)return;const R=liveR();
   if(!force&&LIVE.st&&LIVE.R===R&&dist(p.la,p.lo,LIVE.la,LIVE.lo)<Math.max(0.15,R*0.25))return;
   const seq=++LIVE.seq,Rm=Math.round(R*1000),a=p.la.toFixed(5)+","+p.lo.toFixed(5);
-  Object.assign(LIVE,{st:"loading",R,la:p.la,lo:p.lo});
+  Object.assign(LIVE,{st:"loading",R,la:p.la,lo:p.lo,slow:0});
   const sel=f=>'nwr'+f+'(around:'+Rm+','+a+');';
   const q='[out:json][timeout:25];('+sel('["amenity"="pharmacy"]')+sel('["shop"="chemist"]')+sel('["shop"="convenience"]')+
     sel('["shop"~"^(variety_store|department_store|mall|discount)$"]')+sel('["amenity"="cafe"]')+');out center tags 1500;';
   setTimeout(()=>{if(S.tab==="n")renderTabBox();},0);
-  overpass(q).then(els=>{
+  overpass(q).catch(()=>{LIVE.slow=1;if(S.tab==="n")renderTabBox();return nominatimShops(p.la,p.lo,R);}).then(els=>{
     if(seq!==LIVE.seq)return;
     PLACES.length=BASE_N;const seen=new Set();
     els.forEach(e=>{const x=liveItem(e);if(!x)return;const k=x.c+"|"+x.j+"|"+x.la.toFixed(4)+","+x.lo.toFixed(4);if(seen.has(k))return;seen.add(k);x.id=PLACES.length;PLACES.push(x);});
@@ -1656,7 +1672,7 @@ function renderTabBox(){
       '<p>ต้องใช้เน็ตเพื่อดูห้องว่างและราคาสด · รายการด้านล่างคือโรงแรมที่รีวิวดีใกล้สถานีหลัก (คะแนนและราคาจากเว็บจองปี 2026 ราคาจริงขึ้นกับวัน) · ทางเลือกฉุกเฉินราคาถูก: โรงแรมแคปซูล, Toyoko Inn/APA/Super Hotel ที่มีแทบทุกสถานีใหญ่ · คืนนี้มีห้องว่างไหม = <span lang="ja">今夜、空いている部屋はありますか？</span></p></div>';
   }else if(S.tab==="n"){
     const g=q=>"https://www.google.com/maps/search/"+encodeURIComponent(q)+"/@"+p.la.toFixed(5)+","+p.lo.toFixed(5)+",16z";
-    const st=LIVE.st==="loading"?"⏳ กำลังโหลดร้านรอบตัว…":LIVE.st==="err"?"⚠️ โหลดไม่สำเร็จ (เน็ตหรือเซิร์ฟเวอร์แผนที่ไม่ว่าง)":LIVE.st==="ok"?"พบ "+LIVE.n+" ร้าน ในรัศมี "+fmtKm(LIVE.R):"";
+    const st=LIVE.st==="loading"?(LIVE.slow?"⏳ เซิร์ฟเวอร์หลักไม่ตอบ กำลังใช้เส้นทางสำรอง (~10 วินาที)…":"⏳ กำลังโหลดร้านรอบตัว…"):LIVE.st==="err"?"⚠️ โหลดไม่สำเร็จ (เน็ตหรือเซิร์ฟเวอร์แผนที่ไม่ว่าง)":LIVE.st==="ok"?"พบ "+LIVE.n+" ร้าน ในรัศมี "+fmtKm(LIVE.R):"";
     b.innerHTML='<div class="tbox"><h3>🏪 ร้านค้ารอบตัว (ข้อมูลสด)</h3>'+
       '<p style="margin:0 0 8px">'+esc(st)+' <button type="button" class="linkbtn" id="liveRe">⟳ โหลดใหม่</button></p>'+
       '<div class="glinks"><span class="muted">หาเพิ่มใน Google:</span><a href="'+g("ドラッグストア")+'" target="_blank" rel="noopener">💊 ร้านยา ↗</a><a href="'+g("コンビニ")+'" target="_blank" rel="noopener">🏪 สะดวกซื้อ ↗</a><a href="'+g("ドン・キホーテ")+'" target="_blank" rel="noopener">🛒 ดองกี้ ↗</a><a href="'+g("カフェ")+'" target="_blank" rel="noopener">☕ กาแฟ ↗</a></div>'+
